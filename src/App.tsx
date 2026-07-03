@@ -1,63 +1,89 @@
-export default function App() {
-  const statusText = "\uc2e4\ud589 \uc644\ub8cc";
-  const titleText =
-    "Docker \uae30\ubc18 React \uac1c\ubc1c \ud658\uacbd\uc774 \uc815\uc0c1\uc801\uc73c\ub85c \uc900\ube44\ub418\uc5c8\uc2b5\ub2c8\ub2e4.";
-  const descriptionText =
-    "Node 22 \ucee8\ud14c\uc774\ub108\uc5d0\uc11c Vite \uac1c\ubc1c \uc11c\ubc84\uac00 \uc2e4\ud589\ub420 \uc218 \uc788\ub294 \uc0c1\ud0dc\uc785\ub2c8\ub2e4. \uc774\uc81c \uc774 \ud654\uba74\uc744 \uae30\uc900\uc73c\ub85c \ud504\ub860\ud2b8\uc5d4\ub4dc \uc791\uc5c5\uc744 \uc2dc\uc791\ud558\uba74 \ub429\ub2c8\ub2e4.";
+const recommendedCompanies = [
+  {
+    title: "라벤더랩스",
+    meta: "재택 병행 · 주 4일 · 실무 과제 있음",
+    badge: "완전 매칭",
+    badgeStyle: "success"
+  },
+  {
+    title: "퍼플워크",
+    meta: "오전 집중근무 · 3.2km · 공고 2개",
+    badge: "공고 연결됨",
+    badgeStyle: "info"
+  }
+];
 
+const valueCards = [
+  {
+    title: "위치 기반 유연근무",
+    meta: "거리, 요일, 시간을 함께 비교해 실제로 출근 가능한 기업을 먼저 보여줍니다."
+  },
+  {
+    title: "실무 과제 중심 매칭",
+    meta: "공고와 과제를 연결해 지원자가 업무를 더 정확히 이해할 수 있게 합니다."
+  },
+  {
+    title: "공통 컴포넌트 기준",
+    meta: "Header, Button, Card, Badge, Form Field를 같은 기준으로 사용합니다."
+  }
+];
+
+export default function App() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: "24px",
-        background: "#f6f7f9",
-        color: "#17202a",
-        fontFamily:
-          "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-      }}
-    >
-      <section
-        style={{
-          width: "min(100%, 520px)",
-          padding: "32px",
-          border: "1px solid #d9dee7",
-          borderRadius: "8px",
-          background: "#ffffff",
-          boxShadow: "0 10px 30px rgba(23, 32, 42, 0.08)"
-        }}
-      >
-        <p
-          style={{
-            margin: "0 0 12px",
-            color: "#18794e",
-            fontSize: "14px",
-            fontWeight: 700
-          }}
-        >
-          {statusText}
-        </p>
-        <h1
-          style={{
-            margin: "0 0 16px",
-            fontSize: "28px",
-            lineHeight: 1.25
-          }}
-        >
-          {titleText}
-        </h1>
-        <p
-          style={{
-            margin: 0,
-            color: "#52606d",
-            fontSize: "16px",
-            lineHeight: 1.6
-          }}
-        >
-          {descriptionText}
-        </p>
-      </section>
-    </main>
+    <div className="wd-page">
+      <header className="wd-header">
+        <div className="wd-logo">WONDERDOGs</div>
+        <nav className="wd-nav" aria-label="주요 메뉴">
+          <span className="wd-nav__active">기업 찾기</span>
+          <span>인재 찾기</span>
+          <span>채용 도우미</span>
+          <span>이용 안내</span>
+        </nav>
+        <span className="wd-button wd-button--secondary">로그인</span>
+      </header>
+
+      <main className="wd-container">
+        <section className="wd-hero" aria-labelledby="main-title">
+          <div className="wd-panel wd-hero__copy">
+            <p className="wd-eyebrow">디자인 시스템 적용 완료</p>
+            <h1 className="wd-title" id="main-title">
+              위치와 유연근무 조건이 맞는 채용을 더 빠르게 연결합니다.
+            </h1>
+            <p className="wd-description">
+              WONDERDOGs 화면은 보라/라벤더 브랜드 톤, 명확한 카드형 정보,
+              업무 도구 UI 기준을 함께 사용합니다.
+            </p>
+            <div className="wd-actions">
+              <span className="wd-button wd-button--primary">기업 찾기</span>
+              <span className="wd-button wd-button--secondary">구직자 찾기</span>
+            </div>
+          </div>
+
+          <aside className="wd-panel wd-preview" aria-label="추천 기업 미리보기">
+            <div className="wd-preview__map">지도 기반 추천 영역</div>
+            <div className="wd-card-list">
+              {recommendedCompanies.map((company) => (
+                <article className="wd-card" key={company.title}>
+                  <span className={`wd-badge wd-badge--${company.badgeStyle}`}>
+                    {company.badge}
+                  </span>
+                  <h2 className="wd-card__title">{company.title}</h2>
+                  <p className="wd-card__meta">{company.meta}</p>
+                </article>
+              ))}
+            </div>
+          </aside>
+        </section>
+
+        <section className="wd-section-grid" aria-label="핵심 가치">
+          {valueCards.map((card) => (
+            <article className="wd-card" key={card.title}>
+              <h2 className="wd-card__title">{card.title}</h2>
+              <p className="wd-card__meta">{card.meta}</p>
+            </article>
+          ))}
+        </section>
+      </main>
+    </div>
   );
 }
