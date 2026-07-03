@@ -35,8 +35,8 @@
    - 유저, 역할, 더미 데이터, DB 구조 기준을 정합니다.
 4. `docs/design.md`
    - 모든 화면이 따라야 할 최소 디자인 기준을 정합니다.
-5. `docs/mvp-common-spec.md`
-   - MVP 화면 흐름, 라우트, 버튼명, 화면 문구 기준을 정합니다.
+5. `docs/data.md`
+   - MVP 화면 흐름, 라우트, 버튼명, 화면 문구 기준도 함께 정합니다.
 6. `docs/firebase-guide.md`
    - Firebase 사용 범위, 환경변수, 배포 기준을 정합니다.
 
@@ -46,7 +46,7 @@
 - 협업, 브랜치, PR, 병합, 승인: `docs/project-rules.md`
 - 데이터 이름, 컬렉션, 필드, 상태값, 역할 값: `docs/data.md`
 - 화면 톤, 레이아웃, 컴포넌트, 반응형: `docs/design.md`
-- MVP 화면 흐름, 라우트, 버튼명, 화면 표시 문구: `docs/mvp-common-spec.md`
+- MVP 화면 흐름, 라우트, 버튼명, 화면 표시 문구: `docs/data.md`
 - Firebase 연결, 환경변수, 배포, 보안: `docs/firebase-guide.md`
 - 작업이 여러 영역에 걸치면 해당 문서만 추가로 확인합니다.
 
