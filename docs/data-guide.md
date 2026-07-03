@@ -76,6 +76,7 @@
 - `users`: 유저
 - `companies`: 기업
 - `jobPostings`: 채용공고
+- `assignments`: 사전과제
 - `candidateProfiles`: 지원자 프로필
 - `applications`: 지원서
 - `scheduleConversations`: 일정 조율 챗봇 대화
@@ -96,6 +97,7 @@
 - `interviewerId`: 면접관 식별자
 - `companyId`: 기업 식별자
 - `jobPostingId`: 채용공고 식별자
+- `assignmentId`: 사전과제 식별자
 - `applicationId`: 지원서 식별자
 - `interviewId`: 면접 식별자
 - `conversationId`: 일정 조율 대화 식별자
@@ -109,6 +111,20 @@
 - `source`: 생성 또는 판단 근거
 - `createdAt`: 생성 시각
 - `updatedAt`: 수정 시각
+- `companyName`: 회사명
+- `address`: 기본 주소
+- `roadAddress`: 도로명 주소
+- `jibunAddress`: 지번 주소
+- `location`: 지도 좌표
+- `nearStations`: 가까운 역 목록
+- `primaryStationName`: 대표 가까운 역
+- `stationLine`: 역 노선
+- `stationWalkMinutes`: 역 도보 시간
+- `region1Depth`: 시/도
+- `region2Depth`: 구/군
+- `region3Depth`: 동
+- `distanceFromUserKm`: 내 위치 기준 거리
+- `searchRadiusKm`: 지도 검색 반경
 
 ### 과업별 공통 필드 이름
 
@@ -143,6 +159,78 @@
 - UX/UI 개선 작업은 기본적으로 새 DB 이름을 만들지 않습니다.
 - 화면 상태 저장이나 사용자 피드백 데이터가 필요할 때만 공통 이름 사전에 추가합니다.
 
+#### WONDERDOGs MVP
+
+- `industry`: 업종
+- `businessNumber`: 사업자등록번호
+- `companySize`: 회사 규모
+- `intro`: 회사 소개
+- `logoUrl`: 회사 로고 URL
+- `websiteUrl`: 회사 웹사이트 URL
+- `contactName`: 담당자명
+- `contactPhone`: 담당자 연락처
+- `contactEmail`: 담당자 이메일
+- `jobCategory`: 직무 카테고리
+- `jobTitle`: 직무명
+- `employmentType`: 고용 형태
+- `experienceMin`: 최소 경력
+- `experienceMax`: 최대 경력
+- `experienceLevel`: 경력 수준
+- `requiredSkills`: 필수 업무 스킬
+- `workType`: 근무 방식
+- `flexibleWorkTypes`: 유연근무 유형
+- `workDays`: 근무 요일
+- `workStartTime`: 근무 시작 시간
+- `workEndTime`: 근무 종료 시간
+- `coreWorkStartTime`: 핵심 근무 시작 시간
+- `coreWorkEndTime`: 핵심 근무 종료 시간
+- `isWorkTimeNegotiable`: 시간 협의 가능 여부
+- `minWorkHoursPerDay`: 하루 최소 근무 시간
+- `workDaysPerWeek`: 주당 근무일 수
+- `workHoursPerWeek`: 주당 예상 근무 시간
+- `workDurationType`: 근무 기간 유형
+- `workDurationMonths`: 근무 개월 수
+- `expectedStartDate`: 근무 시작 예정일
+- `isLongTermPreferred`: 장기 근무 희망 여부
+- `salaryType`: 급여 유형
+- `salaryMin`: 최소 급여
+- `salaryMax`: 최대 급여
+- `salaryUnit`: 급여 단위
+- `isSalaryNegotiable`: 급여 협의 가능 여부
+- `salaryText`: 급여 표시 문구
+- `hiringCount`: 모집 인원
+- `deadlineType`: 마감 유형
+- `deadlineDate`: 마감일
+- `locationType`: 위치 유형
+- `mainResponsibilities`: 주요 업무
+- `requirements`: 자격 요건
+- `preferred`: 우대 사항
+- `workEnvironment`: 근무 환경
+- `additionalNotice`: 추가 안내사항
+- `assignmentIds`: 연결된 과제 ID 목록
+- `hasAssignment`: 과제 연결 여부
+- `assignmentSummary`: 공고 상세 카드용 과제 요약
+- `viewCount`: 조회 수
+- `postedAt`: 게시 시각
+- `closedAt`: 마감 시각
+- `difficulty`: 과제 난이도
+- `difficultyScore`: 과제 난이도 점수
+- `estimatedMinutes`: 예상 소요 시간
+- `estimatedTimeText`: 화면 표시용 예상 시간
+- `additionalRequest`: 과제 추가 요청사항
+- `scenario`: 과제 상황
+- `taskInstructions`: 과제 수행 지시문
+- `submissionFormat`: 제출 형식
+- `evaluationCriteria`: 평가 기준
+- `jobPostingIds`: 연결된 공고 ID 목록
+- `candidateIndex`: AI 생성 후보 번호
+- `isSelected`: 선택 여부
+- `linkedAt`: 공고 연결 시각
+- `matchScore`: 매칭 점수
+- `matchType`: 매칭 유형
+- `matchedConditions`: 일치한 조건 목록
+- `unmatchedConditions`: 일치하지 않은 조건 목록
+
 ### 역할 값
 
 - `candidate`: 지원자
@@ -173,6 +261,8 @@
 - `noTask`: 과제 없음
 - `hasTask`: 실무 과제 있음
 
+`noTask`, `hasTask`는 화면 배지용 상태값입니다. 실제 공고의 과제 연결 여부 저장은 `hasAssignment` boolean과 `assignmentIds` 배열을 우선 사용합니다.
+
 ## 데이터 모델 초안
 
 아래는 논의 출발점입니다. 실제 서비스 기획에 맞게 수정합니다.
@@ -185,6 +275,131 @@
 - `title`
 - `createdAt`
 - `updatedAt`
+
+### companies
+
+- `id`
+- `recruiterId`
+- `companyName`
+- `businessNumber`
+- `industry`
+- `companySize`
+- `address`
+- `roadAddress`
+- `jibunAddress`
+- `location`
+- `nearStations`
+- `primaryStationName`
+- `intro`
+- `logoUrl`
+- `websiteUrl`
+- `contactName`
+- `contactPhone`
+- `contactEmail`
+- `createdAt`
+- `updatedAt`
+
+기업 찾기 지도에서는 `companies.location`이 아니라 `jobPostings.location`을 우선 사용합니다.
+
+### jobPostings
+
+- `id`
+- `jobPostingId`
+- `companyId`
+- `recruiterId`
+- `title`
+- `industry`
+- `jobCategory`
+- `jobTitle`
+- `employmentType`
+- `experienceMin`
+- `experienceMax`
+- `experienceLevel`
+- `requiredSkills`
+- `workType`
+- `flexibleWorkTypes`
+- `workDays`
+- `workStartTime`
+- `workEndTime`
+- `coreWorkStartTime`
+- `coreWorkEndTime`
+- `isWorkTimeNegotiable`
+- `minWorkHoursPerDay`
+- `workDaysPerWeek`
+- `workHoursPerWeek`
+- `workDurationType`
+- `workDurationMonths`
+- `expectedStartDate`
+- `isLongTermPreferred`
+- `salaryType`
+- `salaryMin`
+- `salaryMax`
+- `salaryUnit`
+- `isSalaryNegotiable`
+- `salaryText`
+- `hiringCount`
+- `deadlineType`
+- `deadlineDate`
+- `locationType`
+- `address`
+- `roadAddress`
+- `jibunAddress`
+- `location`
+- `nearStations`
+- `primaryStationName`
+- `stationWalkMinutes`
+- `region1Depth`
+- `region2Depth`
+- `region3Depth`
+- `mainResponsibilities`
+- `requirements`
+- `preferred`
+- `workEnvironment`
+- `additionalNotice`
+- `assignmentIds`
+- `hasAssignment`
+- `assignmentSummary`
+- `viewCount`
+- `status`
+- `createdAt`
+- `updatedAt`
+- `postedAt`
+- `closedAt`
+
+공고 등록 완료 시 `status`는 `posted`, 임시 저장 시 `draft`, 마감 처리 시 `closed`를 사용합니다.
+
+### assignments
+
+- `id`
+- `assignmentId`
+- `companyId`
+- `recruiterId`
+- `jobPostingId`
+- `jobPostingIds`
+- `industry`
+- `jobCategory`
+- `jobTitle`
+- `experienceLevel`
+- `difficulty`
+- `difficultyScore`
+- `estimatedMinutes`
+- `estimatedTimeText`
+- `requiredSkills`
+- `mainResponsibilities`
+- `additionalRequest`
+- `title`
+- `scenario`
+- `taskInstructions`
+- `submissionFormat`
+- `evaluationCriteria`
+- `candidateIndex`
+- `isSelected`
+- `status`
+- `createdAt`
+- `updatedAt`
+- `linkedAt`
+
+과제 상태는 `draft`, `available`, `linked`를 사용합니다.
 
 ### candidateProfiles
 
@@ -301,7 +516,7 @@
 
 ## 최종 결정
 
-- 주요 컬렉션: 공통 이름 사전의 컬렉션 이름을 초안으로 사용
+- 주요 컬렉션: `users`, `companies`, `jobPostings`, `assignments`, `candidateProfiles`, `applications`를 MVP 우선 기준으로 사용
 - 역할 기준: `candidate`, `recruiter`, `interviewer`
 - 필드명 규칙: 영어 `camelCase`
 - 날짜 저장 방식: 문자열 또는 Firebase Timestamp 중 하나로 통일
@@ -309,9 +524,11 @@
 - 더미 데이터 기준: 기능 검증에 필요한 최소만 작성
 - DB 연결 기준: 화면 컴포넌트와 데이터 접근 코드를 분리하고 Firebase 연결 코드는 한 곳에서 관리
 - 공통 이름 사전 기준: 새 컬렉션, 필드, 상태값, 역할 값은 구현 전에 이 문서에 먼저 추가
+- MVP 이름 기준: 현재 프로젝트 기준인 `recruiter`, `candidate`, `jobPostings`, `posted`, `available`, `linked`를 사용
 
 ## 변경 이력
 
+- 2026-07-03: MVP 공통 기준서에서 필요한 사전과제, 유연근무 공고, 위치, 매칭 필드와 모델 초안 추가
 - 2026-07-03: 디자인 시스템의 공고, 과제, 매칭 상태 배지 기준에 필요한 상태값 추가
 - 2026-05-29: SPA와 역할 기반 데이터 기준 반영
 - 2026-05-29: 기본 데이터 기준을 최종 결정에 반영
