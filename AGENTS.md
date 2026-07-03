@@ -15,7 +15,7 @@
 
 - 협업, 브랜치, PR, 승인, 병합 기준은 `docs/project-rules.md`를 따릅니다.
 - 역할, 더미 데이터, DB 구조 기준은 `docs/data.md`를 따릅니다.
-- 화면 디자인 기준은 `docs/design-system.md`를 따릅니다.
+- 화면 디자인 기준은 `docs/design.md`를 따릅니다.
 - Firebase 사용 범위, 환경변수, 배포 기준은 `docs/firebase-guide.md`를 따릅니다.
 
 ### 문서 확인 방식
@@ -24,7 +24,7 @@
 - 작업 전에는 먼저 `README.md`의 문서 검토 순서와 이 문서의 실행 규칙을 확인합니다.
 - 이후 작업 성격을 판단해 필요한 담당 문서만 추가로 확인합니다.
 - 데이터 이름, 컬렉션, 필드, 상태값, 역할 값이 관련되면 `docs/data.md`를 확인합니다.
-- 화면 톤, 레이아웃, 컴포넌트, 반응형이 관련되면 `docs/design-system.md`를 확인합니다.
+- 화면 톤, 레이아웃, 컴포넌트, 반응형이 관련되면 `docs/design.md`를 확인합니다.
 - 브랜치, PR, 병합, 승인, 작업 순서가 관련되면 `docs/project-rules.md`를 확인합니다.
 - Firebase 연결, 환경변수, 배포, 보안 규칙이 관련되면 `docs/firebase-guide.md`를 확인합니다.
 

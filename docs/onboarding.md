@@ -123,7 +123,7 @@ AI는 Markdown에서 핵심 문제·솔루션을 읽어 정리하고, Firebase S
 
 ## 2단계: 디자인 방향 — [정하기 · 가장 많이 논의]
 
-기준 문서: `docs/design-system.md`
+기준 문서: `docs/design.md`
 
 ### 쉽게 설명
 

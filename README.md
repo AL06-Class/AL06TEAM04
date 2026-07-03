@@ -33,7 +33,7 @@
    - 협업, 브랜치, PR, 승인, 병합 기준을 정합니다.
 3. `docs/data.md`
    - 유저, 역할, 더미 데이터, DB 구조 기준을 정합니다.
-4. `docs/design-system.md`
+4. `docs/design.md`
    - 모든 화면이 따라야 할 최소 디자인 기준을 정합니다.
 5. `docs/mvp-common-spec.md`
    - MVP 화면 흐름, 라우트, 버튼명, 화면 문구 기준을 정합니다.
@@ -45,7 +45,7 @@
 - 일반 코드/문서 작업: `AGENTS.md`
 - 협업, 브랜치, PR, 병합, 승인: `docs/project-rules.md`
 - 데이터 이름, 컬렉션, 필드, 상태값, 역할 값: `docs/data.md`
-- 화면 톤, 레이아웃, 컴포넌트, 반응형: `docs/design-system.md`
+- 화면 톤, 레이아웃, 컴포넌트, 반응형: `docs/design.md`
 - MVP 화면 흐름, 라우트, 버튼명, 화면 표시 문구: `docs/mvp-common-spec.md`
 - Firebase 연결, 환경변수, 배포, 보안: `docs/firebase-guide.md`
 - 작업이 여러 영역에 걸치면 해당 문서만 추가로 확인합니다.
@@ -70,7 +70,7 @@
 
 0. 입력 자료 확인 — 문제정의서 시트에서 Markdown(md)을 출력해 대화창에 붙여넣고, Firebase SDK 설정값도 함께 전달합니다. 문제정의서 Markdown은 참조만 하고, SDK 값은 AI가 `.env`에 저장합니다.
 1. [정하기] 팀 구성 (`README.md`) — 팀장을 확정합니다.
-2. [정하기] 디자인 방향 (`docs/design-system.md`) — 레퍼런스·분위기·색상을 가장 많이 논의합니다.
+2. [정하기] 디자인 방향 (`docs/design.md`) — 레퍼런스·분위기·색상을 가장 많이 논의합니다.
 3. [이해하기] AI 작동 규칙 (`AGENTS.md`) — 위험 작업은 먼저 물어본다는 점을 맞춰 봅니다.
 4. [이해하기] 데이터 관문 (`docs/data.md`) — 새 데이터는 사전을 먼저 거친다는 점을 맞춰 봅니다.
 
@@ -118,4 +118,4 @@
 
 - `.env`는 Git에 올리지 않습니다.
 - Firebase 키는 `.env.example`에 값 없이 이름만 공유합니다.
-- 디자인 기준은 `docs/design-system.md` 기준을 따릅니다.
+- 디자인 기준은 `docs/design.md` 기준을 따릅니다.
