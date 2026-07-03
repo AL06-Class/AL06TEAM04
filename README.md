@@ -31,7 +31,7 @@
    - AI가 실제 작업 중 반드시 지킬 실행 규칙을 정합니다.
 2. `docs/project-rules.md`
    - 협업, 브랜치, PR, 승인, 병합 기준을 정합니다.
-3. `docs/data-guide.md`
+3. `docs/data.md`
    - 유저, 역할, 더미 데이터, DB 구조 기준을 정합니다.
 4. `docs/design-system.md`
    - 모든 화면이 따라야 할 최소 디자인 기준을 정합니다.
@@ -44,7 +44,7 @@
 
 - 일반 코드/문서 작업: `AGENTS.md`
 - 협업, 브랜치, PR, 병합, 승인: `docs/project-rules.md`
-- 데이터 이름, 컬렉션, 필드, 상태값, 역할 값: `docs/data-guide.md`
+- 데이터 이름, 컬렉션, 필드, 상태값, 역할 값: `docs/data.md`
 - 화면 톤, 레이아웃, 컴포넌트, 반응형: `docs/design-system.md`
 - MVP 화면 흐름, 라우트, 버튼명, 화면 표시 문구: `docs/mvp-common-spec.md`
 - Firebase 연결, 환경변수, 배포, 보안: `docs/firebase-guide.md`
@@ -72,7 +72,7 @@
 1. [정하기] 팀 구성 (`README.md`) — 팀장을 확정합니다.
 2. [정하기] 디자인 방향 (`docs/design-system.md`) — 레퍼런스·분위기·색상을 가장 많이 논의합니다.
 3. [이해하기] AI 작동 규칙 (`AGENTS.md`) — 위험 작업은 먼저 물어본다는 점을 맞춰 봅니다.
-4. [이해하기] 데이터 관문 (`docs/data-guide.md`) — 새 데이터는 사전을 먼저 거친다는 점을 맞춰 봅니다.
+4. [이해하기] 데이터 관문 (`docs/data.md`) — 새 데이터는 사전을 먼저 거친다는 점을 맞춰 봅니다.
 
 진행 원칙은 다음과 같습니다.
 
