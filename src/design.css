@@ -631,6 +631,38 @@ label {
   font-size: 12px;
 }
 
+.wd-assignment-card label:not(.wd-check-row) {
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #efe7ff;
+  border-radius: var(--wd-radius-sm);
+  background: #fbf9ff;
+  color: var(--wd-primary-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wd-form-panel label {
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #efe7ff;
+  border-radius: var(--wd-radius-sm);
+  background: #fbf9ff;
+  color: var(--wd-primary-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wd-form-panel label:focus-within {
+  border-color: var(--wd-border-active);
+  background: var(--wd-white);
+}
+
+.wd-assignment-card label:not(.wd-check-row):focus-within {
+  border-color: var(--wd-border-active);
+  background: var(--wd-white);
+}
+
 .wd-form-panel input,
 .wd-form-panel select,
 .wd-form-panel textarea,
