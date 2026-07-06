@@ -35,7 +35,7 @@ export function JobPostTable({ jobPostings }: JobPostTableProps) {
             <strong>{jobPosting.title}</strong>
             <div className="wd-job-table__meta">
               <span>공고 ID {jobPosting.jobPostingId.replace("job-posting-", "")}</span>
-              {jobPosting.isRecommended ? <Badge tone="primary">추천</Badge> : null}
+              {jobPosting.isRecommended ? <Badge tone="primary">추천 공고</Badge> : null}
             </div>
           </div>
 
