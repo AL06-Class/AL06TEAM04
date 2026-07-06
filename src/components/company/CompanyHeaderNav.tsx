@@ -16,7 +16,7 @@ export function CompanyHeaderNav({ activePath }: CompanyHeaderNavProps) {
   return (
     <header className="wd-company-header">
       <div className="wd-company-header__inner">
-        <a className="wd-company-header__logo" href="/company" aria-label="WONDERDOGs 기업 대시보드">
+        <a className="wd-company-header__logo" href="/" aria-label="WONDERDOGs 홈">
           <img src={wonderdogsLogo} alt="WONDERDOGs" />
         </a>
 
