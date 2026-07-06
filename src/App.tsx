@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import aiAssignmentIcon from "./assets/ai-assignment-icon.svg";
 import gangnamMapMockup from "./assets/map-mockup-gangnam.png";
 import wonderdogsLogo from "./assets/wonderdogs-logo.png";
 
@@ -8,6 +7,7 @@ type AssignmentTab = "ai" | "manage";
 type Difficulty = "상" | "중" | "하";
 type AssignmentStatus = "available" | "linked" | "draft";
 type GeneratedStatus = "generated" | "draft" | "registered";
+type AssignmentSort = "latest" | "oldest" | "jobTitle" | "difficultyHigh" | "difficultyLow";
 
 type LinkedAssignment = {
   title: string;
@@ -23,6 +23,7 @@ type Assignment = {
   jobTitle: string;
   experienceLevel: string;
   linkedJobTitle?: string;
+  postingPeriod?: string;
   linkedAssignments: LinkedAssignment[];
   applicantsPending: number;
 };
@@ -73,6 +74,7 @@ const assignments: Assignment[] = [
     jobTitle: "데이터 분석가",
     experienceLevel: "경력 3~5년",
     linkedJobTitle: "데이터 분석가 채용",
+    postingPeriod: "2024.05.18 ~ 2024.06.17",
     linkedAssignments: [
       { title: "데이터 분석 리포트 작성 과제", difficulty: "상" },
       { title: "지표 이상 원인 분석", difficulty: "상" }
@@ -111,6 +113,7 @@ const assignments: Assignment[] = [
     jobTitle: "프론트엔드 개발자",
     experienceLevel: "경력 5년 이상",
     linkedJobTitle: "프론트엔드 개발자 채용",
+    postingPeriod: "2024.05.12 ~ 2024.06.11",
     linkedAssignments: [
       { title: "프론트엔드 화면 구현 과제", difficulty: "상" },
       { title: "컴포넌트 상태 처리 과제", difficulty: "중" }
@@ -131,10 +134,22 @@ const assignments: Assignment[] = [
 ];
 
 const statusLabels: Record<AssignmentStatus, string> = {
-  available: "사용 가능",
-  linked: "공고 연결됨",
+  available: "공고연결 대기",
+  linked: "공고연결 완료",
   draft: "임시저장"
 };
+
+const difficultyScores: Record<Difficulty, number> = {
+  상: 3,
+  중: 2,
+  하: 1
+};
+
+const getAssignmentDateValue = (assignment: Assignment) =>
+  Number((assignment.status === "draft" ? assignment.savedAt : assignment.createdAt)?.replace(/\./g, "") ?? 0);
+
+const getAssignmentDifficultyScore = (assignment: Assignment) =>
+  assignment.linkedAssignments.reduce((score, item) => score + difficultyScores[item.difficulty], 0);
 
 const initialQuestion: CustomQuestion = {
   industry: "콘텐츠/미디어",
@@ -189,9 +204,10 @@ const assignmentThemes = [
 ];
 
 const difficultyPlan: Difficulty[] = ["상", "상", "상", "상", "중", "중", "중", "하", "하", "하"];
+const additionalDifficultyPlan: Difficulty[] = ["상", "중", "하"];
 
-function createGeneratedAssignment(index: number, seed: number, question: CustomQuestion): GeneratedAssignment {
-  const difficulty = difficultyPlan[index];
+function createGeneratedAssignment(index: number, seed: number, question: CustomQuestion, difficultyOverride?: Difficulty): GeneratedAssignment {
+  const difficulty = difficultyOverride ?? difficultyPlan[index % difficultyPlan.length];
   const theme = assignmentThemes[(index + seed) % assignmentThemes.length];
 
   return {
@@ -306,13 +322,18 @@ function AssignmentPage({
     onChangeTab("ai");
   };
 
+  const openNewAssignment = () => {
+    setFocusedAssignment(null);
+    onChangeTab("ai");
+  };
+
   return (
     <main className="wd-container wd-manage-page">
       <div className="wd-assignment-tabs" role="tablist" aria-label="과제관리 하위 페이지">
         <button
           className={activeTab === "ai" ? "wd-assignment-tab wd-assignment-tab--active" : "wd-assignment-tab"}
           type="button"
-          onClick={() => onChangeTab("ai")}
+          onClick={openNewAssignment}
         >
           과제 AI 생성
         </button>
@@ -327,7 +348,7 @@ function AssignmentPage({
       {activeTab === "ai" ? (
         <AssignmentAiPage focusedAssignment={focusedAssignment} />
       ) : (
-        <AssignmentManagePage onMoveAi={() => onChangeTab("ai")} onOpenLinkedAssignments={openLinkedAssignments} />
+        <AssignmentManagePage onMoveAi={openNewAssignment} onOpenLinkedAssignments={openLinkedAssignments} />
       )}
     </main>
   );
@@ -341,22 +362,58 @@ function AssignmentManagePage({
   onOpenLinkedAssignments: (assignment: Assignment) => void;
 }) {
   const [activeStatus, setActiveStatus] = useState<"all" | AssignmentStatus>("all");
+  const [managedAssignments, setManagedAssignments] = useState<Assignment[]>(assignments);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sortOrder, setSortOrder] = useState<AssignmentSort>("latest");
   const [notice, setNotice] = useState("");
 
-  const filteredAssignments = activeStatus === "all" ? assignments : assignments.filter((item) => item.status === activeStatus);
+  const filteredAssignments = useMemo(() => {
+    const statusFiltered =
+      activeStatus === "all" ? managedAssignments : managedAssignments.filter((item) => item.status === activeStatus);
+    return [...statusFiltered].sort((first, second) => {
+      if (sortOrder === "oldest") {
+        return getAssignmentDateValue(first) - getAssignmentDateValue(second);
+      }
+      if (sortOrder === "jobTitle") {
+        const jobTitleCompare = first.jobTitle.localeCompare(second.jobTitle, "ko");
+        return jobTitleCompare || getAssignmentDateValue(second) - getAssignmentDateValue(first);
+      }
+      if (sortOrder === "difficultyHigh") {
+        return getAssignmentDifficultyScore(second) - getAssignmentDifficultyScore(first);
+      }
+      if (sortOrder === "difficultyLow") {
+        return getAssignmentDifficultyScore(first) - getAssignmentDifficultyScore(second);
+      }
+      return getAssignmentDateValue(second) - getAssignmentDateValue(first);
+    });
+  }, [activeStatus, managedAssignments, sortOrder]);
   const statusCounts = useMemo(
     () => ({
-      all: assignments.length,
-      draft: assignments.filter((item) => item.status === "draft").length,
-      available: assignments.filter((item) => item.status === "available").length,
-      linked: assignments.filter((item) => item.status === "linked").length
+      all: managedAssignments.length,
+      draft: managedAssignments.filter((item) => item.status === "draft").length,
+      available: managedAssignments.filter((item) => item.status === "available").length,
+      linked: managedAssignments.filter((item) => item.status === "linked").length
     }),
-    []
+    [managedAssignments]
   );
 
   const toggleSelected = (id: string) => {
     setSelectedIds((ids) => (ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id]));
+  };
+
+  const clearSelectedAssignments = () => {
+    setSelectedIds([]);
+  };
+
+  const deleteSelectedAssignments = () => {
+    const deleteCount = selectedIds.length;
+    const hasLinkedAssignment = managedAssignments.some((item) => selectedIds.includes(item.id) && item.status === "linked");
+    if (hasLinkedAssignment && !window.confirm("공고연결 완료 과제가 포함되어 있어요. 선택한 과제를 삭제할까요?")) {
+      return;
+    }
+    setManagedAssignments((items) => items.filter((item) => !selectedIds.includes(item.id)));
+    setSelectedIds([]);
+    setNotice(`선택한 과제 ${deleteCount}개를 삭제했어요.`);
   };
 
   const requestAssignment = (assignment: Assignment) => {
@@ -368,21 +425,14 @@ function AssignmentManagePage({
   };
 
   return (
-    <>
+    <div className={selectedIds.length > 0 ? "wd-manage-content wd-manage-content--selection" : "wd-manage-content"}>
       <section className="wd-manage-head">
         <div>
           <h1 className="wd-page-title">과제 등록/관리</h1>
-          <p className="wd-description">기존 공고의 채용직무를 기준으로 과제를 관리하고, 공고 연결 또는 지원자 개별 요청에 활용하세요.</p>
-          <p className="wd-inline-guide">인재 검색 또는 찜한 인재에게도 과제를 개별 요청할 수 있어요.</p>
+          <p className="wd-description">등록된 과제를 수정 및 추가하고, 공고 연결과 신규 과제 등록을 진행할 수 있습니다.</p>
         </div>
-        <button className="wd-help-box wd-new-task-box" type="button" onClick={onMoveAi}>
-          <span className="wd-help-icon wd-new-task-icon">
-            <img src={aiAssignmentIcon} alt="" />
-          </span>
-          <div>
-            <strong>새 과제 등록하기</strong>
-            <p>새로운 과제를 등록하고 공고 연결 또는 개별 요청 준비를 시작하세요.</p>
-          </div>
+        <button className="wd-button wd-button--primary wd-new-task-button" type="button" onClick={onMoveAi}>
+          신규 과제 등록
         </button>
       </section>
 
@@ -391,8 +441,8 @@ function AssignmentManagePage({
           {[
             ["all", "전체", statusCounts.all],
             ["draft", "임시저장", statusCounts.draft],
-            ["available", "사용 가능", statusCounts.available],
-            ["linked", "공고 연결됨", statusCounts.linked]
+            ["available", "공고연결 대기", statusCounts.available],
+            ["linked", "공고연결 완료", statusCounts.linked]
           ].map(([value, label, count]) => (
             <button
               className={activeStatus === value ? "wd-tab wd-tab--active" : "wd-tab"}
@@ -405,12 +455,33 @@ function AssignmentManagePage({
             </button>
           ))}
         </div>
-        <select className="wd-sort" aria-label="정렬">
-          <option>최신 등록순</option>
-          <option>난이도 높은순</option>
-          <option>공고 연결순</option>
+        <select
+          className="wd-sort"
+          aria-label="정렬"
+          value={sortOrder}
+          onChange={(event) => setSortOrder(event.target.value as AssignmentSort)}
+        >
+          <option value="latest">최신 등록순</option>
+          <option value="oldest">오래된 등록순</option>
+          <option value="jobTitle">채용직무순</option>
+          <option value="difficultyHigh">난이도 높은순</option>
+          <option value="difficultyLow">난이도 낮은순</option>
         </select>
       </div>
+
+      {selectedIds.length > 0 && (
+        <div className="wd-selection-bar" role="status">
+          <strong>선택 {selectedIds.length}개</strong>
+          <div>
+            <button className="wd-clear-filter-selection" type="button" onClick={clearSelectedAssignments}>
+              선택해제
+            </button>
+            <button className="wd-clear-filter-selection wd-clear-filter-selection--danger" type="button" onClick={deleteSelectedAssignments}>
+              선택삭제
+            </button>
+          </div>
+        </div>
+      )}
 
       {notice && <div className="wd-toast" role="status">{notice}</div>}
 
@@ -428,7 +499,7 @@ function AssignmentManagePage({
         ))}
       </section>
 
-    </>
+    </div>
   );
 }
 
@@ -452,6 +523,10 @@ function AssignmentCard({
     medium: assignment.linkedAssignments.filter((item) => item.difficulty === "중").length,
     easy: assignment.linkedAssignments.filter((item) => item.difficulty === "하").length
   };
+  const isLinked = assignment.status === "linked";
+  const isDraft = assignment.status === "draft";
+  const visibleLinkedAssignments = assignment.linkedAssignments.slice(0, 3);
+  const hiddenLinkedAssignmentCount = assignment.linkedAssignments.length - visibleLinkedAssignments.length;
 
   return (
     <article className="wd-task-card">
@@ -470,14 +545,34 @@ function AssignmentCard({
       </div>
 
       <dl className="wd-task-summary">
-        <div>
-          <dt>연결된 공고명</dt>
-          <dd>{assignment.linkedJobTitle ?? "미연결"}</dd>
-        </div>
+        {isLinked && (
+          <>
+            <div>
+              <dt>연결된 공고명</dt>
+              <dd>{assignment.linkedJobTitle}</dd>
+            </div>
+            <div>
+              <dt>공고게재 기간</dt>
+              <dd>{assignment.postingPeriod}</dd>
+            </div>
+          </>
+        )}
         <div>
           <dt>채용직무</dt>
           <dd>{assignment.jobTitle}</dd>
         </div>
+        {isDraft && (
+          <div>
+            <dt>작성 상태</dt>
+            <dd>AI 생성 중 임시저장한 과제입니다.</dd>
+          </div>
+        )}
+        {!isLinked && !isDraft && (
+          <div>
+            <dt>연결 상태</dt>
+            <dd>과제 생성 완료 후 공고 연결을 기다리는 과제입니다.</dd>
+          </div>
+        )}
         <div>
           <dt>난이도별 문제수</dt>
           <dd>상 {difficultyCounts.hard} · 중 {difficultyCounts.medium} · 하 {difficultyCounts.easy}</dd>
@@ -485,23 +580,39 @@ function AssignmentCard({
       </dl>
 
       <div className="wd-linked-assignment-list">
-        <button className="wd-linked-assignment-title" type="button" onClick={() => onOpenLinkedAssignments(assignment)}>
-          연결된 과제
-        </button>
+        <strong className="wd-linked-assignment-title">생성된 과제</strong>
         <ul>
-          {assignment.linkedAssignments.map((linkedAssignment) => (
+          {visibleLinkedAssignments.map((linkedAssignment) => (
             <li key={linkedAssignment.title}>{linkedAssignment.title}</li>
           ))}
+          {hiddenLinkedAssignmentCount > 0 && <li className="wd-linked-assignment-more">외 {hiddenLinkedAssignmentCount}개 더보기</li>}
         </ul>
       </div>
 
-      <div className="wd-task-actions">
-        <button className="wd-button wd-button--secondary" type="button" onClick={() => onConnectAssignment(assignment)}>
-          NEW 공고 연결
-        </button>
-        <button className="wd-button wd-button--primary" type="button" onClick={() => onRequest(assignment)}>
-          미제출자 작성요청
-        </button>
+      <div className={isDraft ? "wd-task-actions wd-task-actions--single" : "wd-task-actions"}>
+        {isLinked ? (
+          <>
+            <button className="wd-button wd-button--secondary" type="button" onClick={() => onOpenLinkedAssignments(assignment)}>
+              과제 보기
+            </button>
+            <button className="wd-button wd-button--primary" type="button" onClick={() => onRequest(assignment)}>
+              미제출자 작성요청
+            </button>
+          </>
+        ) : isDraft ? (
+          <button className="wd-button wd-button--secondary" type="button" onClick={() => onOpenLinkedAssignments(assignment)}>
+            계속 편집하기
+          </button>
+        ) : (
+          <>
+            <button className="wd-button wd-button--secondary" type="button" onClick={() => onOpenLinkedAssignments(assignment)}>
+              과제 수정/보기
+            </button>
+            <button className="wd-button wd-button--primary" type="button" onClick={() => onConnectAssignment(assignment)}>
+              공고 연결
+            </button>
+          </>
+        )}
       </div>
     </article>
   );
@@ -514,9 +625,23 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
   const [generatedAssignments, setGeneratedAssignments] = useState<GeneratedAssignment[]>(() =>
     Array.from({ length: 10 }, (_, index) => createGeneratedAssignment(index, 0, initialQuestion))
   );
+  const isDraftEditing = focusedAssignment?.status === "draft";
+  const isWaitingEditing = focusedAssignment?.status === "available";
+  const canAppendAssignments = isDraftEditing || isWaitingEditing;
+  const isReadOnlyMode = focusedAssignment?.status === "linked";
+  const formTitle = isReadOnlyMode ? "과제 기본 정보" : "사전과제 AI 생성 맞춤 질문";
+  const formGuide = isReadOnlyMode
+    ? "공고에 연결된 과제의 기본 정보를 확인할 수 있습니다."
+    : "맞춤 질문에 답하면 AI가 채용직무에 맞는 사전과제를 생성합니다.";
 
   useEffect(() => {
-    if (!focusedAssignment) return;
+    if (!focusedAssignment) {
+      setShowDraftOnly(false);
+      setSeed(0);
+      setQuestion(initialQuestion);
+      setGeneratedAssignments(Array.from({ length: 10 }, (_, index) => createGeneratedAssignment(index, 0, initialQuestion)));
+      return;
+    }
 
     setShowDraftOnly(false);
     setQuestion((current) => ({
@@ -533,13 +658,23 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
         goal: `${focusedAssignment.title} 지원자의 ${focusedAssignment.jobTitle} 실무 역량을 확인합니다.`,
         requirements: `${linkedAssignment.title} 수행 결과를 정리하고 판단 근거를 함께 제출합니다.`,
         evaluation: "문제 이해도 30%, 실행 가능성 30%, 직무 적합성 25%, 전달력 15%",
-        status: "generated",
+        status: focusedAssignment.status === "draft" ? "draft" : "generated",
         selected: false
       }))
     );
   }, [focusedAssignment]);
 
   const selectedCount = generatedAssignments.filter((item) => item.selected).length;
+  const generatedDifficultyCounts = useMemo(
+    () => ({
+      hard: generatedAssignments.filter((item) => item.difficulty === "상").length,
+      medium: generatedAssignments.filter((item) => item.difficulty === "중").length,
+      easy: generatedAssignments.filter((item) => item.difficulty === "하").length
+    }),
+    [generatedAssignments]
+  );
+  const generatedAssignmentTotal =
+    generatedDifficultyCounts.hard + generatedDifficultyCounts.medium + generatedDifficultyCounts.easy;
   const visibleGeneratedAssignments = showDraftOnly
     ? generatedAssignments.filter((item) => item.status === "draft")
     : generatedAssignments;
@@ -548,6 +683,15 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
     const nextSeed = seed + 1;
     setSeed(nextSeed);
     setShowDraftOnly(false);
+    if (canAppendAssignments) {
+      setGeneratedAssignments((items) => [
+        ...items,
+        ...additionalDifficultyPlan.map((difficulty, index) =>
+          createGeneratedAssignment(items.length + index, nextSeed, question, difficulty)
+        )
+      ]);
+      return;
+    }
     setGeneratedAssignments(Array.from({ length: 10 }, (_, index) => createGeneratedAssignment(index, nextSeed, question)));
   };
 
@@ -602,18 +746,24 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
       <section className="wd-manage-head wd-ai-head">
         <div>
           <h1 className="wd-page-title">과제 AI 생성</h1>
-          <p className="wd-description">채용직무와 주요 업무를 입력하면 AI가 난이도별 사전과제를 생성합니다.</p>
-          <p className="wd-inline-guide">생성된 과제는 직접 수정하고 임시저장 또는 공고연결할 수 있어요.</p>
+          <p className="wd-description">실무 업무를 바탕으로 AI가 사전과제를 생성하고, 채용공고에 연결하여 구직자의 직무 역량을 확인할 수 있습니다.</p>
         </div>
       </section>
 
       <section className="wd-assignment-layout">
         <aside className="wd-panel wd-form-panel" aria-labelledby="assignment-info-title">
-        <h2 id="assignment-info-title">사전과제 AI 생성 맞춤 질문</h2>
-        <p className="wd-form-guide">6개의 질문에 답변하면 AI가 자동으로 채용직무 맞춤 사전과제를 생성해줍니다.</p>
+        <h2 id="assignment-info-title">{formTitle}</h2>
+        <p className="wd-form-guide">{formGuide}</p>
+        {isDraftEditing && <span className="wd-edit-mode-badge">임시저장 과제 편집 중</span>}
+        {isWaitingEditing && <span className="wd-edit-mode-badge">공고연결 대기 과제 편집 중</span>}
+        {isReadOnlyMode && <span className="wd-edit-mode-badge">공고연결 완료 과제 보기</span>}
         <label>
           업종
-          <select value={question.isIndustryCustom ? directInputOption : question.industry} onChange={(event) => selectIndustry(event.target.value)}>
+          <select
+            value={question.isIndustryCustom ? directInputOption : question.industry}
+            onChange={(event) => selectIndustry(event.target.value)}
+            disabled={isReadOnlyMode}
+          >
             {industryOptions.map((industry) => (
               <option key={industry}>{industry}</option>
             ))}
@@ -622,12 +772,20 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
         {question.isIndustryCustom && (
           <label>
             업종 직접입력
-            <input value={question.industry} onChange={(event) => setQuestion({ ...question, industry: event.target.value })} />
+            <input
+              value={question.industry}
+              onChange={(event) => setQuestion({ ...question, industry: event.target.value })}
+              disabled={isReadOnlyMode}
+            />
           </label>
         )}
         <label>
           채용직무
-          <select value={question.isJobRoleCustom ? directInputOption : question.jobRole} onChange={(event) => selectJobRole(event.target.value)}>
+          <select
+            value={question.isJobRoleCustom ? directInputOption : question.jobRole}
+            onChange={(event) => selectJobRole(event.target.value)}
+            disabled={isReadOnlyMode}
+          >
             {jobRoleOptions.map((jobRole) => (
               <option key={jobRole}>{jobRole}</option>
             ))}
@@ -636,118 +794,160 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
         {question.isJobRoleCustom && (
           <label>
             채용직무 직접입력
-            <input value={question.jobRole} onChange={(event) => setQuestion({ ...question, jobRole: event.target.value })} />
+            <input
+              value={question.jobRole}
+              onChange={(event) => setQuestion({ ...question, jobRole: event.target.value })}
+              disabled={isReadOnlyMode}
+            />
           </label>
         )}
         <label>
           필수 업무 스킬
-          <input value={question.requiredSkills} onChange={(event) => setQuestion({ ...question, requiredSkills: event.target.value })} />
+          <input
+            value={question.requiredSkills}
+            onChange={(event) => setQuestion({ ...question, requiredSkills: event.target.value })}
+            disabled={isReadOnlyMode}
+          />
         </label>
         <label>
           주력 상품 및 서비스
-          <input value={question.productService} onChange={(event) => setQuestion({ ...question, productService: event.target.value })} />
+          <input
+            value={question.productService}
+            onChange={(event) => setQuestion({ ...question, productService: event.target.value })}
+            disabled={isReadOnlyMode}
+          />
         </label>
         <label>
           입사 후 주요 업무
-          <textarea value={question.mainWork} onChange={(event) => setQuestion({ ...question, mainWork: event.target.value })} />
+          <textarea
+            value={question.mainWork}
+            onChange={(event) => setQuestion({ ...question, mainWork: event.target.value })}
+            disabled={isReadOnlyMode}
+          />
         </label>
         <label>
           추가 요청사항
-          <textarea value={question.additionalRequest} onChange={(event) => setQuestion({ ...question, additionalRequest: event.target.value })} />
+          <textarea
+            value={question.additionalRequest}
+            onChange={(event) => setQuestion({ ...question, additionalRequest: event.target.value })}
+            disabled={isReadOnlyMode}
+          />
         </label>
-        <button className="wd-button wd-button--primary wd-full-button" type="button" onClick={generateAll}>
-          AI 과제 생성
-        </button>
+        {!isReadOnlyMode && (
+          <button className="wd-button wd-button--primary wd-full-button" type="button" onClick={generateAll}>
+            {canAppendAssignments ? "과제 추가 생성" : "AI 과제 생성"}
+          </button>
+        )}
       </aside>
 
-      <section className="wd-panel wd-generated-panel" aria-labelledby="generated-title">
-        <div className="wd-generated-head">
-          <div>
-            <h2 id="generated-title">생성된 과제</h2>
-            <p>상 4개, 중 3개, 하 3개로 생성됩니다. 필요한 과제를 체크해 등록 준비할 수 있습니다.</p>
-            <p>각 항목은 직접 수정한 뒤 임시저장할 수 있습니다.</p>
+      <div className={isReadOnlyMode ? "wd-generated-shell wd-generated-shell--single" : "wd-generated-shell"}>
+        <section className="wd-panel wd-generated-panel" aria-labelledby="generated-title">
+          <div className="wd-generated-head">
+            <div>
+              <h2 id="generated-title">생성된 과제</h2>
+              <p>
+                상 {generatedDifficultyCounts.hard}개, 중 {generatedDifficultyCounts.medium}개, 하 {generatedDifficultyCounts.easy}개로 총{" "}
+                {generatedAssignmentTotal}개의 과제가 구성되며,{" "}
+                {isReadOnlyMode ? "내용은 보기 전용입니다." : "각 항목은 직접 수정하여 임시저장할 수 있습니다."}
+                {!isReadOnlyMode && " 필요한 과제를 선택하여 공고에 연결할 수 있습니다."}
+              </p>
+            </div>
           </div>
-          <button className="wd-clear-selection" type="button" disabled={selectedCount === 0} onClick={clearSelected}>
-            체크해제
-          </button>
-        </div>
 
-        <div className="wd-assignment-list">
-          {visibleGeneratedAssignments.map((assignment, index) => (
-            <article className="wd-assignment-card" key={assignment.id}>
-              <div className="wd-assignment-card__top">
-                <label className="wd-check-row">
+          <div className="wd-assignment-list">
+            {visibleGeneratedAssignments.map((assignment, index) => (
+              <article className="wd-assignment-card" key={assignment.id}>
+                <div className="wd-assignment-card__top">
+                  <label className="wd-check-row">
+                    {!isReadOnlyMode && (
+                      <input
+                        type="checkbox"
+                        checked={assignment.selected}
+                        onChange={() => toggleSelected(assignment.id)}
+                        aria-label={`${assignment.title} 선택`}
+                      />
+                    )}
+                    <strong>{index + 1}.</strong>
+                    <span
+                      className={`wd-badge wd-badge--${
+                        assignment.status === "registered"
+                          ? "success"
+                          : assignment.status === "draft"
+                            ? "neutral"
+                            : assignment.difficulty === "상"
+                              ? "danger"
+                              : assignment.difficulty === "중"
+                                ? "warning"
+                                : "info"
+                      }`}
+                    >
+                      {assignment.status === "registered" ? "공고연결 완료" : assignment.status === "draft" ? "임시저장" : assignment.difficulty}
+                    </span>
+                    {showDraftOnly && assignment.status === "draft" && (
+                      <button className="wd-inline-cancel" type="button" onClick={() => cancelDraft(assignment.id)}>
+                        저장취소
+                      </button>
+                    )}
+                  </label>
+                </div>
+
+                <label>
+                  과제명
                   <input
-                    type="checkbox"
-                    checked={assignment.selected}
-                    onChange={() => toggleSelected(assignment.id)}
-                    aria-label={`${assignment.title} 선택`}
+                    value={assignment.title}
+                    onChange={(event) => updateGeneratedAssignment(assignment.id, "title", event.target.value)}
+                    readOnly={isReadOnlyMode}
                   />
-                  <span
-                    className={`wd-badge wd-badge--${
-                      assignment.status === "registered"
-                        ? "success"
-                        : assignment.status === "draft"
-                          ? "neutral"
-                          : assignment.difficulty === "상"
-                            ? "danger"
-                            : assignment.difficulty === "중"
-                              ? "warning"
-                              : "info"
-                    }`}
-                  >
-                    {assignment.status === "registered" ? "공고 연결됨" : assignment.status === "draft" ? "임시저장" : assignment.difficulty}
-                  </span>
-                  {showDraftOnly && assignment.status === "draft" && (
-                    <button className="wd-inline-cancel" type="button" onClick={() => cancelDraft(assignment.id)}>
-                      저장취소
-                    </button>
-                  )}
                 </label>
-                <strong>{String(index + 1).padStart(2, "0")}</strong>
-              </div>
-
-              <label>
-                과제명
-                <input value={assignment.title} onChange={(event) => updateGeneratedAssignment(assignment.id, "title", event.target.value)} />
-              </label>
-              <label>
-                과제 목표
-                <textarea value={assignment.goal} onChange={(event) => updateGeneratedAssignment(assignment.id, "goal", event.target.value)} />
-              </label>
-              <label>
-                제출 조건
-                <textarea
-                  value={assignment.requirements}
-                  onChange={(event) => updateGeneratedAssignment(assignment.id, "requirements", event.target.value)}
-                />
-              </label>
-              <label>
-                평가 기준
-                <textarea
-                  value={assignment.evaluation}
-                  onChange={(event) => updateGeneratedAssignment(assignment.id, "evaluation", event.target.value)}
-                />
-              </label>
-            </article>
-          ))}
-        </div>
-
-        <div className="wd-register-bar">
-          <strong>선택된 과제 {selectedCount}개</strong>
-          <div className="wd-register-actions">
-            <button className="wd-button wd-button--secondary" type="button" disabled={selectedCount === 0} onClick={saveSelectedDrafts}>
-              임시저장
-            </button>
-            <button className="wd-button wd-button--secondary" type="button" onClick={() => setShowDraftOnly((value) => !value)}>
-              {showDraftOnly ? "전체과제확인" : "임시저장과제확인"}
-            </button>
-            <button className="wd-button wd-button--primary" type="button" disabled={selectedCount === 0} onClick={connectSelected}>
-              공고연결
-            </button>
+                <label>
+                  과제 목표
+                  <textarea
+                    value={assignment.goal}
+                    onChange={(event) => updateGeneratedAssignment(assignment.id, "goal", event.target.value)}
+                    readOnly={isReadOnlyMode}
+                  />
+                </label>
+                <label>
+                  제출 조건
+                  <textarea
+                    value={assignment.requirements}
+                    onChange={(event) => updateGeneratedAssignment(assignment.id, "requirements", event.target.value)}
+                    readOnly={isReadOnlyMode}
+                  />
+                </label>
+                <label>
+                  평가 기준
+                  <textarea
+                    value={assignment.evaluation}
+                    onChange={(event) => updateGeneratedAssignment(assignment.id, "evaluation", event.target.value)}
+                    readOnly={isReadOnlyMode}
+                  />
+                </label>
+              </article>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+
+        {!isReadOnlyMode && (
+          <aside className="wd-register-bar" aria-label="생성된 과제 작업">
+            <strong>선택 {selectedCount}개</strong>
+            <div className="wd-register-actions">
+              <button className="wd-button wd-button--secondary" type="button" disabled={selectedCount === 0} onClick={clearSelected}>
+                선택해제
+              </button>
+              <button className="wd-button wd-button--secondary" type="button" disabled={selectedCount === 0} onClick={saveSelectedDrafts}>
+                임시저장
+              </button>
+              <button className="wd-button wd-button--secondary" type="button" onClick={() => setShowDraftOnly((value) => !value)}>
+                {showDraftOnly ? "전체 보기" : "임시저장 보기"}
+              </button>
+              <button className="wd-button wd-button--primary" type="button" disabled={selectedCount === 0} onClick={connectSelected}>
+                공고연결
+              </button>
+            </div>
+          </aside>
+        )}
+      </div>
       </section>
     </>
   );
