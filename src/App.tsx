@@ -1,5 +1,8 @@
 import gangnamMapMockup from "./assets/map-mockup-gangnam.png";
 import wonderdogsLogo from "./assets/wonderdogs-logo.png";
+import { CompanyDashboardPage } from "./pages/company/CompanyDashboardPage";
+import { JobPostCompletePage } from "./pages/company/JobPostCompletePage";
+import { JobPostManagePage } from "./pages/company/JobPostManagePage";
 
 const recommendedJobPostings = [
   {
@@ -55,17 +58,22 @@ const routes = {
 
 export default function App() {
   const pathname = window.location.pathname;
+  const completeMatch = pathname.match(/^\/company\/job-posts\/([^/]+)\/complete$/);
 
   if (pathname === routes.login) {
     return <LoginPage />;
   }
 
   if (pathname === routes.companyDashboard) {
-    return <WaitingPage title="기업 대시보드" description="기업회원 전용 화면을 준비하고 있습니다." />;
+    return <CompanyDashboardPage />;
   }
 
   if (pathname === routes.jobPostManage) {
-    return <WaitingPage title="공고 관리" description="공고 목록 화면을 준비하고 있습니다." />;
+    return <JobPostManagePage />;
+  }
+
+  if (completeMatch) {
+    return <JobPostCompletePage jobPostingId={completeMatch[1]} />;
   }
 
   return (
@@ -164,7 +172,6 @@ export default function App() {
     </div>
   );
 }
-
 function Header() {
   return (
     <header className="wd-header">
@@ -214,22 +221,6 @@ function LoginPage() {
               <a className="wd-button wd-button--secondary" href={routes.jobPostManage}>구직자 로그인</a>
             </article>
           </div>
-        </section>
-      </main>
-    </div>
-  );
-}
-
-function WaitingPage({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="wd-page">
-      <Header />
-      <main className="wd-container wd-waiting-container">
-        <section className="wd-panel wd-waiting-panel" aria-labelledby="waiting-title">
-          <span className="wd-page-kicker">WONDERDOGs</span>
-          <h1 className="wd-page-title" id="waiting-title">{title}</h1>
-          <p className="wd-description">{description}</p>
-          <a className="wd-button wd-button--secondary" href={routes.login}>로그인으로 돌아가기</a>
         </section>
       </main>
     </div>
