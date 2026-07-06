@@ -7,7 +7,7 @@ type CompanyHeaderNavProps = {
 const menuItems = [
   { label: "경력자 찾기", href: "#" },
   { label: "공고 관리", href: "/company/job-posts" },
-  { label: "과제 관리", href: "#" },
+  { label: "과제 관리", href: "/company/assignments" },
   { label: "지원자 관리", href: "#" },
   { label: "유연근무 공고", href: "#" }
 ] as const;
@@ -16,7 +16,7 @@ export function CompanyHeaderNav({ activePath }: CompanyHeaderNavProps) {
   return (
     <header className="wd-company-header">
       <div className="wd-company-header__inner">
-        <a className="wd-company-header__logo" href="/company" aria-label="WONDERDOGs 기업 대시보드">
+        <a className="wd-company-header__logo" href="/" aria-label="WONDERDOGs 메인 홈">
           <img src={wonderdogsLogo} alt="WONDERDOGs" />
         </a>
 
@@ -38,11 +38,11 @@ export function CompanyHeaderNav({ activePath }: CompanyHeaderNavProps) {
           })}
         </nav>
 
-        <button className="wd-company-header__member" type="button">
+        <a className="wd-company-header__member" href="/company">
           <span className="wd-company-header__member-icon" aria-hidden="true" />
           원더독스 기업 회원
           <span className="wd-company-header__member-caret" aria-hidden="true" />
-        </button>
+        </a>
       </div>
     </header>
   );

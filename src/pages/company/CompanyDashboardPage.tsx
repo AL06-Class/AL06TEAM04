@@ -34,7 +34,7 @@ export function CompanyDashboardPage() {
           <CompanyActionCard
             buttonLabel="과제 관리로 이동"
             description="실제 업무 기반 과제를 등록하고 지원자의 과제 제출 현황을 관리하세요."
-            href="#"
+            href="/company/assignments"
             icon="assignment"
             items={["과제 등록 및 수정", "과제 제출 현황 확인", "과제 평가 및 피드백 관리"]}
             title="과제 관리"
