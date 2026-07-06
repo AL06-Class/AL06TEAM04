@@ -46,25 +46,31 @@ const heroHighlights = [
   { value: "실무 과제", label: "더 정확한 매칭" }
 ];
 
+const routes = {
+  home: "/",
+  login: "/login",
+  companyDashboard: "/company",
+  jobPostManage: "/company/job-posts"
+};
+
 export default function App() {
+  const pathname = window.location.pathname;
+
+  if (pathname === routes.login) {
+    return <LoginPage />;
+  }
+
+  if (pathname === routes.companyDashboard) {
+    return <WaitingPage title="기업 대시보드" description="기업회원 전용 화면을 준비하고 있습니다." />;
+  }
+
+  if (pathname === routes.jobPostManage) {
+    return <WaitingPage title="공고 관리" description="공고 목록 화면을 준비하고 있습니다." />;
+  }
+
   return (
     <div className="wd-page">
-      <header className="wd-header">
-        <div className="wd-logo">
-          <img className="wd-logo__image" src={wonderdogsLogo} alt="WONDERDOGs" />
-        </div>
-        <nav className="wd-nav" aria-label="주요 메뉴">
-          <span className="wd-nav__active">유연근무 공고</span>
-          <span>경력자 찾기</span>
-          <span>채용 도우미</span>
-          <span>이용 안내</span>
-          <span>고객센터</span>
-        </nav>
-        <span className="wd-button wd-button--primary wd-button--compact">
-          <span className="wd-button__icon wd-icon wd-icon--user" aria-hidden="true" />
-          로그인
-        </span>
-      </header>
+      <Header />
 
       <main className="wd-container">
         <section className="wd-panel wd-hero" aria-labelledby="main-title">
@@ -153,6 +159,77 @@ export default function App() {
               </div>
             </article>
           ))}
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <header className="wd-header">
+      <a className="wd-logo" href={routes.home} aria-label="WONDERDOGs 홈">
+        <img className="wd-logo__image" src={wonderdogsLogo} alt="WONDERDOGs" />
+      </a>
+      <nav className="wd-nav" aria-label="주요 메뉴">
+        <span className="wd-nav__active">유연근무 공고</span>
+        <span>경력자 찾기</span>
+        <span>채용 도우미</span>
+        <span>이용 안내</span>
+        <span>고객센터</span>
+      </nav>
+      <a className="wd-button wd-button--primary wd-button--compact" href={routes.login}>
+        <span className="wd-button__icon wd-icon wd-icon--user" aria-hidden="true" />
+        로그인
+      </a>
+    </header>
+  );
+}
+
+function LoginPage() {
+  return (
+    <div className="wd-page">
+      <Header />
+      <main className="wd-container wd-login-container">
+        <section className="wd-login-panel" aria-labelledby="login-title">
+          <div className="wd-login-heading">
+            <span className="wd-page-kicker">WONDERDOGs</span>
+            <h1 className="wd-page-title" id="login-title">로그인</h1>
+          </div>
+
+          <div className="wd-login-card-grid">
+            <article className="wd-card wd-login-card">
+              <span className="wd-login-card__icon wd-icon wd-icon--company" aria-hidden="true" />
+              <div>
+                <h2 className="wd-card__title">기업회원</h2>
+              </div>
+              <a className="wd-button wd-button--primary" href={routes.companyDashboard}>기업회원 로그인</a>
+            </article>
+
+            <article className="wd-card wd-login-card">
+              <span className="wd-login-card__icon wd-icon wd-icon--user" aria-hidden="true" />
+              <div>
+                <h2 className="wd-card__title">구직자</h2>
+              </div>
+              <a className="wd-button wd-button--secondary" href={routes.jobPostManage}>구직자 로그인</a>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function WaitingPage({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="wd-page">
+      <Header />
+      <main className="wd-container wd-waiting-container">
+        <section className="wd-panel wd-waiting-panel" aria-labelledby="waiting-title">
+          <span className="wd-page-kicker">WONDERDOGs</span>
+          <h1 className="wd-page-title" id="waiting-title">{title}</h1>
+          <p className="wd-description">{description}</p>
+          <a className="wd-button wd-button--secondary" href={routes.login}>로그인으로 돌아가기</a>
         </section>
       </main>
     </div>

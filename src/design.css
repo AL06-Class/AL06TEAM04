@@ -68,6 +68,7 @@ select {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
+  text-decoration: none;
 }
 
 .wd-logo__image {
@@ -202,7 +203,7 @@ select {
   border-radius: var(--wd-radius-sm);
   font-weight: 700;
   text-decoration: none;
-  cursor: default;
+  cursor: pointer;
 }
 
 .wd-button--compact {
@@ -219,6 +220,100 @@ select {
   border-color: var(--wd-primary);
   background: var(--wd-white);
   color: var(--wd-primary);
+}
+
+.wd-page-kicker {
+  color: var(--wd-primary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.wd-page-title {
+  margin: 8px 0 0;
+  color: var(--wd-text);
+  font-size: clamp(32px, 4vw, 44px);
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.wd-login-container,
+.wd-waiting-container {
+  display: grid;
+  place-items: start center;
+}
+
+.wd-login-panel {
+  display: grid;
+  gap: 32px;
+  width: min(100%, 920px);
+}
+
+.wd-login-heading {
+  text-align: center;
+}
+
+.wd-login-heading .wd-description {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.wd-login-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.wd-login-card {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 20px;
+  min-height: 240px;
+  padding: 28px;
+  text-align: center;
+}
+
+.wd-login-card .wd-button {
+  width: min(100%, 240px);
+}
+
+.wd-login-card__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--wd-primary-light);
+  color: var(--wd-primary);
+}
+
+.wd-icon--company::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  bottom: 2px;
+  width: 12px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+
+.wd-icon--company::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 9px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+
+.wd-waiting-panel {
+  display: grid;
+  gap: 20px;
+  width: min(100%, 760px);
+  padding: 40px;
 }
 
 .wd-button__icon {
@@ -619,7 +714,8 @@ select {
 
 @media (max-width: 760px) {
   .wd-card-list--featured,
-  .wd-job-card {
+  .wd-job-card,
+  .wd-login-card-grid {
     grid-template-columns: 1fr;
   }
 }
