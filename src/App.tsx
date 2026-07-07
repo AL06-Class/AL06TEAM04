@@ -4,6 +4,7 @@ import wonderdogsLogo from "./assets/wonderdogs-logo.png";
 import { PageContainer } from "./components/common/PageContainer";
 import { CompanyDashboardPage } from "./pages/company/CompanyDashboardPage";
 import { JobPostCompletePage } from "./pages/company/JobPostCompletePage";
+import { JobPostCreatePage } from "./pages/company/JobPostCreatePage";
 import { JobPostManagePage } from "./pages/company/JobPostManagePage";
 
 const recommendedJobPostings = [
@@ -107,14 +108,7 @@ export default function App() {
   }
 
   if (pathname === "/company/job-posts/new") {
-    return (
-      <PendingRoutePage
-        description="공고 등록 페이지는 현재 다른 협업자가 작업 중입니다."
-        href="/company"
-        linkLabel="기업 대시보드로 이동"
-        title="공고 등록 페이지 준비 중"
-      />
-    );
+    return <JobPostCreatePage />;
   }
 
   if (completeMatch) {

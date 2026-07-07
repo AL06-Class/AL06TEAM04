@@ -12,6 +12,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
+    "types": ["react", "react-dom", "vite/client"],
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx"
