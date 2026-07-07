@@ -4187,6 +4187,33 @@ a {
 }
 
 /* Seolhui assignment AI creation flow */
+.wd-sai-company-page {
+  --wd-sai-primary: var(--wd-primary);
+  --wd-sai-primary-dark: var(--wd-primary-dark);
+  --wd-sai-primary-light: var(--wd-primary-light);
+  --wd-sai-primary-soft: var(--wd-primary-soft);
+  --wd-sai-white: var(--wd-white);
+  --wd-sai-border: var(--wd-border);
+  --wd-sai-border-active: var(--wd-border-active);
+  --wd-sai-text: var(--wd-text);
+  --wd-sai-text-secondary: var(--wd-text-secondary);
+  --wd-sai-text-muted: var(--wd-text-muted);
+  --wd-sai-success-bg: var(--wd-success-bg);
+  --wd-sai-success-text: var(--wd-success-text);
+  --wd-sai-warning-bg: var(--wd-warning-bg);
+  --wd-sai-warning-text: var(--wd-warning-text);
+  --wd-sai-info-bg: var(--wd-info-bg);
+  --wd-sai-info-text: var(--wd-info-text);
+  --wd-sai-radius-sm: var(--wd-radius-sm);
+  --wd-sai-radius-md: var(--wd-radius-md);
+  min-height: 100vh;
+  background: var(--wd-page);
+}
+
+.wd-sai-company-page .wd-page-container {
+  background: var(--wd-page);
+}
+
 .wd-sai-badge {
   display: inline-flex;
   align-items: center;
@@ -4401,6 +4428,23 @@ a {
 .wd-sai-assignment-card input,
 .wd-sai-assignment-card textarea {
   font-size: 13px;
+}
+
+.wd-sai-direct-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  gap: 8px;
+}
+
+.wd-sai-inline-reset {
+  min-height: 44px;
+  border: 1px solid var(--wd-sai-border-active);
+  border-radius: var(--wd-sai-radius-sm);
+  background: var(--wd-sai-white);
+  color: var(--wd-sai-primary);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .wd-sai-full-button {
@@ -4698,6 +4742,7 @@ a {
 
 .wd-sai-manage-page {
   padding-top: 34px;
+  background: var(--wd-page);
 }
 
 .wd-sai-manage-content--selection {
@@ -4708,7 +4753,9 @@ a {
 }
 
 .wd-sai-manage-content--selection .wd-sai-manage-head,
-.wd-sai-manage-content--selection .wd-sai-toolbar {
+.wd-sai-manage-content--selection .wd-sai-assignment-tabs,
+.wd-sai-manage-content--selection .wd-sai-toolbar,
+.wd-sai-manage-content--selection .wd-sai-manage-list-panel {
   grid-column: 1 / -1;
 }
 
@@ -4718,33 +4765,74 @@ a {
 }
 
 .wd-sai-assignment-tabs {
-  display: inline-grid;
-  grid-template-columns: repeat(2, minmax(150px, 1fr));
-  gap: 0;
-  min-width: 360px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
   margin-bottom: 26px;
-  overflow: hidden;
-  border: 1px solid var(--wd-sai-border);
-  border-radius: var(--wd-sai-radius-sm);
-  background: var(--wd-sai-white);
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .wd-sai-assignment-tab {
+  min-width: 184px;
   min-height: 50px;
-  padding: 0 18px;
-  border-right: 1px solid var(--wd-sai-border);
+  padding: 0 22px;
+  border: 1px solid var(--wd-sai-border);
+  border-radius: 999px;
+  background: var(--wd-sai-white);
   color: var(--wd-sai-text-secondary);
   font-weight: 800;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.04);
   cursor: pointer;
 }
 
 .wd-sai-assignment-tab:last-child {
-  border-right: 0;
+  border-right: 1px solid var(--wd-sai-border);
 }
 
 .wd-sai-assignment-tab--active {
+  border-color: var(--wd-sai-border-active);
   background: var(--wd-sai-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--wd-sai-border-active), 0 10px 22px rgba(108, 47, 242, 0.12);
   color: var(--wd-sai-primary);
+}
+
+.wd-sai-assignment-tab:last-child.wd-sai-assignment-tab--active {
+  border-right-color: var(--wd-sai-border-active);
+}
+
+.wd-sai-manage-list-panel {
+  display: grid;
+  gap: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.wd-sai-manage-list-panel--selection {
+  grid-template-columns: minmax(0, 1fr) 128px;
+  align-items: start;
+}
+
+.wd-sai-manage-list-panel--selection .wd-sai-toolbar {
+  grid-column: 1 / -1;
+}
+
+.wd-sai-manage-list-panel--selection .wd-sai-toast,
+.wd-sai-manage-list-panel--selection .wd-sai-task-grid {
+  grid-column: 1;
+}
+
+.wd-sai-manage-list-panel--selection .wd-sai-selection-bar {
+  grid-column: 2;
+  grid-row: 2 / span 2;
 }
 
 .wd-sai-manage-head {
@@ -4835,35 +4923,41 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 16px;
+  margin-bottom: 0;
 }
 
 .wd-sai-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(112px, 1fr));
-  width: min(100%, 680px);
-  overflow: hidden;
-  border: 1px solid var(--wd-sai-border);
-  border-radius: var(--wd-sai-radius-sm);
-  background: var(--wd-sai-white);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: min(100%, 760px);
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .wd-sai-tab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  min-height: 36px;
-  border-right: 1px solid var(--wd-sai-border);
+  gap: 6px;
+  min-width: 128px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--wd-sai-border);
+  border-radius: 999px;
+  background: var(--wd-sai-white);
   color: var(--wd-sai-text-secondary);
   font-size: 12px;
   font-weight: 800;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.04);
   cursor: pointer;
 }
 
 .wd-sai-tab:last-child {
-  border-right: 0;
+  border-right: 1px solid var(--wd-sai-border);
 }
 
 .wd-sai-tab span {
@@ -4883,11 +4977,59 @@ a {
   border-color: var(--wd-sai-border-active);
   background: var(--wd-sai-primary-soft);
   color: var(--wd-sai-primary);
+  box-shadow: 0 10px 22px rgba(108, 47, 242, 0.12);
 }
 
 .wd-sai-tab--active span {
   background: var(--wd-sai-primary-light);
   color: var(--wd-sai-primary);
+}
+
+.wd-sai-search {
+  position: relative;
+  flex: 1 1 260px;
+  max-width: 340px;
+  min-width: 220px;
+  gap: 0;
+}
+
+.wd-sai-search::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.wd-sai-search span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.wd-sai-search input {
+  min-height: 38px;
+  padding-right: 40px;
+  border-color: var(--wd-sai-border);
+  border-radius: 999px;
+  background: var(--wd-sai-white);
+  color: var(--wd-sai-text);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.04);
+}
+
+.wd-sai-search input:focus {
+  border-color: var(--wd-sai-border-active);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(108, 47, 242, 0.1);
 }
 
 .wd-sai-sort {
@@ -4982,11 +5124,11 @@ a {
   display: grid;
   gap: 14px;
   min-width: 0;
-  padding: 18px;
+  padding: 20px;
   border: 1px solid var(--wd-sai-border);
-  border-radius: var(--wd-sai-radius-md);
+  border-radius: 22px;
   background: var(--wd-sai-white);
-  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.04);
+  box-shadow: 0 14px 32px rgba(17, 24, 39, 0.06);
 }
 
 .wd-sai-task-card__top {
@@ -5219,8 +5361,10 @@ a {
   }
 
   .wd-sai-tabs,
+  .wd-sai-search,
   .wd-sai-sort,
   .wd-sai-assignment-tabs {
+    max-width: none;
     width: 100%;
   }
 

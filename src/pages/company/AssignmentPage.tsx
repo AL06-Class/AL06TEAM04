@@ -260,35 +260,62 @@ function AssignmentWorkspacePage({
 
   return (
     <main className="wd-container wd-sai-manage-page wd-sai-assignment-page">
-      <div className="wd-sai-assignment-tabs" role="tablist" aria-label="과제관리 하위 페이지">
-        <button
-          className={activeTab === "ai" ? "wd-sai-assignment-tab wd-sai-assignment-tab--active" : "wd-sai-assignment-tab"}
-          type="button"
-          onClick={openNewAssignment}
-        >
-          과제 AI 생성
-        </button>
-        <button
-          className={activeTab === "manage" ? "wd-sai-assignment-tab wd-sai-assignment-tab--active" : "wd-sai-assignment-tab"}
-          type="button"
-          onClick={() => onChangeTab("manage")}
-        >
-          과제 등록/관리
-        </button>
-      </div>
       {activeTab === "ai" ? (
-        <AssignmentAiPage focusedAssignment={focusedAssignment} />
+        <AssignmentAiPage
+          activeTab={activeTab}
+          focusedAssignment={focusedAssignment}
+          onChangeTab={onChangeTab}
+          onMoveAi={openNewAssignment}
+        />
       ) : (
-        <AssignmentManagePage onMoveAi={openNewAssignment} onOpenLinkedAssignments={openLinkedAssignments} />
+        <AssignmentManagePage
+          activeTab={activeTab}
+          onChangeTab={onChangeTab}
+          onMoveAi={openNewAssignment}
+          onOpenLinkedAssignments={openLinkedAssignments}
+        />
       )}
     </main>
   );
 }
 
+function AssignmentPageTabs({
+  activeTab,
+  onChangeTab,
+  onMoveAi
+}: {
+  activeTab: AssignmentTab;
+  onChangeTab: (tab: AssignmentTab) => void;
+  onMoveAi: () => void;
+}) {
+  return (
+    <div className="wd-sai-assignment-tabs" role="tablist" aria-label="과제관리 하위 페이지">
+      <button
+        className={activeTab === "ai" ? "wd-sai-assignment-tab wd-sai-assignment-tab--active" : "wd-sai-assignment-tab"}
+        type="button"
+        onClick={onMoveAi}
+      >
+        과제 AI 생성
+      </button>
+      <button
+        className={activeTab === "manage" ? "wd-sai-assignment-tab wd-sai-assignment-tab--active" : "wd-sai-assignment-tab"}
+        type="button"
+        onClick={() => onChangeTab("manage")}
+      >
+        과제확인/공고연결
+      </button>
+    </div>
+  );
+}
+
 function AssignmentManagePage({
+  activeTab,
+  onChangeTab,
   onMoveAi,
   onOpenLinkedAssignments
 }: {
+  activeTab: AssignmentTab;
+  onChangeTab: (tab: AssignmentTab) => void;
   onMoveAi: () => void;
   onOpenLinkedAssignments: (assignment: Assignment) => void;
 }) {
@@ -296,12 +323,22 @@ function AssignmentManagePage({
   const [managedAssignments, setManagedAssignments] = useState<Assignment[]>(assignments);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<AssignmentSort>("latest");
+  const [searchQuery, setSearchQuery] = useState("");
   const [notice, setNotice] = useState("");
 
   const filteredAssignments = useMemo(() => {
     const statusFiltered =
       activeStatus === "all" ? managedAssignments : managedAssignments.filter((item) => item.status === activeStatus);
-    return [...statusFiltered].sort((first, second) => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const searchFiltered = normalizedQuery
+      ? statusFiltered.filter((item) =>
+          [item.title, item.jobTitle, ...item.linkedAssignments.map((assignment) => assignment.title)]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalizedQuery)
+        )
+      : statusFiltered;
+    return [...searchFiltered].sort((first, second) => {
       if (sortOrder === "oldest") {
         return getAssignmentDateValue(first) - getAssignmentDateValue(second);
       }
@@ -317,7 +354,7 @@ function AssignmentManagePage({
       }
       return getAssignmentDateValue(second) - getAssignmentDateValue(first);
     });
-  }, [activeStatus, managedAssignments, sortOrder]);
+  }, [activeStatus, managedAssignments, searchQuery, sortOrder]);
   const statusCounts = useMemo(
     () => ({
       all: managedAssignments.length,
@@ -359,75 +396,94 @@ function AssignmentManagePage({
     <div className={selectedIds.length > 0 ? "wd-sai-manage-content wd-sai-manage-content--selection" : "wd-sai-manage-content"}>
       <section className="wd-sai-manage-head">
         <div>
-          <h1 className="wd-sai-page-title">과제 등록/관리</h1>
-          <p className="wd-sai-description">등록된 과제를 수정 및 추가하고, 공고 연결과 신규 과제 등록을 진행할 수 있습니다.</p>
+          <h1 className="wd-sai-page-title">과제관리</h1>
+          <p className="wd-sai-description">실무 업무를 바탕으로 AI가 사전과제를 생성하고, 등록된 과제를 채용공고에 연결하여 구직자의 직무 역량을 확인할 수 있습니다.</p>
         </div>
         <button className="wd-button wd-button--primary wd-sai-new-task-button" type="button" onClick={onMoveAi}>
           신규 과제 등록
         </button>
       </section>
+      <AssignmentPageTabs activeTab={activeTab} onChangeTab={onChangeTab} onMoveAi={onMoveAi} />
 
-      <div className="wd-sai-toolbar">
-        <div className="wd-sai-tabs" role="tablist" aria-label="과제 상태">
-          {[
-            ["all", "전체", statusCounts.all],
-            ["draft", "임시저장", statusCounts.draft],
-            ["available", "공고연결 대기", statusCounts.available],
-            ["linked", "공고연결 완료", statusCounts.linked]
-          ].map(([value, label, count]) => (
-            <button
-              className={activeStatus === value ? "wd-sai-tab wd-sai-tab--active" : "wd-sai-tab"}
-              key={value}
-              type="button"
-              onClick={() => setActiveStatus(value as "all" | AssignmentStatus)}
-            >
-              {label}
-              <span>{count}</span>
-            </button>
+      <section
+        className={
+          selectedIds.length > 0
+            ? "wd-sai-manage-list-panel wd-sai-manage-list-panel--selection"
+            : "wd-sai-manage-list-panel"
+        }
+        aria-label="과제 확인 및 공고 연결 목록"
+      >
+        <div className="wd-sai-toolbar">
+          <div className="wd-sai-tabs" role="tablist" aria-label="과제 상태">
+            {[
+              ["all", "전체", statusCounts.all],
+              ["draft", "임시저장", statusCounts.draft],
+              ["available", "공고연결 대기", statusCounts.available],
+              ["linked", "공고연결 완료", statusCounts.linked]
+            ].map(([value, label, count]) => (
+              <button
+                className={activeStatus === value ? "wd-sai-tab wd-sai-tab--active" : "wd-sai-tab"}
+                key={value}
+                type="button"
+                onClick={() => setActiveStatus(value as "all" | AssignmentStatus)}
+              >
+                {label}
+                <span>{count}</span>
+              </button>
+            ))}
+          </div>
+          <label className="wd-sai-search">
+            <span>과제 검색</span>
+            <input
+              aria-label="공고명 또는 채용직무 검색"
+              placeholder="공고명 또는 채용직무 검색"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+          </label>
+          <select
+            className="wd-sai-sort"
+            aria-label="정렬"
+            value={sortOrder}
+            onChange={(event) => setSortOrder(event.target.value as AssignmentSort)}
+          >
+            <option value="latest">최신 등록순</option>
+            <option value="oldest">오래된 등록순</option>
+            <option value="jobTitle">채용직무순</option>
+            <option value="difficultyHigh">난이도 높은순</option>
+            <option value="difficultyLow">난이도 낮은순</option>
+          </select>
+        </div>
+
+        {selectedIds.length > 0 && (
+          <div className="wd-sai-selection-bar" role="status">
+            <strong>선택 {selectedIds.length}개</strong>
+            <div>
+              <button className="wd-sai-clear-filter-selection" type="button" onClick={clearSelectedAssignments}>
+                선택해제
+              </button>
+              <button className="wd-sai-clear-filter-selection wd-sai-clear-filter-selection--danger" type="button" onClick={deleteSelectedAssignments}>
+                선택삭제
+              </button>
+            </div>
+          </div>
+        )}
+
+        {notice && <div className="wd-sai-toast" role="status">{notice}</div>}
+
+        <div className="wd-sai-task-grid" aria-label="과제 목록">
+          {filteredAssignments.map((assignment) => (
+            <AssignmentCard
+              assignment={assignment}
+              isSelected={selectedIds.includes(assignment.id)}
+              key={assignment.id}
+              onConnectAssignment={connectAssignment}
+              onOpenLinkedAssignments={onOpenLinkedAssignments}
+              onRequest={requestAssignment}
+              onToggleSelected={toggleSelected}
+            />
           ))}
         </div>
-        <select
-          className="wd-sai-sort"
-          aria-label="정렬"
-          value={sortOrder}
-          onChange={(event) => setSortOrder(event.target.value as AssignmentSort)}
-        >
-          <option value="latest">최신 등록순</option>
-          <option value="oldest">오래된 등록순</option>
-          <option value="jobTitle">채용직무순</option>
-          <option value="difficultyHigh">난이도 높은순</option>
-          <option value="difficultyLow">난이도 낮은순</option>
-        </select>
-      </div>
-
-      {selectedIds.length > 0 && (
-        <div className="wd-sai-selection-bar" role="status">
-          <strong>선택 {selectedIds.length}개</strong>
-          <div>
-            <button className="wd-sai-clear-filter-selection" type="button" onClick={clearSelectedAssignments}>
-              선택해제
-            </button>
-            <button className="wd-sai-clear-filter-selection wd-sai-clear-filter-selection--danger" type="button" onClick={deleteSelectedAssignments}>
-              선택삭제
-            </button>
-          </div>
-        </div>
-      )}
-
-      {notice && <div className="wd-sai-toast" role="status">{notice}</div>}
-
-      <section className="wd-sai-task-grid" aria-label="과제 목록">
-        {filteredAssignments.map((assignment) => (
-          <AssignmentCard
-            assignment={assignment}
-            isSelected={selectedIds.includes(assignment.id)}
-            key={assignment.id}
-            onConnectAssignment={connectAssignment}
-            onOpenLinkedAssignments={onOpenLinkedAssignments}
-            onRequest={requestAssignment}
-            onToggleSelected={toggleSelected}
-          />
-        ))}
       </section>
 
     </div>
@@ -549,7 +605,17 @@ function AssignmentCard({
   );
 }
 
-function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment | null }) {
+function AssignmentAiPage({
+  activeTab,
+  focusedAssignment,
+  onChangeTab,
+  onMoveAi
+}: {
+  activeTab: AssignmentTab;
+  focusedAssignment: Assignment | null;
+  onChangeTab: (tab: AssignmentTab) => void;
+  onMoveAi: () => void;
+}) {
   const [question, setQuestion] = useState<CustomQuestion>(initialQuestion);
   const [seed, setSeed] = useState(0);
   const [showDraftOnly, setShowDraftOnly] = useState(false);
@@ -676,10 +742,11 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
     <>
       <section className="wd-sai-manage-head wd-sai-ai-head">
         <div>
-          <h1 className="wd-sai-page-title">과제 AI 생성</h1>
-          <p className="wd-sai-description">실무 업무를 바탕으로 AI가 사전과제를 생성하고, 채용공고에 연결하여 구직자의 직무 역량을 확인할 수 있습니다.</p>
+          <h1 className="wd-sai-page-title">과제관리</h1>
+          <p className="wd-sai-description">실무 업무를 바탕으로 AI가 사전과제를 생성하고, 등록된 과제를 채용공고에 연결하여 구직자의 직무 역량을 확인할 수 있습니다.</p>
         </div>
       </section>
+      <AssignmentPageTabs activeTab={activeTab} onChangeTab={onChangeTab} onMoveAi={onMoveAi} />
 
       <section className="wd-sai-assignment-layout">
         <aside className="wd-panel wd-sai-form-panel" aria-labelledby="assignment-info-title">
@@ -690,48 +757,64 @@ function AssignmentAiPage({ focusedAssignment }: { focusedAssignment: Assignment
         {isReadOnlyMode && <span className="wd-sai-edit-mode-badge">공고연결 완료 과제 보기</span>}
         <label>
           업종
-          <select
-            value={question.isIndustryCustom ? directInputOption : question.industry}
-            onChange={(event) => selectIndustry(event.target.value)}
-            disabled={isReadOnlyMode}
-          >
-            {industryOptions.map((industry) => (
-              <option key={industry}>{industry}</option>
-            ))}
-          </select>
-        </label>
-        {question.isIndustryCustom && (
-          <label>
-            업종 직접입력
-            <input
+          {question.isIndustryCustom ? (
+            <div className="wd-sai-direct-input-row">
+              <input
+                aria-label="업종 직접입력"
+                autoFocus
+                placeholder="업종을 입력하세요"
+                value={question.industry}
+                onChange={(event) => setQuestion({ ...question, industry: event.target.value })}
+                disabled={isReadOnlyMode}
+              />
+              {!isReadOnlyMode && (
+                <button className="wd-sai-inline-reset" type="button" onClick={() => selectIndustry(industryOptions[0])}>
+                  목록
+                </button>
+              )}
+            </div>
+          ) : (
+            <select
               value={question.industry}
-              onChange={(event) => setQuestion({ ...question, industry: event.target.value })}
+              onChange={(event) => selectIndustry(event.target.value)}
               disabled={isReadOnlyMode}
-            />
-          </label>
-        )}
+            >
+              {industryOptions.map((industry) => (
+                <option key={industry}>{industry}</option>
+              ))}
+            </select>
+          )}
+        </label>
         <label>
           채용직무
-          <select
-            value={question.isJobRoleCustom ? directInputOption : question.jobRole}
-            onChange={(event) => selectJobRole(event.target.value)}
-            disabled={isReadOnlyMode}
-          >
-            {jobRoleOptions.map((jobRole) => (
-              <option key={jobRole}>{jobRole}</option>
-            ))}
-          </select>
-        </label>
-        {question.isJobRoleCustom && (
-          <label>
-            채용직무 직접입력
-            <input
+          {question.isJobRoleCustom ? (
+            <div className="wd-sai-direct-input-row">
+              <input
+                aria-label="채용직무 직접입력"
+                autoFocus
+                placeholder="채용직무를 입력하세요"
+                value={question.jobRole}
+                onChange={(event) => setQuestion({ ...question, jobRole: event.target.value })}
+                disabled={isReadOnlyMode}
+              />
+              {!isReadOnlyMode && (
+                <button className="wd-sai-inline-reset" type="button" onClick={() => selectJobRole(jobRoleOptions[0])}>
+                  목록
+                </button>
+              )}
+            </div>
+          ) : (
+            <select
               value={question.jobRole}
-              onChange={(event) => setQuestion({ ...question, jobRole: event.target.value })}
+              onChange={(event) => selectJobRole(event.target.value)}
               disabled={isReadOnlyMode}
-            />
-          </label>
-        )}
+            >
+              {jobRoleOptions.map((jobRole) => (
+                <option key={jobRole}>{jobRole}</option>
+              ))}
+            </select>
+          )}
+        </label>
         <label>
           필수 업무 스킬
           <input
