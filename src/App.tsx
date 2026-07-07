@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import gangnamMapMockup from "./assets/map-mockup-gangnam.png";
 import wonderdogsLogo from "./assets/wonderdogs-logo.png";
 import { PageContainer } from "./components/common/PageContainer";
+import { AssignmentPage } from "./pages/company/AssignmentPage";
 import { CompanyDashboardPage } from "./pages/company/CompanyDashboardPage";
 import { JobPostCompletePage } from "./pages/company/JobPostCompletePage";
 import { JobPostCreatePage } from "./pages/company/JobPostCreatePage";
@@ -97,14 +98,7 @@ export default function App() {
   }
 
   if (pathname === "/company/assignments") {
-    return (
-      <PendingRoutePage
-        description="과제 관리 페이지는 현재 다른 협업자가 작업 중입니다."
-        href="/company"
-        linkLabel="기업 대시보드로 이동"
-        title="과제 관리 페이지 준비 중"
-      />
-    );
+    return <AssignmentPage />;
   }
 
   if (pathname === "/company/job-posts/new") {

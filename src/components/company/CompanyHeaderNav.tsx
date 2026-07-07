@@ -1,7 +1,7 @@
 import wonderdogsLogo from "../../assets/wonderdogs-logo.png";
 
 type CompanyHeaderNavProps = {
-  activePath: "/company" | "/company/job-posts" | "/company/job-posts/complete";
+  activePath: "/company" | "/company/job-posts" | "/company/job-posts/complete" | "/company/assignments";
 };
 
 const menuItems = [
