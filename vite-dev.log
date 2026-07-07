@@ -1,0 +1,19 @@
+Re-optimizing dependencies because lockfile has changed
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1564[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5173[22m/[39m
+[2m오전 10:30:36[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오전 10:30:51[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/design.css[22m
+[2m오전 10:30:58[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/design.css[22m
+[2m오전 10:33:32[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오전 10:35:30[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오전 10:35:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/design.css[22m
+[2m오후 12:09:56[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오후 12:09:56[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/design.css[22m
+[2m오후 12:10:15[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오후 12:10:15[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오후 12:10:26[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오후 12:10:48[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오후 12:11:24[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m오후 12:18:43[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/company/CompanyHeaderNav.tsx[22m
