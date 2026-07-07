@@ -854,7 +854,7 @@ function AssignmentAiPage({
         )}
       </aside>
 
-      <div className={isReadOnlyMode ? "wd-sai-generated-shell wd-sai-generated-shell--single" : "wd-sai-generated-shell"}>
+      <div className={isReadOnlyMode || selectedCount === 0 ? "wd-sai-generated-shell wd-sai-generated-shell--single" : "wd-sai-generated-shell"}>
         <section className="wd-panel wd-sai-generated-panel" aria-labelledby="generated-title">
           <div className="wd-sai-generated-head">
             <div>
@@ -942,7 +942,7 @@ function AssignmentAiPage({
           </div>
         </section>
 
-        {!isReadOnlyMode && (
+        {!isReadOnlyMode && selectedCount > 0 && (
           <aside className="wd-sai-register-bar" aria-label="생성된 과제 작업">
             <strong>선택 {selectedCount}개</strong>
             <div className="wd-sai-register-actions">
