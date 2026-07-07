@@ -48,13 +48,34 @@ export function Button(props: LinkButtonProps | ActionButtonProps) {
       size = "medium",
       fullWidth = false,
       className,
+      onClick,
       ...rest
     } = linkProps;
+
+    const handleClick: AnchorHTMLAttributes<HTMLAnchorElement>["onClick"] = (event) => {
+      onClick?.(event);
+
+      if (
+        event.defaultPrevented ||
+        !href.startsWith("/") ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      window.history.pushState({}, "", href);
+      window.dispatchEvent(new Event("wd:navigate"));
+    };
 
     return (
       <a
         className={getClassName(variant, size, fullWidth, className)}
         href={href}
+        onClick={handleClick}
         {...rest}
       >
         {children}

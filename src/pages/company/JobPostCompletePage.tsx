@@ -55,7 +55,7 @@ export function JobPostCompletePage({ jobPostingId }: JobPostCompletePageProps) 
                 <span className="wd-inline-icon wd-inline-icon--arrow-right" aria-hidden="true" />
               </Button>
 
-              <Button href="#" size="large" variant="secondary">
+              <Button href="/company/job-posts/new" size="large" variant="secondary">
                 <span className="wd-inline-icon wd-inline-icon--plus" aria-hidden="true" />
                 <span className="wd-complete-page__sub-copy">
                   <strong>새 공고 등록하기</strong>

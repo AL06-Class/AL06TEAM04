@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import gangnamMapMockup from "./assets/map-mockup-gangnam.png";
 import wonderdogsLogo from "./assets/wonderdogs-logo.png";
+import { PageContainer } from "./components/common/PageContainer";
 import { CompanyDashboardPage } from "./pages/company/CompanyDashboardPage";
 import { JobPostCompletePage } from "./pages/company/JobPostCompletePage";
 import { JobPostManagePage } from "./pages/company/JobPostManagePage";
@@ -56,9 +58,30 @@ const routes = {
   jobPostManage: "/company/job-posts"
 };
 
+type PendingRoutePageProps = {
+  title: string;
+  description: string;
+  href: string;
+  linkLabel: string;
+};
+
 export default function App() {
-  const pathname = window.location.pathname;
+  const [pathname, setPathname] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const syncPathname = () => setPathname(window.location.pathname);
+
+    window.addEventListener("popstate", syncPathname);
+    window.addEventListener("wd:navigate", syncPathname);
+
+    return () => {
+      window.removeEventListener("popstate", syncPathname);
+      window.removeEventListener("wd:navigate", syncPathname);
+    };
+  }, []);
+
   const completeMatch = pathname.match(/^\/company\/job-posts\/([^/]+)\/complete$/);
+  const detailMatch = pathname.match(/^\/job-posts\/([^/]+)$/);
 
   if (pathname === routes.login) {
     return <LoginPage />;
@@ -72,10 +95,79 @@ export default function App() {
     return <JobPostManagePage />;
   }
 
+  if (pathname === "/company/assignments") {
+    return (
+      <PendingRoutePage
+        description="과제 관리 페이지는 현재 다른 협업자가 작업 중입니다."
+        href="/company"
+        linkLabel="기업 대시보드로 이동"
+        title="과제 관리 페이지 준비 중"
+      />
+    );
+  }
+
+  if (pathname === "/company/job-posts/new") {
+    return (
+      <PendingRoutePage
+        description="공고 등록 페이지는 현재 다른 협업자가 작업 중입니다."
+        href="/company"
+        linkLabel="기업 대시보드로 이동"
+        title="공고 등록 페이지 준비 중"
+      />
+    );
+  }
+
   if (completeMatch) {
     return <JobPostCompletePage jobPostingId={completeMatch[1]} />;
   }
 
+  if (detailMatch) {
+    return (
+      <PendingRoutePage
+        description="공고 상세 보기 페이지는 현재 다른 협업자가 작업 중입니다."
+        href="/company/job-posts"
+        linkLabel="공고 관리로 이동"
+        title="공고 상세 보기 페이지 준비 중"
+      />
+    );
+  }
+
+  if (pathname === routes.home) {
+    return <MainHomePage />;
+  }
+
+  return (
+    <PendingRoutePage
+      description="요청한 화면은 아직 연결되지 않았습니다."
+      href="/company"
+      linkLabel="기업 대시보드로 이동"
+      title="페이지 준비 중"
+    />
+  );
+}
+
+function Header() {
+  return (
+    <header className="wd-header">
+      <a className="wd-logo" href={routes.home} aria-label="WONDERDOGs 홈">
+        <img className="wd-logo__image" src={wonderdogsLogo} alt="WONDERDOGs" />
+      </a>
+      <nav className="wd-nav" aria-label="주요 메뉴">
+        <span className="wd-nav__active">유연근무 공고</span>
+        <span>경력자 찾기</span>
+        <span>채용 도우미</span>
+        <span>이용 안내</span>
+        <span>고객센터</span>
+      </nav>
+      <a className="wd-button wd-button--primary wd-button--compact" href={routes.login}>
+        <span className="wd-button__icon wd-icon wd-icon--user" aria-hidden="true" />
+        로그인
+      </a>
+    </header>
+  );
+}
+
+function MainHomePage() {
   return (
     <div className="wd-page">
       <Header />
@@ -172,26 +264,6 @@ export default function App() {
     </div>
   );
 }
-function Header() {
-  return (
-    <header className="wd-header">
-      <a className="wd-logo" href={routes.home} aria-label="WONDERDOGs 홈">
-        <img className="wd-logo__image" src={wonderdogsLogo} alt="WONDERDOGs" />
-      </a>
-      <nav className="wd-nav" aria-label="주요 메뉴">
-        <span className="wd-nav__active">유연근무 공고</span>
-        <span>경력자 찾기</span>
-        <span>채용 도우미</span>
-        <span>이용 안내</span>
-        <span>고객센터</span>
-      </nav>
-      <a className="wd-button wd-button--primary wd-button--compact" href={routes.login}>
-        <span className="wd-button__icon wd-icon wd-icon--user" aria-hidden="true" />
-        로그인
-      </a>
-    </header>
-  );
-}
 
 function LoginPage() {
   return (
@@ -223,6 +295,22 @@ function LoginPage() {
           </div>
         </section>
       </main>
+    </div>
+  );
+}
+
+function PendingRoutePage({ title, description, href, linkLabel }: PendingRoutePageProps) {
+  return (
+    <div className="wd-company-page">
+      <PageContainer>
+        <section className="wd-page-heading">
+          <h1>{title}</h1>
+          <p>{description}</p>
+          <p>
+            <a href={href}>{linkLabel}</a>
+          </p>
+        </section>
+      </PageContainer>
     </div>
   );
 }
