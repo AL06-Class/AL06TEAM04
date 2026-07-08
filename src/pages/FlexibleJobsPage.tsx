@@ -107,7 +107,10 @@ export function FlexibleJobsPage() {
               <span className="wd-inline-icon wd-inline-icon--info" aria-hidden="true" />
               매칭 안내
             </strong>
-            <p>위치 + 요일 + 시간 + 업무가 모두 일치하는 기업을 우선 보여드리며, 완전 매칭이 없을 경우 조건이 일부 일치하는 결과를 순서대로 추천합니다.</p>
+            <div className="wd-flex-head__notice-copy">
+              <span>위치 + 요일 + 시간 + 업무가 모두 일치하는 기업을 우선 보여드리며,</span>
+              <p>완전 매칭이 없을 경우 조건이 일부 일치하는 결과를 순서대로 추천합니다.</p>
+            </div>
           </div>
         </section>
 
