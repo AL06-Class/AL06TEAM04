@@ -35,7 +35,7 @@ export function JobPostTable({ jobPostings, totalCount }: JobPostTableProps) {
 
       {jobPostings.map((jobPosting) => (
         <div className="wd-job-table__row" key={jobPosting.jobPostingId}>
-          <div className="wd-job-table__title wd-job-table__title--center">
+          <div className="wd-job-table__title">
             <strong>{jobPosting.title}</strong>
             <div className="wd-job-table__meta">
               <span>공고 ID {jobPosting.jobPostingId.replace("job-posting-", "")}</span>
@@ -43,7 +43,7 @@ export function JobPostTable({ jobPostings, totalCount }: JobPostTableProps) {
             </div>
           </div>
 
-          <div className="wd-job-table__cell-text wd-job-table__cell-text--center">
+          <div className="wd-job-table__cell-text">
             <strong>{jobPosting.jobCategory}</strong>
             <span>{jobPosting.jobTitle}</span>
           </div>
