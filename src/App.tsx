@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import gangnamMapMockup from "./assets/map-mockup-gangnam.png";
-import wonderdogsLogo from "./assets/wonderdogs-logo.png";
 import { PageContainer } from "./components/common/PageContainer";
+import { PublicHeaderNav } from "./components/common/PublicHeaderNav";
 import { AssignmentPage } from "./pages/company/AssignmentPage";
 import { CompanyDashboardPage } from "./pages/company/CompanyDashboardPage";
 import { JobPostCompletePage } from "./pages/company/JobPostCompletePage";
 import { JobPostCreatePage } from "./pages/company/JobPostCreatePage";
 import { JobPostManagePage } from "./pages/company/JobPostManagePage";
+import { FlexibleJobsPage } from "./pages/FlexibleJobsPage";
 
 const recommendedJobPostings = [
   {
@@ -56,6 +57,7 @@ const heroHighlights = [
 const routes = {
   home: "/",
   login: "/login",
+  flexibleJobs: "/flexible-jobs",
   companyDashboard: "/company",
   jobPostManage: "/company/job-posts"
 };
@@ -87,6 +89,10 @@ export default function App() {
 
   if (pathname === routes.login) {
     return <LoginPage />;
+  }
+
+  if (pathname === routes.flexibleJobs) {
+    return <FlexibleJobsPage />;
   }
 
   if (pathname === routes.companyDashboard) {
@@ -134,31 +140,10 @@ export default function App() {
   );
 }
 
-function Header() {
-  return (
-    <header className="wd-header">
-      <a className="wd-logo" href={routes.home} aria-label="WONDERDOGs 홈">
-        <img className="wd-logo__image" src={wonderdogsLogo} alt="WONDERDOGs" />
-      </a>
-      <nav className="wd-nav" aria-label="주요 메뉴">
-        <span className="wd-nav__active">유연근무 공고</span>
-        <span>경력자 찾기</span>
-        <span>채용 도우미</span>
-        <span>이용 안내</span>
-        <span>고객센터</span>
-      </nav>
-      <a className="wd-button wd-button--primary wd-button--compact" href={routes.login}>
-        <span className="wd-button__icon wd-icon wd-icon--user" aria-hidden="true" />
-        로그인
-      </a>
-    </header>
-  );
-}
-
 function MainHomePage() {
   return (
     <div className="wd-page">
-      <Header />
+      <PublicHeaderNav activePath="/" actionType="login" navType="default" />
 
       <main className="wd-container">
         <section className="wd-panel wd-hero" aria-labelledby="main-title">
@@ -179,10 +164,10 @@ function MainHomePage() {
                   맞는 채용을 연결합니다.
                 </p>
                 <div className="wd-actions">
-                  <span className="wd-button wd-button--primary">
+                  <a className="wd-button wd-button--primary" href={routes.flexibleJobs}>
                     <span className="wd-button__icon wd-icon wd-icon--pin" aria-hidden="true" />
                     유연근무 공고
-                  </span>
+                  </a>
                   <span className="wd-button wd-button--secondary">
                     <span className="wd-button__icon wd-icon wd-icon--search" aria-hidden="true" />
                     경력자 찾기
@@ -256,7 +241,7 @@ function MainHomePage() {
 function LoginPage() {
   return (
     <div className="wd-page">
-      <Header />
+      <PublicHeaderNav activePath="/login" actionType="login" navType="default" />
       <main className="wd-container wd-login-container">
         <section className="wd-login-panel" aria-labelledby="login-title">
           <div className="wd-login-heading">
@@ -278,7 +263,7 @@ function LoginPage() {
               <div>
                 <h2 className="wd-card__title">구직자</h2>
               </div>
-              <a className="wd-button wd-button--secondary" href={routes.jobPostManage}>구직자 로그인</a>
+              <button className="wd-button wd-button--secondary" type="button">구직자 로그인</button>
             </article>
           </div>
         </section>
