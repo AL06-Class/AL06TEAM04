@@ -11,8 +11,8 @@ type JobPostCompleteSummaryCardProps = {
 const summaryItems = [
   { label: "경력", key: "experienceLevel", icon: "briefcase" },
   { label: "근무 형태", key: "workType", icon: "home" },
-  { label: "고용 형태", key: "employmentType", icon: "building" },
-  { label: "연봉", key: "salaryText", icon: "coin" },
+  { label: "근무 요일", key: "workDays", icon: "building" },
+  { label: "근무 시간", key: "workHours", icon: "coin" },
   { label: "마감일", key: "deadline", icon: "calendar" },
   { label: "지원 현황", key: "applicants", icon: "user" }
 ] as const;
@@ -24,8 +24,8 @@ export function JobPostCompleteSummaryCard({
   const values = {
     experienceLevel: jobPosting.experienceLevel,
     workType: jobPosting.workType,
-    employmentType: jobPosting.employmentType,
-    salaryText: jobPosting.salaryText,
+    workDays: "주 3일 협의가능",
+    workHours: "4시간 10:00~15:00",
     deadline: "상시 채용",
     applicants: `${jobPosting.applicantCount ?? 0}명 지원`
   };
