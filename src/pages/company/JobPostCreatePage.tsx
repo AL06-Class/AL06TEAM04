@@ -247,6 +247,7 @@ export function JobPostCreatePage() {
     assignmentChoice === "existing"
       ? assignmentPool.find((assignment) => assignment.assignmentId === selectedAssignmentId) ?? null
       : null;
+  const completePath = "/company/job-posts/job-posting-2026-07-001/complete";
 
   const updateJobDraft = (field: keyof JobDraft, value: string) => {
     setJobDraft((current) => {
@@ -286,6 +287,10 @@ export function JobPostCreatePage() {
         assignment={selectedAssignment}
         jobDraft={previewJob}
         onBack={() => setIsFullPreviewOpen(false)}
+        onComplete={() => {
+          window.history.pushState(null, "", completePath);
+          window.dispatchEvent(new Event("wd:navigate"));
+        }}
       />
     );
   }
@@ -322,6 +327,10 @@ export function JobPostCreatePage() {
             canMoveNext={currentStepIndex(step) < stepMeta.length - 1}
             canMovePrevious={currentStepIndex(step) > 0}
             hasAssignment={Boolean(selectedAssignment)}
+            onComplete={() => {
+              window.history.pushState(null, "", completePath);
+              window.dispatchEvent(new Event("wd:navigate"));
+            }}
             onFullPreview={() => setIsFullPreviewOpen(true)}
             onMoveNext={() => moveStep(1)}
             onMovePrevious={() => moveStep(-1)}
@@ -599,7 +608,7 @@ function TextAreaField({ label, value, onChange, placeholder }: { label: string;
   );
 }
 
-function FooterActions({ canMoveNext, canMovePrevious, hasAssignment, onFullPreview, onMoveNext, onMovePrevious }: { canMoveNext: boolean; canMovePrevious: boolean; hasAssignment: boolean; onFullPreview: () => void; onMoveNext: () => void; onMovePrevious: () => void }) {
+function FooterActions({ canMoveNext, canMovePrevious, hasAssignment, onComplete, onFullPreview, onMoveNext, onMovePrevious }: { canMoveNext: boolean; canMovePrevious: boolean; hasAssignment: boolean; onComplete: () => void; onFullPreview: () => void; onMoveNext: () => void; onMovePrevious: () => void }) {
   return (
     <div className="wd-form-footer">
       <button className="wd-button wd-button--secondary" disabled={!canMovePrevious} type="button" onClick={onMovePrevious}>이전</button>
@@ -608,7 +617,7 @@ function FooterActions({ canMoveNext, canMovePrevious, hasAssignment, onFullPrev
         {canMoveNext ? (
           <button className="wd-button wd-button--primary" type="button" onClick={onMoveNext}>다음 단계</button>
         ) : (
-          <button className="wd-button wd-button--primary" type="button">등록 완료</button>
+          <button className="wd-button wd-button--primary" type="button" onClick={onComplete}>등록 완료</button>
         )}
       </div>
       <p className="wd-caption">{hasAssignment ? "선택한 기존 과제가 공고와 함께 연결됩니다." : "새 과제 생성 페이지로 이동하거나 기존 과제를 선택할 수 있습니다."}</p>
@@ -625,12 +634,12 @@ function JobPostPreviewPanel({ jobDraft, assignment }: { jobDraft: JobDraft; ass
   );
 }
 
-function FullJobPostPreview({ jobDraft, assignment, onBack }: { jobDraft: JobDraft; assignment: Assignment | null; onBack: () => void }) {
+function FullJobPostPreview({ jobDraft, assignment, onBack, onComplete }: { jobDraft: JobDraft; assignment: Assignment | null; onBack: () => void; onComplete: () => void }) {
   return (
     <main className="wd-container wd-full-preview-page">
       <div className="wd-full-preview-toolbar">
         <button className="wd-button wd-button--secondary" type="button" onClick={onBack}>작성 화면으로 돌아가기</button>
-        <button className="wd-button wd-button--primary" type="button">등록 완료</button>
+        <button className="wd-button wd-button--primary" type="button" onClick={onComplete}>등록 완료</button>
       </div>
       <article className="wd-panel wd-full-preview">
         <PreviewHeader title={jobDraft.title} />
