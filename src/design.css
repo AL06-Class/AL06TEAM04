@@ -1387,7 +1387,8 @@ a {
 }
 
 .wd-flex-list__header select {
-  min-width: 120px;
+  width: 132px;
+  min-width: 132px;
   min-height: 48px;
   padding: 0 16px;
   border: 1px solid var(--wd-border);
