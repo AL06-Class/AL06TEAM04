@@ -3568,55 +3568,28 @@ a {
 
 .wd-inline-icon--heart,
 .wd-inline-icon--heart-filled {
-  position: relative;
-  width: 14px;
-  height: 14px;
-  margin: 4px;
-  border-radius: 0 0 4px 0;
-  transform: rotate(-45deg);
-}
-
-.wd-inline-icon--heart {
-  border: 2px solid currentColor;
-}
-
-.wd-inline-icon--heart-filled {
-  background: currentColor;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  color: var(--wd-primary);
+  font-style: normal;
 }
 
 .wd-inline-icon--heart::before,
-.wd-inline-icon--heart::after,
-.wd-inline-icon--heart-filled::before,
-.wd-inline-icon--heart-filled::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+.wd-inline-icon--heart-filled::before {
+  position: static;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .wd-inline-icon--heart::before {
-  top: -8px;
-  left: -1px;
-  border: 2px solid currentColor;
-}
-
-.wd-inline-icon--heart::after {
-  top: -1px;
-  left: -8px;
-  border: 2px solid currentColor;
+  content: "♡";
 }
 
 .wd-inline-icon--heart-filled::before {
-  top: -7px;
-  left: 0;
-  background: currentColor;
-}
-
-.wd-inline-icon--heart-filled::after {
-  top: 0;
-  left: -7px;
-  background: currentColor;
+  content: "♥";
 }
 
 .wd-inline-icon--search::before {
