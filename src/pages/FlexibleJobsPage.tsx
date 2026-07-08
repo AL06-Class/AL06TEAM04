@@ -96,15 +96,22 @@ export function FlexibleJobsPage() {
       <PublicHeaderNav activePath="/flexible-jobs" memberLabel="이원서 일반 회원" navType="member" />
 
       <PageContainer>
-        <section className="wd-flex-shell wd-ui-card">
+        <section className="wd-flex-head">
+          <div>
+            <h1>유연근무 공고</h1>
+            <p>위치, 요일, 시간, 업무가 모두 맞는 결과를 우선 노출합니다.</p>
+          </div>
+
           <div className="wd-flex-head__notice">
             <strong>
               <span className="wd-inline-icon wd-inline-icon--info" aria-hidden="true" />
               매칭 안내
             </strong>
-            <p>위치 + 요일 + 시간 + 업무가 맞는 공고를 우선 보여드리고, 일부 일치 결과도 함께 추천합니다.</p>
+            <p>위치 + 요일 + 시간 + 업무가 모두 일치하는 기업을 우선 보여드리며, 완전 매칭이 없을 경우 조건이 일부 일치하는 결과를 순서대로 추천합니다.</p>
           </div>
+        </section>
 
+        <section className="wd-flex-shell wd-ui-card">
           <div className="wd-flex-filter wd-flex-filter--top">
             <select value={jobField} onChange={(event) => setJobField(event.target.value)}>
               <option>업무 분야 전체</option>
