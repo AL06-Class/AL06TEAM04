@@ -27,6 +27,24 @@ export function FlexibleJobsPage() {
   const [quickStartOnly, setQuickStartOnly] = useState(false);
   const [remotePreferred, setRemotePreferred] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>("match");
+  const [savedCompanyIds, setSavedCompanyIds] = useState<Set<string>>(new Set());
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const toggleSaved = (companyId: string) => {
+    setSavedCompanyIds((current) => {
+      const next = new Set(current);
+      if (next.has(companyId)) {
+        next.delete(companyId);
+      } else {
+        next.add(companyId);
+      }
+      return next;
+    });
+  };
+
+  const toggleMenu = (companyId: string) => {
+    setOpenMenuId((current) => (current === companyId ? null : companyId));
+  };
 
   const filteredCompanies = useMemo(() => {
     let list = [...flexibleJobCompanies];
@@ -229,6 +247,51 @@ export function FlexibleJobsPage() {
               <div className="wd-flex-company-list">
                 {filteredCompanies.map((company) => (
                   <article className="wd-flex-company wd-ui-card" key={company.id}>
+                    <div className="wd-flex-company__quick-actions">
+                      <button
+                        className={`wd-flex-company__like ${savedCompanyIds.has(company.id) ? "is-active" : ""}`}
+                        type="button"
+                        aria-pressed={savedCompanyIds.has(company.id)}
+                        aria-label={savedCompanyIds.has(company.id) ? "관심 기업 저장 취소" : "관심 기업 저장"}
+                        onClick={() => toggleSaved(company.id)}
+                      >
+                        <span
+                          className={`wd-inline-icon ${savedCompanyIds.has(company.id) ? "wd-inline-icon--heart-filled" : "wd-inline-icon--heart"}`}
+                          aria-hidden="true"
+                        />
+                      </button>
+                      <button
+                        className="wd-flex-company__more"
+                        type="button"
+                        aria-haspopup="true"
+                        aria-expanded={openMenuId === company.id}
+                        aria-label="더보기"
+                        onClick={() => toggleMenu(company.id)}
+                      >
+                        <span className="wd-inline-icon wd-inline-icon--kebab" aria-hidden="true" />
+                      </button>
+
+                      {openMenuId === company.id && (
+                        <>
+                          <button
+                            className="wd-flex-company__menu-backdrop"
+                            type="button"
+                            aria-hidden="true"
+                            tabIndex={-1}
+                            onClick={() => setOpenMenuId(null)}
+                          />
+                          <div className="wd-flex-company__menu" role="menu">
+                            <button type="button" role="menuitem" onClick={() => setOpenMenuId(null)}>
+                              숨기기
+                            </button>
+                            <button type="button" role="menuitem" onClick={() => setOpenMenuId(null)}>
+                              공유하기
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
                     <span className="wd-flex-company__rank">{company.rank}</span>
                     <div className={`wd-flex-company__logo wd-flex-company__logo--${company.logoType ?? "text"}`}>
                       {company.logoType === "wonderdogs" ? (
@@ -247,24 +310,30 @@ export function FlexibleJobsPage() {
                           {company.badge}
                         </span>
                       </div>
-                      <strong>{company.title}</strong>
+                      <strong>
+                        {company.title.split(" · ").map((part, index) => (
+                          <span className="wd-flex-company__title-line" key={index}>
+                            {part}
+                          </span>
+                        ))}
+                      </strong>
                       <p>{company.distance}</p>
                     </div>
 
-                    <dl className="wd-flex-company__meta">
-                      <div>
-                        <dt>요일</dt>
-                        <dd>{company.workDays}</dd>
-                      </div>
-                      <div>
-                        <dt>시간</dt>
-                        <dd>{company.workHours}</dd>
-                      </div>
-                      <div>
-                        <dt>형태</dt>
-                        <dd>{company.workStyle}</dd>
-                      </div>
-                    </dl>
+                    <ul className="wd-flex-company__conditions">
+                      <li>
+                        <span className="wd-inline-icon wd-inline-icon--calendar" aria-hidden="true" />
+                        {company.workDays}
+                      </li>
+                      <li>
+                        <span className="wd-inline-icon wd-inline-icon--clock" aria-hidden="true" />
+                        {company.workHours}
+                      </li>
+                      <li>
+                        <span className="wd-inline-icon wd-inline-icon--building" aria-hidden="true" />
+                        {company.workStyle}
+                      </li>
+                    </ul>
 
                     <div className="wd-flex-company__side">
                       <span className="wd-flex-company__assignment">{company.assignment}</span>
