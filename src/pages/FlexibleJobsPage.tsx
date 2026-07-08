@@ -321,18 +321,9 @@ export function FlexibleJobsPage() {
                     </div>
 
                     <ul className="wd-flex-company__conditions">
-                      <li>
-                        <span className="wd-inline-icon wd-inline-icon--calendar" aria-hidden="true" />
-                        {company.workDays}
-                      </li>
-                      <li>
-                        <span className="wd-inline-icon wd-inline-icon--clock" aria-hidden="true" />
-                        {company.workHours}
-                      </li>
-                      <li>
-                        <span className="wd-inline-icon wd-inline-icon--building" aria-hidden="true" />
-                        {company.workStyle}
-                      </li>
+                      <li>📅 {company.workDays}</li>
+                      <li>⏰ {company.workHours}</li>
+                      <li>📃 {company.workStyle}</li>
                     </ul>
 
                     <div className="wd-flex-company__side">
