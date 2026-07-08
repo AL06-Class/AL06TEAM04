@@ -4265,6 +4265,15 @@ a {
   color: #4b5563;
 }
 
+.wd-sai-badge--addition {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--wd-sai-border-active);
+  background: var(--wd-sai-primary-soft);
+  color: var(--wd-sai-primary);
+  font-size: 11px;
+}
+
 .wd-sai-page-head {
   display: flex;
   align-items: flex-end;
@@ -4338,7 +4347,7 @@ a {
 
 .wd-sai-form-panel,
 .wd-sai-generated-panel {
-  padding: 18px;
+  padding: 28px 18px;
 }
 
 .wd-sai-generated-shell {
@@ -4357,6 +4366,10 @@ a {
   top: 24px;
   display: grid;
   gap: 15px;
+}
+
+.wd-sai-generated-panel {
+  display: block;
 }
 
 .wd-sai-form-panel h2,
@@ -4743,6 +4756,10 @@ a {
 .wd-sai-manage-page {
   padding-top: 34px;
   background: var(--wd-page);
+}
+
+.wd-sai-assignment-card textarea {
+  min-height: 72px;
 }
 
 .wd-sai-manage-content--selection {

@@ -48,6 +48,7 @@ type GeneratedAssignment = {
   evaluation: string;
   status: GeneratedStatus;
   selected: boolean;
+  isAdditional?: boolean;
 };
 
 const directInputOption = "직접입력";
@@ -204,9 +205,15 @@ const assignmentThemes = [
 ];
 
 const difficultyPlan: Difficulty[] = ["상", "상", "상", "상", "중", "중", "중", "하", "하", "하"];
-const additionalDifficultyPlan: Difficulty[] = ["상", "중", "하"];
+const additionalDifficultyPlan: Difficulty[] = ["상", "상", "중", "중", "하"];
 
-function createGeneratedAssignment(index: number, seed: number, question: CustomQuestion, difficultyOverride?: Difficulty): GeneratedAssignment {
+function createGeneratedAssignment(
+  index: number,
+  seed: number,
+  question: CustomQuestion,
+  difficultyOverride?: Difficulty,
+  isAdditional = false
+): GeneratedAssignment {
   const difficulty = difficultyOverride ?? difficultyPlan[index % difficultyPlan.length];
   const theme = assignmentThemes[(index + seed) % assignmentThemes.length];
 
@@ -223,7 +230,8 @@ function createGeneratedAssignment(index: number, seed: number, question: Custom
           ? "문제 이해도 30%, 실행 가능성 30%, 업무 스킬 활용 25%, 전달력 15%"
           : "기본 이해도 35%, 필수 항목 충족 30%, 명확성 20%, 성실도 15%",
     status: "generated",
-    selected: false
+    selected: false,
+    isAdditional
   };
 }
 
@@ -630,7 +638,6 @@ function AssignmentAiPage({
   const formGuide = isReadOnlyMode
     ? "공고에 연결된 과제의 기본 정보를 확인할 수 있습니다."
     : "맞춤 질문에 답하면 AI가 채용직무에 맞는 사전과제를 생성합니다.";
-
   useEffect(() => {
     if (!focusedAssignment) {
       setShowDraftOnly(false);
@@ -684,7 +691,7 @@ function AssignmentAiPage({
       setGeneratedAssignments((items) => [
         ...items,
         ...additionalDifficultyPlan.map((difficulty, index) =>
-          createGeneratedAssignment(items.length + index, nextSeed, question, difficulty)
+          createGeneratedAssignment(items.length + index, nextSeed, question, difficulty, true)
         )
       ]);
       return;
@@ -897,6 +904,7 @@ function AssignmentAiPage({
                     >
                       {assignment.status === "registered" ? "공고연결 완료" : assignment.status === "draft" ? "임시저장" : assignment.difficulty}
                     </span>
+                    {assignment.isAdditional && <span className="wd-sai-badge wd-sai-badge--addition">추가</span>}
                     {showDraftOnly && assignment.status === "draft" && (
                       <button className="wd-sai-inline-cancel" type="button" onClick={() => cancelDraft(assignment.id)}>
                         저장취소
