@@ -5,7 +5,7 @@ export const jobPostingsMock: JobPosting[] = [
     jobPostingId: "job-posting-2026-07-001",
     companyId: "company_wonderdogs",
     recruiterId: "recruiter_hyo",
-    title: "UX/UI 디자이너",
+    title: "UI/UX 디자이너",
     industry: "채용 플랫폼",
     jobCategory: "디자인",
     jobTitle: "UI/UX",

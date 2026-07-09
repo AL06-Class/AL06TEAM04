@@ -339,6 +339,7 @@ export function JobPostCreatePage() {
     assignmentChoice === "existing"
       ? assignmentPool.find((assignment) => assignment.assignmentId === selectedAssignmentId) ?? null
       : null;
+  const completePath = "/company/job-posts/job-posting-2026-07-001/complete";
 
   const updateJobDraft = <K extends keyof JobDraft>(field: K, value: JobDraft[K]) => {
     setJobDraft((current) => {
@@ -367,7 +368,8 @@ export function JobPostCreatePage() {
   };
 
   const completeRegistration = () => {
-    window.location.href = "/company/job-posts/job-posting-2026-07-001/complete";
+    window.history.pushState(null, "", completePath);
+    window.dispatchEvent(new Event("wd:navigate"));
   };
 
   const editPreviewStep = (nextStep: CreateStep) => {
