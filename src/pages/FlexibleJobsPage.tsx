@@ -93,7 +93,7 @@ export function FlexibleJobsPage() {
 
   return (
     <div className="wd-company-page">
-      <PublicHeaderNav activePath="/flexible-jobs" memberLabel="이원서 일반 회원" navType="member" />
+      <PublicHeaderNav activePath="/flexible-jobs" memberLabel="개인 회원 (이원서님)" navType="member" />
 
       <PageContainer>
         <section className="wd-flex-head">

@@ -24,7 +24,7 @@ const memberMenuItems = [
 
 export function PublicHeaderNav({
   activePath,
-  memberLabel = "원더독스 일반 회원",
+  memberLabel = "원더독스 개인 회원",
   actionType = "member",
   navType = "default"
 }: PublicHeaderNavProps) {
