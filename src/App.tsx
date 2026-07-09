@@ -255,9 +255,9 @@ function LoginPage() {
             <article className="wd-card wd-login-card">
               <span className="wd-login-card__icon wd-icon wd-icon--user" aria-hidden="true" />
               <div>
-                <h2 className="wd-card__title">구직자</h2>
+                <h2 className="wd-card__title">개인 회원</h2>
               </div>
-              <button className="wd-button wd-button--secondary" type="button">구직자 로그인</button>
+              <a className="wd-button wd-button--secondary" href={routes.flexibleJobs}>개인회원 로그인</a>
             </article>
           </div>
         </section>
