@@ -2352,6 +2352,311 @@ a {
   }
 }
 
+/* Public job post detail */
+.wd-job-detail-page {
+  min-height: 100vh;
+  background: var(--wd-page);
+}
+
+.wd-job-detail-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 52px;
+  border-bottom: 1px solid var(--wd-border);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+}
+
+.wd-job-detail-header__logo img {
+  display: block;
+  width: 190px;
+  height: auto;
+}
+
+.wd-job-detail-header__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.wd-job-detail-header__nav a {
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--wd-text-secondary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.wd-job-detail-header__nav a:hover {
+  background: var(--wd-primary-soft);
+  color: var(--wd-primary);
+}
+
+.wd-job-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+.wd-job-detail-main,
+.wd-job-detail-side {
+  display: grid;
+  gap: 18px;
+}
+
+.wd-job-detail-hero,
+.wd-job-detail-section,
+.wd-job-detail-apply-card,
+.wd-job-detail-map-card,
+.wd-job-detail-assignment-card {
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-lg);
+  background: var(--wd-white);
+  box-shadow: 0 14px 34px rgba(17, 24, 39, 0.06);
+}
+
+.wd-job-detail-hero {
+  display: grid;
+  gap: 16px;
+  padding: 36px;
+}
+
+.wd-job-detail-hero__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.wd-job-detail-hero__eyebrow span,
+.wd-job-detail-hero__eyebrow strong,
+.wd-job-detail-apply-card > span,
+.wd-job-detail-assignment-card > span {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wd-job-detail-hero__eyebrow span,
+.wd-job-detail-apply-card > span,
+.wd-job-detail-assignment-card > span {
+  background: var(--wd-primary-soft);
+  color: var(--wd-primary);
+}
+
+.wd-job-detail-hero__eyebrow strong {
+  background: var(--wd-success-bg);
+  color: var(--wd-success-text);
+}
+
+.wd-job-detail-hero h1 {
+  margin: 0;
+  color: var(--wd-text);
+  font-size: clamp(38px, 4vw, 56px);
+  line-height: 1.12;
+}
+
+.wd-job-detail-hero p {
+  margin: 0;
+  color: var(--wd-text-secondary);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.wd-job-detail-section {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+}
+
+.wd-job-detail-section h2,
+.wd-job-detail-apply-card h2,
+.wd-job-detail-assignment-card h3 {
+  margin: 0;
+  color: var(--wd-text);
+}
+
+.wd-job-detail-section h2 {
+  font-size: 24px;
+}
+
+.wd-job-detail-summary-grid,
+.wd-job-detail-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wd-job-detail-item {
+  display: grid;
+  gap: 6px;
+  min-height: 88px;
+  padding: 16px;
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-sm);
+  background: #fbfcff;
+}
+
+.wd-job-detail-item span,
+.wd-job-detail-list h3,
+.wd-job-detail-map-card span {
+  color: var(--wd-text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wd-job-detail-item strong {
+  color: var(--wd-text);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.wd-job-detail-list {
+  padding: 18px;
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-sm);
+  background: #fbfcff;
+}
+
+.wd-job-detail-list h3 {
+  margin: 0 0 12px;
+}
+
+.wd-job-detail-list ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--wd-text);
+  line-height: 1.55;
+}
+
+.wd-job-detail-process {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wd-job-detail-process li {
+  position: relative;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-sm);
+  background: #fbfcff;
+  color: var(--wd-text);
+  font-weight: 900;
+}
+
+.wd-job-detail-process li:not(:last-child)::after {
+  content: ">";
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  color: var(--wd-text-secondary);
+  transform: translateY(-50%);
+}
+
+.wd-job-detail-side {
+  position: sticky;
+  top: 96px;
+}
+
+.wd-job-detail-apply-card,
+.wd-job-detail-assignment-card {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+}
+
+.wd-job-detail-apply-card p,
+.wd-job-detail-assignment-card p {
+  margin: 0;
+  color: var(--wd-text-secondary);
+  line-height: 1.55;
+}
+
+.wd-job-detail-map-card {
+  overflow: hidden;
+}
+
+.wd-job-detail-map-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.wd-job-detail-map-card div {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.wd-job-detail-map-card strong {
+  color: var(--wd-text);
+  line-height: 1.45;
+}
+
+@media (max-width: 1180px) {
+  .wd-job-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wd-job-detail-side {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .wd-job-detail-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 20px;
+  }
+
+  .wd-job-detail-header__logo img {
+    width: 170px;
+  }
+
+  .wd-job-detail-header__nav {
+    justify-content: flex-start;
+  }
+
+  .wd-job-detail-hero,
+  .wd-job-detail-section {
+    padding: 22px;
+  }
+
+  .wd-job-detail-summary-grid,
+  .wd-job-detail-list-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wd-job-detail-process {
+    display: grid;
+  }
+
+  .wd-job-detail-process li:not(:last-child)::after {
+    display: none;
+  }
+}
+
 /* Job post creation flow */
 .wd-header a {
   color: inherit;
@@ -2548,7 +2853,8 @@ a {
 
 .wd-field input,
 .wd-field select,
-.wd-field textarea {
+.wd-field textarea,
+.wd-inline-control {
   width: 100%;
   min-height: 48px;
   padding: 0 14px;
@@ -2573,7 +2879,8 @@ a {
 
 .wd-field input:focus,
 .wd-field select:focus,
-.wd-field textarea:focus {
+.wd-field textarea:focus,
+.wd-inline-control:focus {
   border-color: var(--wd-border-active);
   box-shadow: 0 0 0 4px rgba(108, 47, 242, 0.08);
 }
@@ -2582,6 +2889,166 @@ a {
   color: var(--wd-text-secondary);
   font-size: 12px;
   font-weight: 600;
+}
+
+.wd-range-select-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.wd-career-row {
+  display: grid;
+  grid-template-columns: auto auto minmax(140px, 0.8fr) auto minmax(140px, 0.8fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.wd-range-divider {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  color: var(--wd-text-secondary);
+  font-weight: 900;
+}
+
+.wd-employment-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wd-probation-box {
+  display: grid;
+  width: min(100%, 320px);
+  padding: 14px;
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-sm);
+  background: var(--wd-primary-soft);
+}
+
+.wd-salary-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) minmax(220px, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.wd-min-wage-notice {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--wd-radius-sm);
+  background: #eff6ff;
+  color: var(--wd-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.wd-min-wage-notice strong {
+  color: #1d4ed8;
+}
+
+.wd-min-wage-notice a {
+  width: fit-content;
+  color: var(--wd-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.wd-additional-row,
+.wd-duration-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wd-add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--wd-border);
+  border-radius: 999px;
+  background: var(--wd-white);
+  color: var(--wd-text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wd-add-button.is-active {
+  border-color: var(--wd-primary);
+  background: var(--wd-primary-soft);
+  color: var(--wd-primary);
+}
+
+.wd-application-period {
+  display: grid;
+  grid-template-columns: minmax(136px, 1fr) minmax(136px, 1fr) minmax(88px, 0.62fr) auto minmax(136px, 1fr) minmax(88px, 0.62fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.wd-application-period .wd-duration-row {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.wd-hiring-process {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+}
+
+.wd-hiring-step {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--wd-radius-sm);
+  background: #f3f4f6;
+}
+
+.wd-hiring-step:not(:last-of-type)::after {
+  content: ">";
+  position: absolute;
+  right: -14px;
+  color: var(--wd-text-secondary);
+  font-weight: 900;
+}
+
+.wd-hiring-step input {
+  width: 132px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--wd-border);
+  border-radius: 8px;
+  background: var(--wd-white);
+  color: var(--wd-text);
+  font-weight: 800;
+}
+
+.wd-hiring-step button,
+.wd-hiring-add {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--wd-border);
+  border-radius: 10px;
+  background: var(--wd-white);
+  color: var(--wd-text-secondary);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .wd-section-heading {
@@ -2632,6 +3099,260 @@ a {
   border-color: var(--wd-border-active);
   background: var(--wd-white);
   color: var(--wd-primary);
+}
+
+.wd-assignment-choice-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-sm);
+  background: var(--wd-page);
+}
+
+.wd-assignment-choice-tabs__button {
+  min-height: 56px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--wd-text-secondary);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.wd-assignment-choice-tabs__button.is-active {
+  border-color: var(--wd-primary);
+  background: var(--wd-primary);
+  color: var(--wd-white);
+  box-shadow: 0 12px 24px rgba(108, 47, 242, 0.22);
+}
+
+.wd-new-assignment-panel {
+  display: grid;
+  place-items: center;
+  gap: 24px;
+  min-height: 176px;
+  padding: 34px 24px;
+  border: 1px dashed var(--wd-border-active);
+  border-radius: var(--wd-radius-md);
+  background: linear-gradient(180deg, var(--wd-white), #fbf9ff);
+  text-align: center;
+}
+
+.wd-new-assignment-panel p {
+  margin: 0;
+  color: var(--wd-text);
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.wd-new-assignment-panel__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--wd-primary);
+  border-radius: var(--wd-radius-sm);
+  background: var(--wd-white);
+  color: var(--wd-primary);
+  font-size: 20px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.wd-new-assignment-panel__cta:hover {
+  background: var(--wd-primary-soft);
+}
+
+.wd-flex-work-stack {
+  display: grid;
+  gap: 20px;
+}
+
+.wd-work-location,
+.wd-flex-section,
+.wd-work-time-card {
+  display: grid;
+  gap: 14px;
+}
+
+.wd-work-location {
+  padding: 18px;
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-md);
+  background: #fbf9ff;
+}
+
+.wd-address-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.wd-address-row .wd-button {
+  min-width: 84px;
+  min-height: 48px;
+}
+
+.wd-work-mode-options,
+.wd-day-toggle-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wd-check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--wd-border);
+  border-radius: 999px;
+  background: var(--wd-white);
+  color: var(--wd-text-secondary);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wd-check-pill.is-selected {
+  border-color: var(--wd-primary);
+  background: var(--wd-primary-soft);
+  color: var(--wd-primary-dark);
+}
+
+.wd-check-pill__box {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--wd-border);
+  border-radius: 4px;
+  background: var(--wd-white);
+}
+
+.wd-check-pill.is-selected .wd-check-pill__box {
+  border-color: var(--wd-primary);
+  background: var(--wd-primary);
+}
+
+.wd-check-pill.is-selected .wd-check-pill__box::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid var(--wd-white);
+  border-bottom: 2px solid var(--wd-white);
+  transform: rotate(45deg);
+}
+
+.wd-flex-section__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wd-flex-section__head h3 {
+  margin: 0;
+  color: var(--wd-text);
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.wd-flex-section__head span {
+  color: var(--wd-text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.wd-option-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wd-option-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 64px;
+  padding: 12px;
+  border: 1px solid var(--wd-border);
+  border-radius: var(--wd-radius-sm);
+  background: var(--wd-white);
+  color: var(--wd-text-secondary);
+}
+
+.wd-option-card.is-selected {
+  border-color: var(--wd-primary);
+  background: var(--wd-primary-soft);
+}
+
+.wd-option-card__select {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wd-option-card__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wd-text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.wd-help-dot {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--wd-border-active);
+  border-radius: 999px;
+  background: var(--wd-white);
+  color: var(--wd-primary);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.wd-help-tooltip {
+  grid-column: 1 / -1;
+  padding: 12px 14px;
+  border: 1px solid var(--wd-border-active);
+  border-radius: 8px;
+  background: var(--wd-white);
+  color: var(--wd-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  box-shadow: 0 12px 24px rgba(17, 24, 39, 0.08);
+}
+
+.wd-work-time-card {
+  padding: 18px;
+  border: 1px solid var(--wd-border-active);
+  border-radius: var(--wd-radius-md);
+  background: var(--wd-primary-soft);
 }
 
 .wd-assignment-hero {
@@ -2864,6 +3585,11 @@ a {
   line-height: 1.6;
 }
 
+.wd-preview-subtitle {
+  color: var(--wd-text);
+  font-size: 14px;
+}
+
 .wd-linked-assignment {
   display: grid;
   gap: 8px;
@@ -3049,6 +3775,30 @@ a {
   font-size: 14px;
 }
 
+.wd-assignment-table-footer {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  border-top: 1px solid var(--wd-border);
+}
+
+.wd-assignment-more-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--wd-border-active);
+  border-radius: var(--wd-radius-sm);
+  background: var(--wd-white);
+  color: var(--wd-primary);
+  font-weight: 900;
+}
+
+.wd-assignment-more-link:hover {
+  background: var(--wd-primary-soft);
+}
+
 .wd-table-select {
   min-height: 34px;
   border: 1px solid var(--wd-primary);
@@ -3119,8 +3869,14 @@ a {
   .wd-form-footer__right,
   .wd-assignment-card,
   .wd-assignment-hero,
+  .wd-address-row,
+  .wd-application-period,
+  .wd-career-row,
   .wd-form-grid,
+  .wd-option-card-grid,
   .wd-filter-row,
+  .wd-range-select-row,
+  .wd-salary-row,
   .wd-time-pair,
   .wd-preview-content--full,
   .wd-full-preview-toolbar {
@@ -3138,12 +3894,40 @@ a {
   }
 
   .wd-stepper,
+  .wd-assignment-choice-tabs,
   .wd-segmented {
     grid-template-columns: 1fr;
   }
 
+  .wd-new-assignment-panel {
+    min-height: 160px;
+    padding: 28px 18px;
+  }
+
+  .wd-new-assignment-panel p {
+    font-size: 15px;
+  }
+
+  .wd-new-assignment-panel__cta {
+    width: 100%;
+    font-size: 18px;
+  }
+
   .wd-form-footer__right {
     display: grid;
+  }
+
+  .wd-flex-section__head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .wd-flex-section__head span {
+    text-align: left;
+  }
+
+  .wd-range-divider {
+    min-height: auto;
   }
 
   .wd-caption {
