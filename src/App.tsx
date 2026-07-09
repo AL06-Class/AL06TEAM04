@@ -8,6 +8,7 @@ import { JobPostCompletePage } from "./pages/company/JobPostCompletePage";
 import { JobPostCreatePage } from "./pages/company/JobPostCreatePage";
 import { JobPostManagePage } from "./pages/company/JobPostManagePage";
 import { FlexibleJobsPage } from "./pages/FlexibleJobsPage";
+import { JobPostDetailPage } from "./pages/JobPostDetailPage";
 
 const recommendedJobPostings = [
   {
@@ -116,14 +117,7 @@ export default function App() {
   }
 
   if (detailMatch) {
-    return (
-      <PendingRoutePage
-        description="공고 상세 보기 페이지는 현재 다른 협업자가 작업 중입니다."
-        href="/company/job-posts"
-        linkLabel="공고 관리로 이동"
-        title="공고 상세 보기 페이지 준비 중"
-      />
-    );
+    return <JobPostDetailPage jobPostingId={detailMatch[1]} />;
   }
 
   if (pathname === routes.home) {

@@ -1,5 +1,7 @@
 ﻿import { useMemo, useState, type ReactNode } from "react";
 
+import { CompanyHeaderNav } from "../../components/company/CompanyHeaderNav";
+
 type CreateStep = "company" | "flexible-work" | "work-detail" | "assignment";
 type AssignmentStatus = "available" | "linked" | "draft";
 type AssignmentOwner = "mine" | "public";
@@ -33,16 +35,32 @@ type JobDraft = {
   jobTitle: string;
   customJobTitle: string;
   seniority: string;
+  isCareerRequired: boolean;
+  isExperienceIrrelevant: boolean;
+  experienceMin: string;
+  experienceMax: string;
+  education: string;
+  additionalSections: string[];
   requiredSkillsText: string;
   mainTasks: string;
   preferredQualifications: string;
+  employmentType: string;
+  probationPeriod: string;
+  salaryText: string;
+  salaryAmount: string;
+  applicationDeadlineType: string;
+  applicationStartDate: string;
+  applicationStartTime: string;
+  applicationEndDate: string;
+  applicationEndTime: string;
+  applicationDuration: string;
+  hiringProcess: string[];
   workType: string;
-  flexibleWorkType: string;
-  workDays: string;
+  flexibleWorkTypes: string[];
+  workDays: string[];
   dailyWorkHours: string;
   workStartTime: string;
   workEndTime: string;
-  salaryText: string;
 };
 
 type AssignmentFilters = {
@@ -52,19 +70,47 @@ type AssignmentFilters = {
   keyword: string;
 };
 
+type JobDraftChange = <K extends keyof JobDraft>(field: K, value: JobDraft[K]) => void;
+
 const stepMeta: Array<{ id: CreateStep; title: string; description: string }> = [
-  { id: "company", title: "회사 기본 정보", description: "회사명, 위치, 담당자 정보" },
+  { id: "company", title: "회사 기본 정보", description: "회사명, 담당자 정보" },
   { id: "flexible-work", title: "유연근무 조건", description: "근무 방식, 요일, 시간" },
-  { id: "work-detail", title: "업무 상세", description: "직무, 경력, 주요 업무, 역량" },
+  { id: "work-detail", title: "업무 상세", description: "직무, 경력, 고용형태" },
   { id: "assignment", title: "과제 연결", description: "기존 과제 검색 또는 새 과제 생성" }
 ];
 
 const occupationOptions = ["UI/UX디자인", "프로덕트 디자인", "웹디자인", "프론트엔드 개발", "서비스 운영", "직접입력"];
 const businessFieldOptions = ["IT 서비스", "플랫폼", "이커머스", "라이프스타일", "교육"];
-const jobTitleOptions = ["서비스 디자이너", "프로덕트 디자이너", "UX 리서처", "UI 디자이너", "CX 매니저", "직접입력"];
+const jobTitleOptions = ["UI/UX 디자이너", "프로덕트 디자이너", "UX 리서처", "UI 디자이너", "CX 매니저", "프론트엔드 개발자"];
 const seniorityOptions = ["주니어(1~3년차)", "주니어(3~5년차)", "미드 레벨(5~10년차)", "시니어(10~15년차)", "경력 무관"];
-const workTypeOptions = ["하이브리드", "재택", "출근", "완전 원격"];
-const flexibleWorkTypeOptions = ["재택 가능", "하이브리드", "시차 출근", "시간 협의", "유연근무"];
+const experienceMinOptions = Array.from({ length: 20 }, (_, index) => `${index + 1}년 이상`);
+const experienceMaxOptions = Array.from({ length: 20 }, (_, index) => `${index + 1}년 이하`);
+const educationOptions = ["학력무관", "고졸 이상", "초대졸 이상", "대졸 이상", "석사 이상"];
+const employmentTypeOptions = ["정규직", "계약직"];
+const probationPeriodOptions = ["수습기간 없음", "1개월", "2개월", "3개월", "6개월"];
+const salaryOptions = ["면접 후 결정", "회사 내규에 따름", "연봉 입력"];
+const applicationDeadlineOptions = ["마감일 지정", "채용 시 마감", "상시 채용"];
+const applicationHourOptions = Array.from({ length: 25 }, (_, index) => `${index}시`);
+const applicationDurationOptions = ["1개월", "2개월"];
+const workTypeOptions = ["100% 원격근무", "원격근무 중심", "출근중심"];
+const flexibleWorkTypeOptions = [
+  {
+    value: "원격근무",
+    description: "정해진 근무지 출근 없이 집이나 원하는 장소에서 일할 수 있어요."
+  },
+  {
+    value: "시차 출퇴근",
+    description: "출근과 퇴근 시간을 정해진 범위 안에서 조정할 수 있어요."
+  },
+  {
+    value: "시간 선택",
+    description: "하루 근무 시간을 유지하되 일하는 시간대를 협의할 수 있어요."
+  },
+  {
+    value: "단축 근무",
+    description: "일 4~6시간처럼 일반 풀타임보다 짧은 시간으로 일해요."
+  }
+];
 const workDaysOptions = ["월", "화", "수", "목", "금", "토", "일", "협의 가능"];
 const dailyWorkHourOptions = ["일 4시간", "일 5시간", "일 6시간", "일 7시간", "일 8시간"];
 
@@ -82,7 +128,7 @@ const assignmentPool: Assignment[] = [
     status: "available",
     occupation: "UI/UX디자인",
     businessField: "IT 서비스",
-    seniority: "주니어(3~5년차)",
+    seniority: "주니어(1~3년차)",
     title: "서비스 개선 아이디어 제안",
     adoptionCount: 12,
     estimatedHours: "3~4시간",
@@ -108,9 +154,9 @@ const assignmentPool: Assignment[] = [
     owner: "public",
     companyName: "유엑스디자인(주)",
     status: "available",
-    occupation: "UI/UX디자인",
-    businessField: "IT 서비스",
-    seniority: "주니어(3~5년차)",
+    occupation: "서비스 운영",
+    businessField: "교육",
+    seniority: "경력 무관",
     title: "사용자 리서치 기반 온보딩 개선안",
     adoptionCount: 48,
     estimatedHours: "3시간",
@@ -123,8 +169,8 @@ const assignmentPool: Assignment[] = [
     companyName: "코어플랫폼",
     status: "available",
     occupation: "프론트엔드 개발",
-    businessField: "플랫폼",
-    seniority: "주니어(3~5년차)",
+    businessField: "라이프스타일",
+    seniority: "시니어(10~15년차)",
     title: "반응형 주문 관리 컴포넌트 구현",
     adoptionCount: 15,
     estimatedHours: "3시간",
@@ -160,16 +206,32 @@ const initialJobDraft: JobDraft = {
   jobTitle: "",
   customJobTitle: "",
   seniority: "",
+  isCareerRequired: false,
+  isExperienceIrrelevant: false,
+  experienceMin: "",
+  experienceMax: "",
+  education: "",
+  additionalSections: [],
   requiredSkillsText: "",
   mainTasks: "",
   preferredQualifications: "",
+  employmentType: "",
+  probationPeriod: "",
+  salaryText: "",
+  salaryAmount: "",
+  applicationDeadlineType: "",
+  applicationStartDate: "2026-07-08",
+  applicationStartTime: "13시",
+  applicationEndDate: "",
+  applicationEndTime: "",
+  applicationDuration: "",
+  hiringProcess: ["서류전형", "1차면접", "2차면접", "최종합격"],
   workType: "",
-  flexibleWorkType: "",
-  workDays: "",
+  flexibleWorkTypes: [],
+  workDays: [],
   dailyWorkHours: "",
   workStartTime: "",
-  workEndTime: "",
-  salaryText: ""
+  workEndTime: ""
 };
 
 function getInitialStep(): CreateStep {
@@ -208,6 +270,36 @@ function addWorkHoursWithLunch(startTime: string, dailyWorkHours: string) {
 
 function getResolvedValue(value: string, customValue: string) {
   return value === "직접입력" ? customValue : value;
+}
+
+function toggleArrayValue(values: string[], value: string) {
+  return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
+}
+
+function getExperienceRange(min: string, max: string, isExperienceIrrelevant = false) {
+  if (isExperienceIrrelevant) return "경력 무관";
+  if (min && max) return `${min} 이상 ~ ${max} 이하`;
+  if (min) return `${min} 이상`;
+  if (max) return `${max} 이하`;
+  return "";
+}
+
+function getEmploymentText(employmentType: string, probationPeriod: string) {
+  if (!employmentType) return "";
+  if (employmentType === "정규직" && probationPeriod) return `${employmentType} · ${probationPeriod}`;
+  return employmentType;
+}
+
+function getSalaryText(salaryText: string, salaryAmount: string) {
+  if (salaryText === "연봉 입력" && salaryAmount) return `${salaryText} · ${salaryAmount}`;
+  return salaryText;
+}
+
+function getApplicationPeriodText(draft: JobDraft) {
+  const start = [draft.applicationStartDate, draft.applicationStartTime].filter(Boolean).join(" ");
+  const end = [draft.applicationEndDate, draft.applicationEndTime].filter(Boolean).join(" ");
+  const range = start || end ? `${start || "시작일 미정"} ~ ${end || "마감일 미정"}` : "";
+  return [draft.applicationDeadlineType, range, draft.applicationDuration].filter(Boolean).join(" · ");
 }
 
 export function JobPostCreatePage() {
@@ -249,18 +341,18 @@ export function JobPostCreatePage() {
       : null;
   const completePath = "/company/job-posts/job-posting-2026-07-001/complete";
 
-  const updateJobDraft = (field: keyof JobDraft, value: string) => {
+  const updateJobDraft = <K extends keyof JobDraft>(field: K, value: JobDraft[K]) => {
     setJobDraft((current) => {
       const next = { ...current, [field]: value };
       if (field === "workStartTime" || field === "dailyWorkHours") {
         next.workEndTime = addWorkHoursWithLunch(
-          field === "workStartTime" ? value : current.workStartTime,
-          field === "dailyWorkHours" ? value : current.dailyWorkHours
+          field === "workStartTime" ? String(value) : current.workStartTime,
+          field === "dailyWorkHours" ? String(value) : current.dailyWorkHours
         );
       }
-      if (field === "occupation") setFilters((currentFilters) => ({ ...currentFilters, occupation: value }));
-      if (field === "businessField") setFilters((currentFilters) => ({ ...currentFilters, businessField: value }));
-      if (field === "seniority") setFilters((currentFilters) => ({ ...currentFilters, seniority: value }));
+      if (field === "occupation") setFilters((currentFilters) => ({ ...currentFilters, occupation: String(value) }));
+      if (field === "businessField") setFilters((currentFilters) => ({ ...currentFilters, businessField: String(value) }));
+      if (field === "seniority") setFilters((currentFilters) => ({ ...currentFilters, seniority: String(value) }));
       return next;
     });
   };
@@ -275,6 +367,16 @@ export function JobPostCreatePage() {
     goToStep(stepMeta[nextIndex].id);
   };
 
+  const completeRegistration = () => {
+    window.history.pushState(null, "", completePath);
+    window.dispatchEvent(new Event("wd:navigate"));
+  };
+
+  const editPreviewStep = (nextStep: CreateStep) => {
+    setIsFullPreviewOpen(false);
+    goToStep(nextStep);
+  };
+
   const previewJob = {
     ...jobDraft,
     occupation: resolvedOccupation,
@@ -283,27 +385,28 @@ export function JobPostCreatePage() {
 
   if (isFullPreviewOpen) {
     return (
-      <FullJobPostPreview
-        assignment={selectedAssignment}
-        jobDraft={previewJob}
-        onBack={() => setIsFullPreviewOpen(false)}
-        onComplete={() => {
-          window.history.pushState(null, "", completePath);
-          window.dispatchEvent(new Event("wd:navigate"));
-        }}
-      />
+      <div className="wd-company-page">
+        <CompanyHeaderNav activePath="/company/job-posts" />
+        <FullJobPostPreview
+          assignment={selectedAssignment}
+          jobDraft={previewJob}
+          onBack={() => setIsFullPreviewOpen(false)}
+          onComplete={completeRegistration}
+          onEditStep={editPreviewStep}
+        />
+      </div>
     );
   }
 
   return (
-    <main className="wd-container wd-create-page">
+    <div className="wd-company-page">
+      <CompanyHeaderNav activePath="/company/job-posts" />
+      <main className="wd-container wd-create-page">
       <div className="wd-page-heading">
         <div>
-          <p className="wd-eyebrow">공고 관리 / 새 공고 등록</p>
           <h1 className="wd-page-title">새 공고 등록하기</h1>
           <p className="wd-lead">공고관리에서 새 공고 등록하기를 눌렀을 때 이어지는 등록 화면입니다.</p>
         </div>
-        <button className="wd-button wd-button--secondary" type="button">임시 저장</button>
       </div>
 
       <div className="wd-create-layout">
@@ -327,18 +430,16 @@ export function JobPostCreatePage() {
             canMoveNext={currentStepIndex(step) < stepMeta.length - 1}
             canMovePrevious={currentStepIndex(step) > 0}
             hasAssignment={Boolean(selectedAssignment)}
-            onComplete={() => {
-              window.history.pushState(null, "", completePath);
-              window.dispatchEvent(new Event("wd:navigate"));
-            }}
+            onComplete={completeRegistration}
             onFullPreview={() => setIsFullPreviewOpen(true)}
             onMoveNext={() => moveStep(1)}
             onMovePrevious={() => moveStep(-1)}
           />
         </section>
-        <JobPostPreviewPanel assignment={selectedAssignment} jobDraft={previewJob} />
+        <JobPostPreviewPanel assignment={selectedAssignment} jobDraft={previewJob} onEditStep={editPreviewStep} />
       </div>
-    </main>
+      </main>
+    </div>
   );
 }
 
@@ -361,12 +462,11 @@ function Stepper({ currentStep, onStepChange }: { currentStep: CreateStep; onSte
   );
 }
 
-function CompanyInfoStep({ draft, onChange }: { draft: JobDraft; onChange: (field: keyof JobDraft, value: string) => void }) {
+function CompanyInfoStep({ draft, onChange }: { draft: JobDraft; onChange: JobDraftChange }) {
   return (
     <FormCard eyebrow="1단계" title="회사 기본 정보">
       <div className="wd-form-grid">
-        <TextField label="회사명" placeholder="예: 유엑스디자인(주)" value={draft.companyName} onChange={(value) => onChange("companyName", value)} />
-        <TextField label="회사 위치" placeholder="예: 서울 강남구 테헤란로, 삼성역 도보 7분" value={draft.address} onChange={(value) => onChange("address", value)} />
+        <TextField label="회사명" placeholder="예: 원더독스" value={draft.companyName} onChange={(value) => onChange("companyName", value)} />
         <TextField label="담당자 이름" placeholder="예: 김원더" value={draft.contactName} onChange={(value) => onChange("contactName", value)} />
         <TextField label="담당자 연락처" placeholder="예: 010-1234-5678" value={draft.contactPhone} onChange={(value) => onChange("contactPhone", value)} />
         <TextField label="담당자 이메일" type="email" placeholder="예: recruit@uxdesign.example" value={draft.contactEmail} onChange={(value) => onChange("contactEmail", value)} />
@@ -375,37 +475,202 @@ function CompanyInfoStep({ draft, onChange }: { draft: JobDraft; onChange: (fiel
   );
 }
 
-function FlexibleWorkStep({ draft, onChange }: { draft: JobDraft; onChange: (field: keyof JobDraft, value: string) => void }) {
+function FlexibleWorkStep({ draft, onChange }: { draft: JobDraft; onChange: JobDraftChange }) {
+  const [openHelpType, setOpenHelpType] = useState<string | null>(null);
+
+  const updateMultiSelect = (field: "flexibleWorkTypes" | "workDays", value: string) => {
+    onChange(field, toggleArrayValue(draft[field], value));
+  };
+
   return (
     <FormCard eyebrow="2단계" title="유연근무 조건">
-      <div className="wd-form-grid">
-        <SelectField label="재택/출근 방식" value={draft.workType} options={workTypeOptions} onChange={(value) => onChange("workType", value)} />
-        <SelectField label="유연근무 유형" value={draft.flexibleWorkType} options={flexibleWorkTypeOptions} onChange={(value) => onChange("flexibleWorkType", value)} />
-        <SelectField label="근무요일" value={draft.workDays} options={workDaysOptions} onChange={(value) => onChange("workDays", value)} />
-        <SelectField label="일 근무 시간" value={draft.dailyWorkHours} options={dailyWorkHourOptions} onChange={(value) => onChange("dailyWorkHours", value)} />
-        <div className="wd-time-pair">
-          <SelectField label="근무 시작" value={draft.workStartTime} options={timeOptions} onChange={(value) => onChange("workStartTime", value)} />
-          <SelectField label="근무 종료" value={draft.workEndTime} options={timeOptions} onChange={(value) => onChange("workEndTime", value)} />
-        </div>
-        <TextField label="보수" placeholder="예: 연봉 4,500만원 ~ 5,800만원" value={draft.salaryText} onChange={(value) => onChange("salaryText", value)} />
+      <div className="wd-flex-work-stack">
+        <section className="wd-work-location" aria-labelledby="work-location-title">
+          <div className="wd-field wd-field--wide">
+            <span id="work-location-title">근무지 주소</span>
+            <div className="wd-address-row">
+              <input value={draft.address} placeholder="예: 서울 강남구 테헤란로, 삼성역 도보 7분" onChange={(event) => onChange("address", event.target.value)} />
+              <button className="wd-button wd-button--secondary wd-button--compact" type="button">변경</button>
+            </div>
+          </div>
+          <div className="wd-work-mode-options" role="group" aria-label="근무지 출근 방식">
+            {workTypeOptions.map((option) => (
+              <CheckPill key={option} label={option} selected={draft.workType === option} onClick={() => onChange("workType", option)} />
+            ))}
+          </div>
+        </section>
+
+        <section className="wd-flex-section" aria-labelledby="flexible-work-type-title">
+          <div className="wd-flex-section__head">
+            <h3 id="flexible-work-type-title">유연근무 유형</h3>
+          </div>
+          <div className="wd-option-card-grid">
+            {flexibleWorkTypeOptions.map((option) => (
+              <div
+                className={`wd-option-card ${draft.flexibleWorkTypes.includes(option.value) ? "is-selected" : ""}`}
+                key={option.value}
+              >
+                <button className="wd-option-card__select" type="button" onClick={() => updateMultiSelect("flexibleWorkTypes", option.value)}>
+                  <span className="wd-option-card__label">{option.value}</span>
+                </button>
+                <button
+                  className="wd-help-dot"
+                  type="button"
+                  aria-label={`${option.value} 설명 보기`}
+                  aria-expanded={openHelpType === option.value}
+                  onClick={() => setOpenHelpType((current) => (current === option.value ? null : option.value))}
+                >
+                  ?
+                </button>
+                {openHelpType === option.value ? (
+                  <div className="wd-help-tooltip" role="tooltip">
+                    {option.description}
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="wd-flex-section" aria-labelledby="work-days-title">
+          <div className="wd-flex-section__head">
+            <h3 id="work-days-title">근무요일</h3>
+          </div>
+          <div className="wd-day-toggle-grid" role="group" aria-label="근무요일 중복 선택">
+            {workDaysOptions.map((option) => (
+              <CheckPill key={option} label={option} selected={draft.workDays.includes(option)} onClick={() => updateMultiSelect("workDays", option)} />
+            ))}
+          </div>
+        </section>
+
+        <section className="wd-work-time-card" aria-labelledby="work-time-title">
+          <div className="wd-flex-section__head">
+            <h3 id="work-time-title">근무시간</h3>
+            <span>{draft.workStartTime && draft.workEndTime ? `${draft.workStartTime} - ${draft.workEndTime}` : "시작 시간을 고르면 종료 시간이 자동 계산돼요"}</span>
+          </div>
+          <div className="wd-form-grid">
+            <SelectField label="일 근무 시간" value={draft.dailyWorkHours} options={dailyWorkHourOptions} onChange={(value) => onChange("dailyWorkHours", value)} />
+            <div className="wd-time-pair">
+              <SelectField label="근무 시작" value={draft.workStartTime} options={timeOptions} onChange={(value) => onChange("workStartTime", value)} />
+              <SelectField label="근무 종료" value={draft.workEndTime} options={timeOptions} onChange={(value) => onChange("workEndTime", value)} />
+            </div>
+          </div>
+        </section>
       </div>
-      <p className="wd-caption wd-caption--left">분 단위는 00분, 30분만 선택할 수 있습니다. 시작 시간을 고르면 일 근무 시간 기준으로 종료 시간이 자동 입력되며, 직접 수정할 수 있습니다.</p>
     </FormCard>
   );
 }
 
-function WorkDetailStep({ draft, onChange }: { draft: JobDraft; onChange: (field: keyof JobDraft, value: string) => void }) {
+function WorkDetailStep({ draft, onChange }: { draft: JobDraft; onChange: JobDraftChange }) {
+  const toggleAdditionalSection = (section: string) => {
+    onChange("additionalSections", toggleArrayValue(draft.additionalSections, section));
+  };
+
+  const updateHiringProcess = (index: number, value: string) => {
+    onChange("hiringProcess", draft.hiringProcess.map((step, stepIndex) => (stepIndex === index ? value : step)));
+  };
+
+  const addHiringProcess = () => {
+    onChange("hiringProcess", [...draft.hiringProcess, "추가절차"]);
+  };
+
+  const removeHiringProcess = (index: number) => {
+    onChange("hiringProcess", draft.hiringProcess.filter((_, stepIndex) => stepIndex !== index));
+  };
+
   return (
     <FormCard eyebrow="3단계" title="업무 상세">
       <div className="wd-form-grid">
-        <TextField label="공고 제목" placeholder="예: 서비스 디자이너 (Flexible Work)" value={draft.title} onChange={(value) => onChange("title", value)} />
-        <SelectWithCustom label="직군" value={draft.occupation} customValue={draft.customOccupation} options={occupationOptions} placeholder="예: UI/UX디자인" onChange={(value) => onChange("occupation", value)} onCustomChange={(value) => onChange("customOccupation", value)} />
-        <SelectField label="사업군" value={draft.businessField} options={businessFieldOptions} onChange={(value) => onChange("businessField", value)} />
-        <SelectWithCustom label="직무명" value={draft.jobTitle} customValue={draft.customJobTitle} options={jobTitleOptions} placeholder="예: 서비스 디자이너" onChange={(value) => onChange("jobTitle", value)} onCustomChange={(value) => onChange("customJobTitle", value)} />
-        <SelectField label="숙련도(연차)" value={draft.seniority} options={seniorityOptions} onChange={(value) => onChange("seniority", value)} />
-        <TextField label="필요한 역량" placeholder="예: Figma, Sketch, FigJam 등 디자인 툴 활용 능숙자" value={draft.requiredSkillsText} onChange={(value) => onChange("requiredSkillsText", value)} />
-        <TextAreaField label="주요 업무" placeholder={"예:\n사용자 중심의 서비스 경험 설계 및 UI/UX 디자인\n서비스 요구사항 분석 및 와이어프레임, 프로토타입 제작\n사용자 리서치 기반 인사이트 도출 및 개선안 제안"} value={draft.mainTasks} onChange={(value) => onChange("mainTasks", value)} />
-        <TextAreaField label="우대 사항" placeholder={"예:\nSaaS, 플랫폼 서비스 디자인 경험\n데이터 분석 및 인사이트 기반 UX 개선 경험\n프로토타이핑 및 인터랙션 디자인 경험"} value={draft.preferredQualifications} onChange={(value) => onChange("preferredQualifications", value)} />
+        <TextField label="공고 제목" placeholder="예: UI/UX 디자이너" value={draft.title} onChange={(value) => onChange("title", value)} />
+        <SelectField label="직무" value={draft.jobTitle} options={jobTitleOptions} onChange={(value) => onChange("jobTitle", value)} />
+
+        <div className="wd-field wd-field--wide">
+          <span>경력</span>
+          <div className="wd-career-row">
+            <CheckPill label="경력" selected={draft.isCareerRequired} onClick={() => onChange("isCareerRequired", !draft.isCareerRequired)} />
+            <CheckPill label="경력 무관" selected={draft.isExperienceIrrelevant} onClick={() => onChange("isExperienceIrrelevant", !draft.isExperienceIrrelevant)} />
+            <InlineSelect ariaLabel="최소 경력" value={draft.experienceMin} options={experienceMinOptions} placeholder="1년 이상" onChange={(value) => onChange("experienceMin", value)} />
+            <span className="wd-range-divider">~</span>
+            <InlineSelect ariaLabel="최대 경력" value={draft.experienceMax} options={experienceMaxOptions} placeholder="2년 이하" onChange={(value) => onChange("experienceMax", value)} />
+          </div>
+        </div>
+
+        <SelectField label="학력" value={draft.education} options={educationOptions} onChange={(value) => onChange("education", value)} />
+        <div className="wd-field wd-field--wide">
+          <span>급여</span>
+          <div className="wd-salary-row">
+            <InlineSelect ariaLabel="급여" value={draft.salaryText} options={salaryOptions} placeholder="면접 후 결정" onChange={(value) => onChange("salaryText", value)} />
+            {draft.salaryText === "연봉 입력" ? (
+              <input value={draft.salaryAmount} placeholder="예: 연봉 5,000만원" onChange={(event) => onChange("salaryAmount", event.target.value)} />
+            ) : null}
+          </div>
+          <div className="wd-min-wage-notice">
+            <strong>ⓘ 2026년 기준 최저시급 10,030원</strong>
+            <span>당사는 최저임금을 준수하며, 최저임금 미만의 공고는 강제 마감 및 행정 처분을 받을 수 있습니다.</span>
+            <a href="#" aria-label="최저임금제도 안내">최저임금제도 안내</a>
+          </div>
+        </div>
+
+        <div className="wd-field wd-field--wide">
+          <span>고용형태</span>
+          <div className="wd-employment-row" role="group" aria-label="고용형태 선택">
+            {employmentTypeOptions.map((option) => (
+              <CheckPill key={option} label={option} selected={draft.employmentType === option} onClick={() => onChange("employmentType", option)} />
+            ))}
+          </div>
+          {draft.employmentType === "정규직" ? (
+            <div className="wd-probation-box">
+              <SelectField label="수습기간" value={draft.probationPeriod} options={probationPeriodOptions} onChange={(value) => onChange("probationPeriod", value)} />
+            </div>
+          ) : null}
+        </div>
+
+        <div className="wd-field wd-field--wide">
+          <span>추가항목</span>
+          <div className="wd-additional-row">
+            {["자격요건", "우대사항"].map((section) => (
+              <button className={`wd-add-button ${draft.additionalSections.includes(section) ? "is-active" : ""}`} key={section} type="button" onClick={() => toggleAdditionalSection(section)}>
+                {draft.additionalSections.includes(section) ? "−" : "+"} {section}
+              </button>
+            ))}
+          </div>
+        </div>
+        {draft.additionalSections.includes("자격요건") ? (
+          <TextAreaField label="자격요건" placeholder={"예:\nFigma 등 디자인 툴 활용이 능숙한 분\n서비스 UX 설계 경험이 있는 분"} value={draft.requiredSkillsText} onChange={(value) => onChange("requiredSkillsText", value)} />
+        ) : null}
+        {draft.additionalSections.includes("우대사항") ? (
+          <TextAreaField label="우대사항" placeholder={"예:\nSaaS, 플랫폼 서비스 디자인 경험\n데이터 분석 기반 UX 개선 경험"} value={draft.preferredQualifications} onChange={(value) => onChange("preferredQualifications", value)} />
+        ) : null}
+
+        <div className="wd-field wd-field--wide">
+          <span>접수기간</span>
+          <div className="wd-application-period">
+            <InlineSelect ariaLabel="접수 마감 방식" value={draft.applicationDeadlineType} options={applicationDeadlineOptions} placeholder="마감일 지정" onChange={(value) => onChange("applicationDeadlineType", value)} />
+            <InlineDateField ariaLabel="시작일" value={draft.applicationStartDate} onChange={(value) => onChange("applicationStartDate", value)} />
+            <InlineSelect ariaLabel="시작 시간" value={draft.applicationStartTime} options={applicationHourOptions} placeholder="13시" onChange={(value) => onChange("applicationStartTime", value)} />
+            <span className="wd-range-divider">~</span>
+            <InlineDateField ariaLabel="마감일" value={draft.applicationEndDate} onChange={(value) => onChange("applicationEndDate", value)} />
+            <InlineSelect ariaLabel="마감 시간" value={draft.applicationEndTime} options={applicationHourOptions} placeholder="24시" onChange={(value) => onChange("applicationEndTime", value)} />
+            <div className="wd-duration-row" role="group" aria-label="접수기간 빠른 선택">
+              {applicationDurationOptions.map((option) => (
+                <CheckPill key={option} label={option} selected={draft.applicationDuration === option} onClick={() => onChange("applicationDuration", option)} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="wd-field wd-field--wide">
+          <span>채용절차</span>
+          <div className="wd-hiring-process">
+            {draft.hiringProcess.map((step, index) => (
+              <div className="wd-hiring-step" key={`${step}-${index}`}>
+                <input value={step} onChange={(event) => updateHiringProcess(index, event.target.value)} />
+                <button type="button" aria-label={`${step} 삭제`} onClick={() => removeHiringProcess(index)}>×</button>
+              </div>
+            ))}
+            <button className="wd-hiring-add" type="button" aria-label="채용절차 추가" onClick={addHiringProcess}>+</button>
+          </div>
+        </div>
       </div>
     </FormCard>
   );
@@ -430,29 +695,22 @@ function AssignmentStep({
 }) {
   return (
     <FormCard eyebrow="4단계" title="과제 연결">
-      <div className="wd-assignment-hero">
-        <div>
-          <strong>새 과제는 전용 생성 페이지에서 만들 수 있어요.</strong>
-          <span>공고 등록 화면에서는 새 과제 생성 페이지로 이동하거나, 기존 과제를 검색해 연결합니다.</span>
-        </div>
-        <a className="wd-button wd-button--primary" href="/company/assignments/new?jobPostingId=draft">
+      <div className="wd-assignment-choice-tabs" role="group" aria-label="과제 연결 방식">
+        <button className={`wd-assignment-choice-tabs__button ${assignmentChoice === "new" ? "is-active" : ""}`} type="button" onClick={() => onAssignmentChoiceChange("new")}>
           새 과제 생성하기
-        </a>
-      </div>
-      <div className="wd-segmented" role="group" aria-label="과제 연결 방식">
-        <button className={`wd-segmented__button ${assignmentChoice === "new" ? "is-active" : ""}`} type="button" onClick={() => onAssignmentChoiceChange("new")}>
-          새 과제 생성
         </button>
-        <button className={`wd-segmented__button ${assignmentChoice === "existing" ? "is-active" : ""}`} type="button" onClick={() => onAssignmentChoiceChange("existing")}>
+        <button className={`wd-assignment-choice-tabs__button ${assignmentChoice === "existing" ? "is-active" : ""}`} type="button" onClick={() => onAssignmentChoiceChange("existing")}>
           기존 과제에서 선택
         </button>
       </div>
 
       {assignmentChoice === "new" ? (
-        <div className="wd-empty-state">
-          <h3>새 과제 생성 페이지로 이동합니다</h3>
-          <p>과제 생성 화면은 별도 담당자가 구현합니다. 이 화면에서는 연결 버튼만 준비해두었습니다.</p>
-        </div>
+        <section className="wd-new-assignment-panel" aria-labelledby="new-assignment-title">
+          <p>공고 업무에 딱 맞는 사전 과제를 생성하고<br />지원자들의 진짜 실력을 확인하세요</p>
+          <a id="new-assignment-title" className="wd-new-assignment-panel__cta" href="/company/assignments">
+            새 과제 생성하기
+          </a>
+        </section>
       ) : (
         <ExistingAssignmentSearch
           filters={filters}
@@ -481,12 +739,8 @@ function ExistingAssignmentSearch({
 }) {
   return (
     <div className="wd-assignment-search">
-      <label className="wd-search-field">
-        <span>직군, 사업군, 숙련도에 따른 사전 과제 검색</span>
-        <input placeholder="예: Figma, 서비스 개선, 리디자인" value={filters.keyword} onChange={(event) => onFilterChange("keyword", event.target.value)} />
-      </label>
       <div className="wd-filter-row">
-        <SelectField label="직군" value={filters.occupation} options={["", ...occupationOptions.filter((item) => item !== "직접입력")]} onChange={(value) => onFilterChange("occupation", value)} />
+        <SelectField label="직무" value={filters.occupation} options={["", ...occupationOptions.filter((item) => item !== "직접입력")]} onChange={(value) => onFilterChange("occupation", value)} />
         <SelectField label="사업군" value={filters.businessField} options={["", ...businessFieldOptions]} onChange={(value) => onFilterChange("businessField", value)} />
         <SelectField label="숙련도(연차)" value={filters.seniority} options={["", ...seniorityOptions]} onChange={(value) => onFilterChange("seniority", value)} />
       </div>
@@ -498,7 +752,7 @@ function ExistingAssignmentSearch({
         <div className="wd-assignment-table" role="table" aria-label="기존 과제 목록">
           <div className="wd-assignment-table__row wd-assignment-table__row--head" role="row">
             <span>출처</span>
-            <span>직군</span>
+            <span>직무</span>
             <span>사업군</span>
             <span>숙련도(연차)</span>
             <span>제목</span>
@@ -520,6 +774,9 @@ function ExistingAssignmentSearch({
               </button>
             </div>
           ))}
+        </div>
+        <div className="wd-assignment-table-footer">
+          <a className="wd-assignment-more-link" href="/company/assignments">과제 더 보기</a>
         </div>
       </div>
     </div>
@@ -608,7 +865,47 @@ function TextAreaField({ label, value, onChange, placeholder }: { label: string;
   );
 }
 
-function FooterActions({ canMoveNext, canMovePrevious, hasAssignment, onComplete, onFullPreview, onMoveNext, onMovePrevious }: { canMoveNext: boolean; canMovePrevious: boolean; hasAssignment: boolean; onComplete: () => void; onFullPreview: () => void; onMoveNext: () => void; onMovePrevious: () => void }) {
+function CheckPill({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+  return (
+    <button className={`wd-check-pill ${selected ? "is-selected" : ""}`} type="button" aria-pressed={selected} onClick={onClick}>
+      <span className="wd-check-pill__box" aria-hidden="true" />
+      {label}
+    </button>
+  );
+}
+
+function InlineSelect({ ariaLabel, value, onChange, options, placeholder }: { ariaLabel: string; value: string; onChange: (value: string) => void; options: string[]; placeholder: string }) {
+  return (
+    <select className="wd-inline-control" aria-label={ariaLabel} value={value} onChange={(event) => onChange(event.target.value)}>
+      <option value="">{placeholder}</option>
+      {options.map((option) => (
+        <option key={option} value={option}>{option}</option>
+      ))}
+    </select>
+  );
+}
+
+function InlineDateField({ ariaLabel, value, onChange }: { ariaLabel: string; value: string; onChange: (value: string) => void }) {
+  return <input className="wd-inline-control" aria-label={ariaLabel} type="date" value={value} onChange={(event) => onChange(event.target.value)} />;
+}
+
+function FooterActions({
+  canMoveNext,
+  canMovePrevious,
+  hasAssignment,
+  onComplete,
+  onFullPreview,
+  onMoveNext,
+  onMovePrevious
+}: {
+  canMoveNext: boolean;
+  canMovePrevious: boolean;
+  hasAssignment: boolean;
+  onComplete: () => void;
+  onFullPreview: () => void;
+  onMoveNext: () => void;
+  onMovePrevious: () => void;
+}) {
   return (
     <div className="wd-form-footer">
       <button className="wd-button wd-button--secondary" disabled={!canMovePrevious} type="button" onClick={onMovePrevious}>이전</button>
@@ -620,21 +917,41 @@ function FooterActions({ canMoveNext, canMovePrevious, hasAssignment, onComplete
           <button className="wd-button wd-button--primary" type="button" onClick={onComplete}>등록 완료</button>
         )}
       </div>
-      <p className="wd-caption">{hasAssignment ? "선택한 기존 과제가 공고와 함께 연결됩니다." : "새 과제 생성 페이지로 이동하거나 기존 과제를 선택할 수 있습니다."}</p>
+      {hasAssignment ? <p className="wd-caption">선택한 기존 과제가 공고와 함께 연결됩니다.</p> : null}
     </div>
   );
 }
 
-function JobPostPreviewPanel({ jobDraft, assignment }: { jobDraft: JobDraft; assignment: Assignment | null }) {
+function JobPostPreviewPanel({
+  jobDraft,
+  assignment,
+  onEditStep
+}: {
+  jobDraft: JobDraft;
+  assignment: Assignment | null;
+  onEditStep: (step: CreateStep) => void;
+}) {
   return (
     <aside className="wd-preview-panel" aria-labelledby="preview-title">
       <PreviewHeader title={jobDraft.title} compact />
-      <PreviewContent assignment={assignment} jobDraft={jobDraft} />
+      <PreviewContent assignment={assignment} jobDraft={jobDraft} onEditStep={onEditStep} />
     </aside>
   );
 }
 
-function FullJobPostPreview({ jobDraft, assignment, onBack, onComplete }: { jobDraft: JobDraft; assignment: Assignment | null; onBack: () => void; onComplete: () => void }) {
+function FullJobPostPreview({
+  jobDraft,
+  assignment,
+  onBack,
+  onComplete,
+  onEditStep
+}: {
+  jobDraft: JobDraft;
+  assignment: Assignment | null;
+  onBack: () => void;
+  onComplete: () => void;
+  onEditStep: (step: CreateStep) => void;
+}) {
   return (
     <main className="wd-container wd-full-preview-page">
       <div className="wd-full-preview-toolbar">
@@ -643,7 +960,7 @@ function FullJobPostPreview({ jobDraft, assignment, onBack, onComplete }: { jobD
       </div>
       <article className="wd-panel wd-full-preview">
         <PreviewHeader title={jobDraft.title} />
-        <PreviewContent assignment={assignment} jobDraft={jobDraft} full />
+        <PreviewContent assignment={assignment} jobDraft={jobDraft} full onEditStep={onEditStep} />
       </article>
     </main>
   );
@@ -655,7 +972,7 @@ function PreviewHeader({ title, compact = false }: { title: string; compact?: bo
       <div className="wd-preview-panel__header">
         <div>
           <p className="wd-eyebrow">{compact ? "실시간 미리보기" : "공고 미리보기"}</p>
-          <h2 className="wd-section-title" id="preview-title">{title || "서비스 디자이너 (Flexible Work)"}</h2>
+          <h2 className="wd-section-title" id="preview-title">{title || "UI/UX 디자이너"}</h2>
         </div>
         <span className="wd-badge wd-badge--draft">임시 저장</span>
       </div>
@@ -664,51 +981,74 @@ function PreviewHeader({ title, compact = false }: { title: string; compact?: bo
   );
 }
 
-function PreviewContent({ jobDraft, assignment, full = false }: { jobDraft: JobDraft; assignment: Assignment | null; full?: boolean }) {
-  const skills = splitList(jobDraft.requiredSkillsText);
-  const mainTasks = jobDraft.mainTasks.split("\n").map((item) => item.trim()).filter(Boolean);
+function PreviewContent({
+  jobDraft,
+  assignment,
+  full = false,
+  onEditStep
+}: {
+  jobDraft: JobDraft;
+  assignment: Assignment | null;
+  full?: boolean;
+  onEditStep: (step: CreateStep) => void;
+}) {
+  const requirements = splitList(jobDraft.requiredSkillsText);
   const preferred = jobDraft.preferredQualifications.split("\n").map((item) => item.trim()).filter(Boolean);
+  const experienceText = getExperienceRange(jobDraft.experienceMin, jobDraft.experienceMax, jobDraft.isExperienceIrrelevant);
+  const employmentText = getEmploymentText(jobDraft.employmentType, jobDraft.probationPeriod);
+  const applicationPeriodText = getApplicationPeriodText(jobDraft);
+  const salaryText = getSalaryText(jobDraft.salaryText, jobDraft.salaryAmount);
 
   return (
     <div className={full ? "wd-preview-content wd-preview-content--full" : "wd-preview-content"}>
-      <PreviewSection title="회사 정보">
-        <PreviewRow label="회사명" value={jobDraft.companyName} fallback="유엑스디자인(주)" />
-        <PreviewRow label="위치" value={jobDraft.address} fallback="서울 강남구 테헤란로, 삼성역 도보 7분" />
+      <PreviewSection title="회사 정보" onEdit={() => onEditStep("company")}>
+        <PreviewRow label="회사명" value={jobDraft.companyName} fallback="원더독스" />
         <PreviewRow label="담당자" value={jobDraft.contactName} fallback="김원더" />
         <PreviewRow label="연락처" value={jobDraft.contactPhone || jobDraft.contactEmail} fallback="recruit@uxdesign.example" />
       </PreviewSection>
-      <PreviewSection title="유연근무 조건">
+      <PreviewSection title="유연근무 조건" onEdit={() => onEditStep("flexible-work")}>
+        <PreviewRow label="근무지" value={jobDraft.address} fallback="서울 강남구 테헤란로, 삼성역 도보 7분" />
         <div className="wd-chip-row">
-          {[jobDraft.flexibleWorkType, jobDraft.workType, jobDraft.workDays].filter(Boolean).map((item) => (
+          {[jobDraft.workType, ...jobDraft.flexibleWorkTypes, ...jobDraft.workDays].filter(Boolean).map((item) => (
             <span className="wd-chip" key={item}>{item}</span>
           ))}
         </div>
         <PreviewRow label="근무 시간" value={`${jobDraft.dailyWorkHours || "일 4시간"} · ${jobDraft.workStartTime || "10:00"} - ${jobDraft.workEndTime || "15:00"}`} />
-        <PreviewRow label="보수" value={jobDraft.salaryText} fallback="연봉 4,500만원 ~ 5,800만원" />
       </PreviewSection>
-      <PreviewSection title="업무 상세">
-        <PreviewRow label="직군" value={jobDraft.occupation} fallback="UI/UX디자인" />
-        <PreviewRow label="직무" value={jobDraft.jobTitle} fallback="서비스 디자이너" />
-        <PreviewRow label="숙련도" value={jobDraft.seniority} fallback="주니어(3~5년차)" />
-        <div className="wd-chip-row">
-          {(skills.length ? skills : ["Figma", "Sketch", "FigJam"]).map((skill) => (
-            <span className="wd-chip wd-chip--soft" key={skill}>{skill}</span>
-          ))}
-        </div>
-        <ul className="wd-preview-list">
-          {(mainTasks.length ? mainTasks : ["사용자 중심의 서비스 경험 설계 및 UI/UX 디자인", "서비스 요구사항 분석 및 와이어프레임, 프로토타입 제작", "사용자 리서치 기반 인사이트 도출 및 개선안 제안"]).map((task) => (
-            <li key={task}>{task}</li>
-          ))}
-        </ul>
+      <PreviewSection title="업무 상세" onEdit={() => onEditStep("work-detail")}>
+        <PreviewRow label="직무" value={jobDraft.jobTitle} fallback="UI/UX 디자이너" />
+        <PreviewRow label="경력" value={experienceText} fallback="1년 이상 ~ 3년 이하" />
+        <PreviewRow label="학력" value={jobDraft.education} fallback="학력무관" />
+        <PreviewRow label="고용형태" value={employmentText} fallback="정규직 · 수습기간 3개월" />
+        <PreviewRow label="급여" value={salaryText} fallback="면접 후 결정" />
+        <PreviewRow label="접수기간" value={applicationPeriodText} fallback="마감일 지정 · 1개월" />
+        <PreviewRow label="채용절차" value={jobDraft.hiringProcess.filter(Boolean).join(" > ")} fallback="서류전형 > 1차면접 > 최종합격" />
       </PreviewSection>
-      <PreviewSection title="우대 사항">
-        <ul className="wd-preview-list">
-          {(preferred.length ? preferred : ["SaaS, 플랫폼 서비스 디자인 경험", "데이터 분석 및 인사이트 기반 UX 개선 경험", "프로토타이핑 및 인터랙션 디자인 경험"]).map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </PreviewSection>
-      <PreviewSection title="사전과제">
+      {jobDraft.additionalSections.length ? (
+        <PreviewSection title="추가항목" onEdit={() => onEditStep("work-detail")}>
+          {jobDraft.additionalSections.includes("자격요건") ? (
+            <>
+              <strong className="wd-preview-subtitle">자격요건</strong>
+              <ul className="wd-preview-list">
+                {(requirements.length ? requirements : ["Figma 등 디자인 툴 활용이 능숙한 분", "서비스 UX 설계 경험이 있는 분"]).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {jobDraft.additionalSections.includes("우대사항") ? (
+            <>
+              <strong className="wd-preview-subtitle">우대사항</strong>
+              <ul className="wd-preview-list">
+                {(preferred.length ? preferred : ["SaaS, 플랫폼 서비스 디자인 경험", "데이터 분석 기반 UX 개선 경험"]).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+        </PreviewSection>
+      ) : null}
+      <PreviewSection title="사전과제" onEdit={() => onEditStep("assignment")}>
         {assignment ? (
           <div className="wd-linked-assignment">
             <div className="wd-assignment-source-line"><OwnerBadge owner={assignment.owner} /><StatusBadge status={assignment.status} /></div>
@@ -727,12 +1067,12 @@ function PreviewContent({ jobDraft, assignment, full = false }: { jobDraft: JobD
   );
 }
 
-function PreviewSection({ title, children }: { title: string; children: ReactNode }) {
+function PreviewSection({ title, children, onEdit }: { title: string; children: ReactNode; onEdit: () => void }) {
   return (
     <section className="wd-preview-section">
       <div className="wd-preview-section__title">
         <h3>{title}</h3>
-        <button className="wd-ghost-button" type="button">수정</button>
+        <button className="wd-ghost-button" type="button" onClick={onEdit}>수정</button>
       </div>
       {children}
     </section>
