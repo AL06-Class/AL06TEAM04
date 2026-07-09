@@ -6,6 +6,7 @@ type JobPostStatusTabsProps = {
     closed: number;
   };
   activeStatus: "all" | "posted" | "draft" | "closed";
+  onStatusChange: (status: "all" | "posted" | "draft" | "closed") => void;
 };
 
 const tabs = [
@@ -15,7 +16,7 @@ const tabs = [
   { label: "마감", key: "closed" }
 ] as const;
 
-export function JobPostStatusTabs({ counts, activeStatus }: JobPostStatusTabsProps) {
+export function JobPostStatusTabs({ counts, activeStatus, onStatusChange }: JobPostStatusTabsProps) {
   return (
     <div className="wd-job-tabs" role="tablist" aria-label="공고 상태">
       {tabs.map((tab) => (
@@ -23,6 +24,7 @@ export function JobPostStatusTabs({ counts, activeStatus }: JobPostStatusTabsPro
           aria-selected={activeStatus === tab.key}
           className={`wd-job-tabs__item ${activeStatus === tab.key ? "is-active" : ""}`}
           key={tab.key}
+          onClick={() => onStatusChange(tab.key)}
           role="tab"
           type="button"
         >

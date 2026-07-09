@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Badge } from "../common/Badge";
 import type { JobPosting } from "../../types/jobPosting";
 
 type JobPostTableProps = {
   jobPostings: JobPosting[];
+  totalCount: number;
 };
 
 function getStatusBadge(status: JobPosting["status"]) {
@@ -17,7 +19,9 @@ function getStatusBadge(status: JobPosting["status"]) {
   return <Badge tone="neutral" withDot>마감</Badge>;
 }
 
-export function JobPostTable({ jobPostings }: JobPostTableProps) {
+export function JobPostTable({ jobPostings, totalCount }: JobPostTableProps) {
+  const [openedMenuId, setOpenedMenuId] = useState<string | null>(null);
+
   return (
     <div className="wd-job-table">
       <div className="wd-job-table__header wd-job-table__row">
@@ -57,24 +61,42 @@ export function JobPostTable({ jobPostings }: JobPostTableProps) {
             <a className="wd-job-table__outline" href="#">
               편집
             </a>
-            <a
-              className="wd-job-table__link"
-              href={`/company/job-posts/${jobPosting.jobPostingId}/complete`}
-            >
+            <button className="wd-job-table__link wd-job-table__link--disabled" type="button">
               미리보기
+            </button>
+            <a className="wd-job-table__link" href="#">
+              지원현황
             </a>
-            <button aria-label="더보기" className="wd-job-table__more" type="button">
+            <div className="wd-job-table__menu">
+            <button
+              aria-label="더보기"
+              className="wd-job-table__more"
+              type="button"
+              onClick={() =>
+                setOpenedMenuId((current) =>
+                  current === jobPosting.jobPostingId ? null : jobPosting.jobPostingId
+                )
+              }
+            >
               <span />
               <span />
               <span />
             </button>
+            {openedMenuId === jobPosting.jobPostingId ? (
+              <div className="wd-job-table__menu-popover">
+                <button className="wd-job-table__menu-item wd-job-table__menu-item--danger" type="button">
+                  삭제
+                </button>
+              </div>
+            ) : null}
+            </div>
           </div>
         </div>
       ))}
 
       <div className="wd-job-table__footer">
         <div className="wd-job-table__total">
-          <span>전체 12개</span>
+          <span>전체 {totalCount}개</span>
           <button className="wd-job-filter__control wd-job-filter__control--small" type="button">
             10개씩 보기
             <span className="wd-inline-icon wd-inline-icon--chevron-down" aria-hidden="true" />

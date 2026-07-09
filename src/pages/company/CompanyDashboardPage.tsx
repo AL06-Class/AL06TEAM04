@@ -12,13 +12,6 @@ export function CompanyDashboardPage() {
       <CompanyHeaderNav activePath="/company" />
 
       <PageContainer>
-        <section className="wd-page-heading">
-          <h1>기업 대시보드</h1>
-          <p>
-            <strong>원더독스님</strong>, 오늘도 멋진 인재와의 연결을 응원합니다.
-          </p>
-        </section>
-
         <CompanyWelcomeBanner />
 
         <section className="wd-dashboard-grid">

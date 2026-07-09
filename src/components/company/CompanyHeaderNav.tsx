@@ -1,7 +1,12 @@
 import wonderdogsLogo from "../../assets/wonderdogs-logo.png";
 
 type CompanyHeaderNavProps = {
-  activePath: "/company" | "/company/job-posts" | "/company/job-posts/complete" | "/company/assignments";
+  activePath:
+    | "/company"
+    | "/company/job-posts"
+    | "/company/job-posts/complete"
+    | "/company/assignments"
+    | "/flexible-jobs";
 };
 
 const menuItems = [
@@ -9,7 +14,7 @@ const menuItems = [
   { label: "공고 관리", href: "/company/job-posts" },
   { label: "과제 관리", href: "/company/assignments" },
   { label: "지원자 관리", href: "#" },
-  { label: "유연근무 공고", href: "#" }
+  { label: "유연근무 공고", href: "/flexible-jobs" }
 ] as const;
 
 export function CompanyHeaderNav({ activePath }: CompanyHeaderNavProps) {
