@@ -235,8 +235,21 @@ function createGeneratedAssignment(
   };
 }
 
+const initialAssignmentTabKey = "wd:assignment-initial-tab";
+
+function getInitialAssignmentTab(): AssignmentTab {
+  const queryTab = new URLSearchParams(window.location.search).get("tab");
+  const storedTab = window.sessionStorage.getItem(initialAssignmentTabKey);
+
+  return queryTab === "ai" || storedTab === "ai" ? "ai" : "manage";
+}
+
 export function AssignmentPage() {
-  const [activeTab, setActiveTab] = useState<AssignmentTab>("manage");
+  const [activeTab, setActiveTab] = useState<AssignmentTab>(getInitialAssignmentTab);
+
+  useEffect(() => {
+    window.sessionStorage.removeItem(initialAssignmentTabKey);
+  }, []);
 
   return (
     <div className="wd-sai-company-page">

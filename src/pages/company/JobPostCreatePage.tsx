@@ -693,10 +693,16 @@ function AssignmentStep({
   onExistingAssignmentChange: (assignmentId: string) => void;
   onFilterChange: (field: keyof AssignmentFilters, value: string) => void;
 }) {
+  const moveToAssignmentAi = () => {
+    window.sessionStorage.setItem("wd:assignment-initial-tab", "ai");
+    window.history.pushState(null, "", "/company/assignments");
+    window.dispatchEvent(new Event("wd:navigate"));
+  };
+
   return (
     <FormCard eyebrow="4단계" title="과제 연결">
       <div className="wd-assignment-choice-tabs" role="group" aria-label="과제 연결 방식">
-        <button className={`wd-assignment-choice-tabs__button ${assignmentChoice === "new" ? "is-active" : ""}`} type="button" onClick={() => onAssignmentChoiceChange("new")}>
+        <button className={`wd-assignment-choice-tabs__button ${assignmentChoice === "new" ? "is-active" : ""}`} type="button" onClick={moveToAssignmentAi}>
           새 과제 생성하기
         </button>
         <button className={`wd-assignment-choice-tabs__button ${assignmentChoice === "existing" ? "is-active" : ""}`} type="button" onClick={() => onAssignmentChoiceChange("existing")}>
@@ -707,7 +713,15 @@ function AssignmentStep({
       {assignmentChoice === "new" ? (
         <section className="wd-new-assignment-panel" aria-labelledby="new-assignment-title">
           <p>공고 업무에 딱 맞는 사전 과제를 생성하고<br />지원자들의 진짜 실력을 확인하세요</p>
-          <a id="new-assignment-title" className="wd-new-assignment-panel__cta" href="/company/assignments">
+          <a
+            id="new-assignment-title"
+            className="wd-new-assignment-panel__cta"
+            href="/company/assignments"
+            onClick={(event) => {
+              event.preventDefault();
+              moveToAssignmentAi();
+            }}
+          >
             새 과제 생성하기
           </a>
         </section>
