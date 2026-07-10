@@ -23,8 +23,8 @@ const detailFallback = {
   requirements: ["Figma 등 디자인 툴 활용이 능숙한 분", "서비스 UX 설계 경험이 있는 분"],
   preferences: ["SaaS, 플랫폼 서비스 디자인 경험", "데이터 분석 기반 UX 개선 경험"],
   process: ["서류전형", "1차면접", "2차면접", "최종합격"],
-  assignmentTitle: "공고 업무에 맞는 사전 과제",
-  assignmentSummary: "지원자의 실제 업무 이해도와 문제 해결 방식을 확인할 수 있는 사전 과제가 연결됩니다."
+  assignmentTitle: "공고 업무에 맞는 과제",
+  assignmentSummary: "지원자의 실제 업무 이해도와 문제 해결 방식을 확인할 수 있는 과제가 연결됩니다."
 };
 
 export function JobPostDetailPage({ jobPostingId }: JobPostDetailPageProps) {
@@ -110,7 +110,6 @@ export function JobPostDetailPage({ jobPostingId }: JobPostDetailPageProps) {
               <h2>{title}</h2>
               <p>{companyName} · {employmentType}</p>
               <Button fullWidth size="large">지원하기</Button>
-              <Button fullWidth href="/company/job-posts" size="medium" variant="secondary">공고 관리로 돌아가기</Button>
             </div>
 
             <div className="wd-job-detail-map-card">
@@ -122,7 +121,7 @@ export function JobPostDetailPage({ jobPostingId }: JobPostDetailPageProps) {
             </div>
 
             <div className="wd-job-detail-assignment-card">
-              <span>사전과제</span>
+              <span>과제</span>
               <h3>{detailFallback.assignmentTitle}</h3>
               <p>{detailFallback.assignmentSummary}</p>
             </div>

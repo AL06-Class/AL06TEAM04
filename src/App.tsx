@@ -16,7 +16,7 @@ const recommendedJobPostings = [
     companyName: "라벤더랩스",
     jobTitle: "콘텐츠 디자이너",
     status: "posted",
-    summary: "재택 병행 · 주 4일 · 실무 과제 있음",
+    summary: "재택 병행 · 주 4일 · 과제 있음",
     matchBadge: "완전 매칭",
     matchBadgeStyle: "success"
   },
@@ -25,7 +25,7 @@ const recommendedJobPostings = [
     companyName: "퍼플워크",
     jobTitle: "서비스 운영 매니저",
     status: "posted",
-    summary: "오전 집중근무 · 3.2km · 실무 과제 있음",
+    summary: "오전 집중근무 · 3.2km · 과제 있음",
     matchBadge: "공고 연결됨",
     matchBadgeStyle: "info"
   }
@@ -39,7 +39,7 @@ const valueCards = [
   },
   {
     icon: "task",
-    title: "실무 과제 중심 매칭",
+    title: "과제 중심 매칭",
     meta: "공고와 과제를 연결해 지원자가 업무를 더 정확히 이해할 수 있게 합니다."
   },
   {
@@ -52,7 +52,7 @@ const valueCards = [
 const heroHighlights = [
   { value: "역 도보 10분", label: "가까운 접근성" },
   { value: "유연근무", label: "조건 중심 비교" },
-  { value: "실무 과제", label: "더 정확한 매칭" }
+  { value: "과제", label: "더 정확한 매칭" }
 ];
 
 const routes = {
@@ -144,18 +144,16 @@ function MainHomePage() {
           <div className="wd-hero__main">
             <div className="wd-hero__copy">
               <div>
+                <p className="wd-hero-kicker">실력은 full time, 근무는 part time!</p>
                 <h1 className="wd-title" id="main-title">
                   <span className="wd-title__line">
-                    <span className="wd-title__highlight">유연근무</span> 채용과 인재를 찾고,
+                    국내 최초 <span className="wd-title__highlight">유연근무</span>
                   </span>
-                  <span className="wd-title__line">
-                    실무 <span className="wd-title__highlight">과제로 연결</span>하는
-                  </span>
-                  <span className="wd-title__line">채용 플랫폼</span>
+                  <span className="wd-title__line">전문 매칭 플랫폼 원더독스</span>
                 </h1>
                 <p className="wd-description">
-                  WONDERDOGs는 기업과 구직자가 가까운 위치에서 만나고, 유연근무 조건까지
-                  맞는 채용을 연결합니다.
+                  10년의 경력도, 주 3일의 근무도 존중받는 곳.<br />
+                  기업과 인재가 각자의 조건에 맞춰 가장 합리적으로 연결됩니다.
                 </p>
                 <div className="wd-actions">
                   <a className="wd-button wd-button--primary" href={routes.flexibleJobs}>
@@ -247,9 +245,9 @@ function LoginPage() {
             <article className="wd-card wd-login-card">
               <span className="wd-login-card__icon wd-icon wd-icon--company" aria-hidden="true" />
               <div>
-                <h2 className="wd-card__title">기업회원</h2>
+                <h2 className="wd-card__title">기업 회원</h2>
               </div>
-              <a className="wd-button wd-button--primary" href={routes.companyDashboard}>기업회원 로그인</a>
+              <a className="wd-button wd-button--primary" href={routes.companyDashboard}>기업 회원 로그인</a>
             </article>
 
             <article className="wd-card wd-login-card">
@@ -257,7 +255,7 @@ function LoginPage() {
               <div>
                 <h2 className="wd-card__title">개인 회원</h2>
               </div>
-              <a className="wd-button wd-button--secondary" href={routes.flexibleJobs}>개인회원 로그인</a>
+              <a className="wd-button wd-button--secondary" href={routes.flexibleJobs}>개인 회원 로그인</a>
             </article>
           </div>
         </section>

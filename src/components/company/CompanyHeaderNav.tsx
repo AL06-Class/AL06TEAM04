@@ -45,7 +45,7 @@ export function CompanyHeaderNav({ activePath }: CompanyHeaderNavProps) {
 
         <a className="wd-company-header__member" href="/company">
           <span className="wd-company-header__member-icon" aria-hidden="true" />
-          원더독스 기업 회원
+          기업 회원(원더독스님)
           <span className="wd-company-header__member-caret" aria-hidden="true" />
         </a>
       </div>

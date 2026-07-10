@@ -93,15 +93,10 @@ export function FlexibleJobsPage() {
 
   return (
     <div className="wd-company-page">
-      <PublicHeaderNav activePath="/flexible-jobs" memberLabel="개인 회원 (이원서님)" navType="member" />
+      <PublicHeaderNav activePath="/flexible-jobs" memberLabel="개인 회원(이원서님)" navType="member" />
 
       <PageContainer>
         <section className="wd-flex-head">
-          <div>
-            <h1>유연근무 공고</h1>
-            <p>위치, 요일, 시간, 업무가 모두 맞는 결과를 우선 노출합니다.</p>
-          </div>
-
           <div className="wd-flex-head__notice">
             <strong>
               <span className="wd-inline-icon wd-inline-icon--info" aria-hidden="true" />
@@ -340,7 +335,7 @@ export function FlexibleJobsPage() {
                       <span className="wd-flex-company__assignment">{company.assignment}</span>
                       <span className="wd-flex-company__time">{company.estimatedTime}</span>
                       <div className="wd-flex-company__actions">
-                        <Button href="/company/job-posts" size="small" variant="secondary">
+                        <Button href="/job-posts/job-posting-2026-07-001" size="small" variant="secondary">
                           공고 보기
                         </Button>
                         <Button href="/login" size="small">
