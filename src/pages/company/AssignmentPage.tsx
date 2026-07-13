@@ -310,7 +310,7 @@ function AssignmentPageTabs({
   onMoveAi: () => void;
 }) {
   return (
-    <div className="wd-sai-assignment-tabs" role="tablist" aria-label="과제관리 하위 페이지">
+    <div className="wd-sai-assignment-tabs" role="tablist" aria-label="과제 관리 하위 페이지">
       <button
         className={activeTab === "ai" ? "wd-sai-assignment-tab wd-sai-assignment-tab--active" : "wd-sai-assignment-tab"}
         type="button"
@@ -323,7 +323,7 @@ function AssignmentPageTabs({
         type="button"
         onClick={() => onChangeTab("manage")}
       >
-        과제확인/공고연결
+        과제 확인/공고 연결
       </button>
     </div>
   );
@@ -416,10 +416,6 @@ function AssignmentManagePage({
   return (
     <div className={selectedIds.length > 0 ? "wd-sai-manage-content wd-sai-manage-content--selection" : "wd-sai-manage-content"}>
       <section className="wd-sai-manage-head">
-        <div>
-          <h1 className="wd-sai-page-title">과제관리</h1>
-          <p className="wd-sai-description">실무 업무를 바탕으로 AI가 사전과제를 생성하고, 등록된 과제를 채용공고에 연결하여 구직자의 직무 역량을 확인할 수 있습니다.</p>
-        </div>
         <button className="wd-button wd-button--primary wd-sai-new-task-button" type="button" onClick={onMoveAi}>
           신규 과제 등록
         </button>
@@ -647,10 +643,10 @@ function AssignmentAiPage({
   const isWaitingEditing = focusedAssignment?.status === "available";
   const canAppendAssignments = isDraftEditing || isWaitingEditing;
   const isReadOnlyMode = focusedAssignment?.status === "linked";
-  const formTitle = isReadOnlyMode ? "과제 기본 정보" : "사전과제 AI 생성 맞춤 질문";
+  const formTitle = isReadOnlyMode ? "과제 기본 정보" : "과제 AI 생성 맞춤 질문";
   const formGuide = isReadOnlyMode
     ? "공고에 연결된 과제의 기본 정보를 확인할 수 있습니다."
-    : "맞춤 질문에 답하면 AI가 채용직무에 맞는 사전과제를 생성합니다.";
+    : "맞춤 질문에 답하면 AI가 채용직무에 맞는 과제를 생성합니다.";
   useEffect(() => {
     if (!focusedAssignment) {
       setShowDraftOnly(false);
@@ -760,12 +756,6 @@ function AssignmentAiPage({
 
   return (
     <>
-      <section className="wd-sai-manage-head wd-sai-ai-head">
-        <div>
-          <h1 className="wd-sai-page-title">과제관리</h1>
-          <p className="wd-sai-description">실무 업무를 바탕으로 AI가 사전과제를 생성하고, 등록된 과제를 채용공고에 연결하여 구직자의 직무 역량을 확인할 수 있습니다.</p>
-        </div>
-      </section>
       <AssignmentPageTabs activeTab={activeTab} onChangeTab={onChangeTab} onMoveAi={onMoveAi} />
 
       <section className="wd-sai-assignment-layout">
@@ -869,7 +859,7 @@ function AssignmentAiPage({
         </label>
         {!isReadOnlyMode && (
           <button className="wd-button wd-button--primary wd-sai-full-button" type="button" onClick={generateAll}>
-            {canAppendAssignments ? "과제 추가 생성" : "AI 과제 생성"}
+            {canAppendAssignments ? "과제 추가 생성" : "과제 AI 생성"}
           </button>
         )}
       </aside>

@@ -28,7 +28,7 @@ export const flexibleJobCompanies: FlexibleJobCompany[] = [
     workDays: "주 3일 협의가능",
     workHours: "4시간 10~15시 사이",
     workStyle: "하이브리드",
-    assignment: "실무 과제 있음",
+    assignment: "과제 있음",
     estimatedTime: "예상 10분"
   },
   {
@@ -41,9 +41,9 @@ export const flexibleJobCompanies: FlexibleJobCompany[] = [
     title: "웹 디자이너 · 경력 5년 이상",
     distance: "신사역 도보 5분",
     workDays: "요일 협의 가능",
-    workHours: "13:00 ~ 18:00 사이 일 3시간",
+    workHours: "3시간 13~16시 사이",
     workStyle: "부분 재택",
-    assignment: "실무 과제 있음",
+    assignment: "과제 있음",
     estimatedTime: "예상 19분"
   },
   {
@@ -75,7 +75,7 @@ export const flexibleJobCompanies: FlexibleJobCompany[] = [
     workDays: "월~금",
     workHours: "4시간 9~13시 사이",
     workStyle: "출근 근무",
-    assignment: "실무 과제 있음",
+    assignment: "과제 있음",
     estimatedTime: "예상 16분"
   }
 ];

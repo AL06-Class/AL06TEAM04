@@ -45,17 +45,6 @@ export function JobPostManagePage() {
       <CompanyHeaderNav activePath="/company/job-posts" />
 
       <PageContainer>
-        <section className="wd-page-heading wd-page-heading--with-action">
-          <div>
-            <h1>공고 관리</h1>
-            <p>등록한 채용 공고를 한눈에 확인하고 관리할 수 있습니다.</p>
-          </div>
-          <Button href="/company/job-posts/new" size="large">
-            <span className="wd-inline-icon wd-inline-icon--plus" aria-hidden="true" />
-            새 공고 등록하기
-          </Button>
-        </section>
-
         <Card className="wd-job-manage-toolbar">
           <JobPostStatusTabs activeStatus={activeStatus} counts={counts} onStatusChange={setActiveStatus} />
           <JobPostManageFilter
@@ -66,6 +55,12 @@ export function JobPostManagePage() {
             onWorkTypeChange={setWorkType}
             workType={workType}
           />
+          <div className="wd-job-manage-toolbar__action">
+            <Button href="/company/job-posts/new" size="large">
+              <span className="wd-inline-icon wd-inline-icon--plus" aria-hidden="true" />
+              새 공고 등록하기
+            </Button>
+          </div>
         </Card>
 
         <Card className="wd-job-manage-table-card">

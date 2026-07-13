@@ -79,7 +79,7 @@ const stepMeta: Array<{ id: CreateStep; title: string; description: string }> = 
   { id: "assignment", title: "과제 연결", description: "기존 과제 검색 또는 새 과제 생성" }
 ];
 
-const occupationOptions = ["UI/UX디자인", "프로덕트 디자인", "웹디자인", "프론트엔드 개발", "서비스 운영", "직접입력"];
+const occupationOptions = ["UI/UX 디자인", "프로덕트 디자인", "웹디자인", "프론트엔드 개발", "서비스 운영", "직접입력"];
 const businessFieldOptions = ["IT 서비스", "플랫폼", "이커머스", "라이프스타일", "교육"];
 const jobTitleOptions = ["UI/UX 디자이너", "프로덕트 디자이너", "UX 리서처", "UI 디자이너", "CX 매니저", "프론트엔드 개발자"];
 const seniorityOptions = ["주니어(1~3년차)", "주니어(3~5년차)", "미드 레벨(5~10년차)", "시니어(10~15년차)", "경력 무관"];
@@ -126,7 +126,7 @@ const assignmentPool: Assignment[] = [
     owner: "mine",
     companyName: "원더독스",
     status: "available",
-    occupation: "UI/UX디자인",
+    occupation: "UI/UX 디자인",
     businessField: "IT 서비스",
     seniority: "주니어(1~3년차)",
     title: "서비스 개선 아이디어 제안",
@@ -402,13 +402,6 @@ export function JobPostCreatePage() {
     <div className="wd-company-page">
       <CompanyHeaderNav activePath="/company/job-posts" />
       <main className="wd-container wd-create-page">
-      <div className="wd-page-heading">
-        <div>
-          <h1 className="wd-page-title">새 공고 등록하기</h1>
-          <p className="wd-lead">공고관리에서 새 공고 등록하기를 눌렀을 때 이어지는 등록 화면입니다.</p>
-        </div>
-      </div>
-
       <div className="wd-create-layout">
         <section className="wd-create-main">
           <Stepper currentStep={step} onStepChange={goToStep} />
@@ -712,7 +705,7 @@ function AssignmentStep({
 
       {assignmentChoice === "new" ? (
         <section className="wd-new-assignment-panel" aria-labelledby="new-assignment-title">
-          <p>공고 업무에 딱 맞는 사전 과제를 생성하고<br />지원자들의 진짜 실력을 확인하세요</p>
+          <p>공고 업무에 딱 맞는 과제를 생성하고<br />지원자들의 진짜 실력을 확인하세요</p>
           <a
             id="new-assignment-title"
             className="wd-new-assignment-panel__cta"
@@ -1062,7 +1055,7 @@ function PreviewContent({
           ) : null}
         </PreviewSection>
       ) : null}
-      <PreviewSection title="사전과제" onEdit={() => onEditStep("assignment")}>
+      <PreviewSection title="과제" onEdit={() => onEditStep("assignment")}>
         {assignment ? (
           <div className="wd-linked-assignment">
             <div className="wd-assignment-source-line"><OwnerBadge owner={assignment.owner} /><StatusBadge status={assignment.status} /></div>
