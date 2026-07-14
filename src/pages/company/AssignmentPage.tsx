@@ -192,6 +192,7 @@ const jobRoleOptions = [
   "DevOps 엔지니어",
   "QA 엔지니어",
   "AI 서비스 기획자",
+  "UX 리서처",
   "UI/UX 디자이너",
   "콘텐츠 디자이너",
   "콘텐츠 기획자",
@@ -239,22 +240,22 @@ type IndustryPreset = {
 
 const industryPresets: Record<string, IndustryPreset> = {
   "IT/소프트웨어": {
-    jobRoles: ["프론트엔드 개발자", "백엔드 개발자", "풀스택 개발자", "모바일 앱 개발자", "AI 엔지니어", "DevOps 엔지니어", "QA 엔지니어", "AI 서비스 기획자"],
-    requiredSkills: ["React, TypeScript, Git, GitHub", "Node.js, SQL, NoSQL, REST API, GraphQL", "Python, AI 모델 이해, API 연동", "CI/CD, Docker, 클라우드 배포", "테스트 케이스 작성, QA"],
-    productServices: ["웹 서비스", "SaaS 플랫폼", "관리자 시스템", "Open API", "AI 솔루션"],
-    mainWorks: ["신규 기능 개발", "기존 기능 개선", "API 개발 및 연동", "배포 및 모니터링", "서비스 성능 개선"]
+    jobRoles: ["프론트엔드 개발자", "백엔드 개발자", "풀스택 개발자", "모바일 앱 개발자", "AI 엔지니어", "DevOps 엔지니어", "QA 엔지니어", "AI 서비스 기획자", "UX 리서처"],
+    requiredSkills: ["React, TypeScript, Git, GitHub", "Node.js, SQL, NoSQL, REST API, GraphQL", "Python, AI 모델 이해, API 연동", "CI/CD, Docker, 클라우드 배포", "테스트 케이스 작성, QA", "UX 리서치, 사용자 인터뷰, UT 설계"],
+    productServices: ["웹 서비스", "SaaS 플랫폼", "관리자 시스템", "Open API", "AI 솔루션", "사용자 리서치 리포트"],
+    mainWorks: ["신규 기능 개발", "기존 기능 개선", "API 개발 및 연동", "배포 및 모니터링", "서비스 성능 개선", "사용자 인터뷰 및 사용성 테스트"]
   },
   "콘텐츠/미디어": {
-    jobRoles: ["콘텐츠 디자이너", "콘텐츠 기획자", "영상 편집자", "브랜드 디자이너", "SNS 운영 매니저"],
-    requiredSkills: ["콘텐츠 기획, Figma, Photoshop, Illustrator", "영상 편집, 카피라이팅, 브랜드 이해", "채널 운영, Notion, Slack"],
-    productServices: ["SNS 콘텐츠", "영상 콘텐츠", "브랜드 콘텐츠", "뉴스레터", "콘텐츠 플랫폼"],
-    mainWorks: ["콘텐츠 기획 및 제작", "캠페인 소재 제작", "브랜드 디자인 시안 제작", "SNS 채널 운영", "업로드 일정 관리"]
+    jobRoles: ["콘텐츠 디자이너", "콘텐츠 기획자", "영상 편집자", "브랜드 디자이너", "SNS 운영 매니저", "UX 리서처"],
+    requiredSkills: ["콘텐츠 기획, Figma, Photoshop, Illustrator", "영상 편집, 카피라이팅, 브랜드 이해", "채널 운영, Notion, Slack", "UX 리서치, 콘텐츠 사용성 테스트, 사용자 인터뷰"],
+    productServices: ["SNS 콘텐츠", "영상 콘텐츠", "브랜드 콘텐츠", "뉴스레터", "콘텐츠 플랫폼", "콘텐츠 사용성 리서치"],
+    mainWorks: ["콘텐츠 기획 및 제작", "캠페인 소재 제작", "브랜드 디자인 시안 제작", "SNS 채널 운영", "업로드 일정 관리", "콘텐츠 이용자 리서치 및 개선안 도출"]
   },
   "이커머스/유통": {
-    jobRoles: ["MD", "서비스 운영 매니저", "CRM 마케터", "퍼포먼스 마케터", "데이터 분석가"],
-    requiredSkills: ["상품 관리, Excel, 고객 응대", "GA4, Meta Ads, Google Ads", "CRM, Braze, Amplitude", "SQL, Looker Studio"],
-    productServices: ["온라인 쇼핑몰", "커머스 플랫폼", "배송 서비스", "정산 시스템", "CRM 캠페인"],
-    mainWorks: ["상품 등록 및 관리", "주문/배송 이슈 대응", "판매 데이터 분석", "프로모션 운영", "고객 세그먼트 관리"]
+    jobRoles: ["MD", "서비스 운영 매니저", "CRM 마케터", "퍼포먼스 마케터", "데이터 분석가", "UX 리서처"],
+    requiredSkills: ["상품 관리, Excel, 고객 응대", "GA4, Meta Ads, Google Ads", "CRM, Braze, Amplitude", "SQL, Looker Studio", "UX 리서치, 구매 여정 분석, 사용자 인터뷰"],
+    productServices: ["온라인 쇼핑몰", "커머스 플랫폼", "배송 서비스", "정산 시스템", "CRM 캠페인", "구매 여정 리서치"],
+    mainWorks: ["상품 등록 및 관리", "주문/배송 이슈 대응", "판매 데이터 분석", "프로모션 운영", "고객 세그먼트 관리", "구매 전환 흐름 조사 및 개선안 도출"]
   },
   교육: {
     jobRoles: ["교육 콘텐츠 기획자", "서비스 운영 매니저", "UI/UX 디자이너", "교육 운영 매니저", "L&D 담당자"],
@@ -281,10 +282,10 @@ const industryPresets: Record<string, IndustryPreset> = {
     mainWorks: ["생산 일정 관리", "재고 현황 확인", "품질 이슈 대응", "구매 일정 조율", "운영 프로세스 개선"]
   },
   "마케팅/광고": {
-    jobRoles: ["퍼포먼스 마케터", "CRM 마케터", "브랜드 마케터", "콘텐츠 기획자", "데이터 분석가"],
-    requiredSkills: ["GA4, Meta Ads, Google Ads", "CRM, Braze, Amplitude", "콘텐츠 기획, 카피라이팅", "Looker Studio, 리포트 작성"],
-    productServices: ["광고 캠페인", "랜딩페이지", "브랜드 캠페인", "SNS 콘텐츠", "CRM 캠페인"],
-    mainWorks: ["광고 집행 및 성과 분석", "캠페인 기획 및 운영", "리포트 작성", "개선안 도출 및 적용", "고객 세그먼트 관리"]
+    jobRoles: ["퍼포먼스 마케터", "CRM 마케터", "브랜드 마케터", "콘텐츠 기획자", "데이터 분석가", "UX 리서처"],
+    requiredSkills: ["GA4, Meta Ads, Google Ads", "CRM, Braze, Amplitude", "콘텐츠 기획, 카피라이팅", "Looker Studio, 리포트 작성", "UX 리서치, 랜딩페이지 사용성 테스트, 사용자 인터뷰"],
+    productServices: ["광고 캠페인", "랜딩페이지", "브랜드 캠페인", "SNS 콘텐츠", "CRM 캠페인", "캠페인 사용성 리서치"],
+    mainWorks: ["광고 집행 및 성과 분석", "캠페인 기획 및 운영", "리포트 작성", "개선안 도출 및 적용", "고객 세그먼트 관리", "캠페인 전환 흐름 조사 및 개선안 도출"]
   },
   고객서비스: {
     jobRoles: ["고객 상담 매니저", "CX 매니저", "VOC 분석가", "QA 담당자", "서비스 운영 매니저"],
