@@ -30,15 +30,15 @@ type Assignment = {
 
 type CustomQuestion = {
   industry: string;
-  jobRole: string;
+  jobRole: string[];
   isIndustryCustom: boolean;
   isJobRoleCustom: boolean;
   isRequiredSkillsCustom: boolean;
   isProductServiceCustom: boolean;
   isMainWorkCustom: boolean;
-  requiredSkills: string;
-  productService: string;
-  mainWork: string;
+  requiredSkills: string[];
+  productService: string[];
+  mainWork: string[];
   additionalRequest: string;
 };
 
@@ -157,15 +157,15 @@ const getAssignmentDifficultyScore = (assignment: Assignment) =>
 
 const initialQuestion: CustomQuestion = {
   industry: "콘텐츠/미디어",
-  jobRole: "콘텐츠 디자이너",
+  jobRole: ["콘텐츠 디자이너"],
   isIndustryCustom: false,
   isJobRoleCustom: false,
   isRequiredSkillsCustom: false,
   isProductServiceCustom: false,
   isMainWorkCustom: false,
-  requiredSkills: "콘텐츠 기획, Figma, 협업 커뮤니케이션",
-  productService: "유연근무 채용 플랫폼",
-  mainWork: "채용 공고 상세 화면의 핵심 정보를 더 쉽게 읽히게 개선",
+  requiredSkills: ["콘텐츠 기획, Figma, Photoshop, Illustrator"],
+  productService: ["SNS 콘텐츠"],
+  mainWork: ["콘텐츠 기획 및 제작"],
   additionalRequest: "실제 업무 상황처럼 문제 정의와 개선안을 함께 볼 수 있게 구성"
 };
 
@@ -304,6 +304,8 @@ const getPreset = (industry: string) => industryPresets[industry] ?? industryPre
 
 const withDirectInput = (options: string[]) => [...options, directInputOption];
 
+const formatQuestionList = (items: string[]) => items.filter(Boolean).join(", ");
+
 const assignmentThemes = [
   "핵심 사용자 문제 정의",
   "서비스 화면 개선안 작성",
@@ -329,13 +331,14 @@ function createGeneratedAssignment(
 ): GeneratedAssignment {
   const difficulty = difficultyOverride ?? difficultyPlan[index % difficultyPlan.length];
   const theme = assignmentThemes[(index + seed) % assignmentThemes.length];
+  const jobRoleText = formatQuestionList(question.jobRole);
 
   return {
     id: `generated-${seed}-${index}`,
-    title: `${question.jobRole} ${theme}`,
+    title: `${jobRoleText} ${theme}`,
     difficulty,
-    goal: `${question.industry} 분야의 ${question.productService} 업무 맥락에서 ${question.jobRole}의 실무 판단력을 확인합니다.`,
-    requirements: `${question.mainWork} 상황을 기준으로 문제 정의, 실행안, 필요한 ${question.requiredSkills}, 예상 결과를 정리합니다. ${question.additionalRequest}`,
+    goal: `${question.industry} 분야의 ${formatQuestionList(question.productService)} 업무 맥락에서 ${jobRoleText}의 실무 판단력을 확인합니다.`,
+    requirements: `${formatQuestionList(question.mainWork)} 상황을 기준으로 문제 정의, 실행안, 필요한 ${formatQuestionList(question.requiredSkills)}, 예상 결과를 정리합니다. ${question.additionalRequest}`,
     evaluation:
       difficulty === "상"
         ? "전략적 사고 35%, 실행 구체성 30%, 협업 관점 20%, 완성도 15%"
@@ -580,11 +583,6 @@ function AssignmentManagePage({
 
   return (
     <div className={selectedIds.length > 0 ? "wd-sai-manage-content wd-sai-manage-content--selection" : "wd-sai-manage-content"}>
-      <section className="wd-sai-manage-head">
-        <button className="wd-button wd-button--primary wd-sai-new-task-button" type="button" onClick={onMoveAi}>
-          신규 과제 등록
-        </button>
-      </section>
       <AssignmentPageTabs activeTab={activeTab} onChangeTab={onChangeTab} onMoveAi={onMoveAi} />
 
       <section
@@ -787,6 +785,120 @@ function AssignmentCard({
   );
 }
 
+function MultiSelectDropdown({
+  disabled,
+  label,
+  onCustom,
+  onToggle,
+  options,
+  selectedValues
+}: {
+  disabled: boolean;
+  label: string;
+  onCustom: () => void;
+  onToggle: (value: string) => void;
+  options: string[];
+  selectedValues: string[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedCount = selectedValues.filter(Boolean).length;
+  const summary = selectedCount === 0 ? "선택하세요" : selectedCount === 1 ? selectedValues[0] : `${selectedCount}개 선택됨`;
+
+  return (
+    <div className="wd-sai-multiselect" onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        setIsOpen(false);
+      }
+    }}>
+      <button
+        aria-expanded={isOpen}
+        className="wd-sai-multiselect__button"
+        disabled={disabled}
+        onClick={() => setIsOpen((value) => !value)}
+        type="button"
+      >
+        <span>{summary}</span>
+        <strong>▾</strong>
+      </button>
+      {isOpen && (
+        <div className="wd-sai-multiselect__menu" role="group" aria-label={label}>
+          {options.map((option) => (
+            <label className="wd-sai-check-row" key={option}>
+              <input
+                checked={selectedValues.includes(option)}
+                disabled={disabled}
+                onChange={() => onToggle(option)}
+                type="checkbox"
+              />
+              {option}
+            </label>
+          ))}
+          {!disabled && (
+            <button className="wd-sai-multiselect__custom" type="button" onClick={onCustom}>
+              직접입력
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SingleSelectDropdown({
+  disabled,
+  label,
+  onChange,
+  options,
+  value
+}: {
+  disabled: boolean;
+  label: string;
+  onChange: (value: string) => void;
+  options: string[];
+  value: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="wd-sai-multiselect" onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        setIsOpen(false);
+      }
+    }}>
+      <button
+        aria-expanded={isOpen}
+        className="wd-sai-multiselect__button"
+        disabled={disabled}
+        onClick={() => setIsOpen((current) => !current)}
+        type="button"
+      >
+        <span>{value || "선택하세요"}</span>
+        <strong>▾</strong>
+      </button>
+      {isOpen && (
+        <div className="wd-sai-multiselect__menu" role="listbox" aria-label={label}>
+          {options.map((option) => (
+            <button
+              aria-selected={value === option}
+              className={value === option ? "wd-sai-select-option is-selected" : "wd-sai-select-option"}
+              key={option}
+              onClick={() => {
+                onChange(option);
+                setIsOpen(false);
+              }}
+              role="option"
+              type="button"
+            >
+              <span>{option}</span>
+              {value === option && <strong>✓</strong>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AssignmentAiPage({
   activeTab,
   focusedAssignment,
@@ -824,12 +936,12 @@ function AssignmentAiPage({
     setShowDraftOnly(false);
     setQuestion((current) => ({
       ...current,
-      jobRole: focusedAssignment.jobTitle,
+      jobRole: [focusedAssignment.jobTitle],
       isJobRoleCustom: !getPreset(current.industry).jobRoles.includes(focusedAssignment.jobTitle),
       isRequiredSkillsCustom: false,
       isProductServiceCustom: false,
       isMainWorkCustom: false,
-      mainWork: `${focusedAssignment.title}에 연결된 과제를 검토하고 수정합니다.`
+      mainWork: [`${focusedAssignment.title}에 연결된 과제를 검토하고 수정합니다.`]
     }));
     setGeneratedAssignments(
       focusedAssignment.linkedAssignments.map((linkedAssignment, index) => ({
@@ -930,43 +1042,63 @@ function AssignmentAiPage({
       isRequiredSkillsCustom: false,
       isProductServiceCustom: false,
       isMainWorkCustom: false,
-      jobRole: preset.jobRoles[0],
-      requiredSkills: preset.requiredSkills[0],
-      productService: preset.productServices[0],
-      mainWork: preset.mainWorks[0]
+      jobRole: preset.jobRoles.slice(0, 2),
+      requiredSkills: preset.requiredSkills.slice(0, 2),
+      productService: preset.productServices.slice(0, 2),
+      mainWork: preset.mainWorks.slice(0, 2)
     });
   };
 
-  const selectJobRole = (value: string) => {
+  const toggleJobRole = (value: string) => {
     setQuestion({
       ...question,
-      jobRole: value === directInputOption ? "" : value,
-      isJobRoleCustom: value === directInputOption
+      jobRole: question.jobRole.includes(value)
+        ? question.jobRole.filter((item) => item !== value)
+        : [...question.jobRole, value]
     });
   };
 
-  const selectRequiredSkills = (value: string) => {
+  const useCustomJobRole = () => {
+    setQuestion({ ...question, jobRole: [""], isJobRoleCustom: true });
+  };
+
+  const toggleRequiredSkill = (value: string) => {
     setQuestion({
       ...question,
-      requiredSkills: value === directInputOption ? "" : value,
-      isRequiredSkillsCustom: value === directInputOption
+      requiredSkills: question.requiredSkills.includes(value)
+        ? question.requiredSkills.filter((item) => item !== value)
+        : [...question.requiredSkills, value]
     });
   };
 
-  const selectProductService = (value: string) => {
+  const toggleProductService = (value: string) => {
     setQuestion({
       ...question,
-      productService: value === directInputOption ? "" : value,
-      isProductServiceCustom: value === directInputOption
+      productService: question.productService.includes(value)
+        ? question.productService.filter((item) => item !== value)
+        : [...question.productService, value]
     });
   };
 
-  const selectMainWork = (value: string) => {
+  const toggleMainWork = (value: string) => {
     setQuestion({
       ...question,
-      mainWork: value === directInputOption ? "" : value,
-      isMainWorkCustom: value === directInputOption
+      mainWork: question.mainWork.includes(value)
+        ? question.mainWork.filter((item) => item !== value)
+        : [...question.mainWork, value]
     });
+  };
+
+  const useCustomRequiredSkills = () => {
+    setQuestion({ ...question, requiredSkills: [""], isRequiredSkillsCustom: true });
+  };
+
+  const useCustomProductService = () => {
+    setQuestion({ ...question, productService: [""], isProductServiceCustom: true });
+  };
+
+  const useCustomMainWork = () => {
+    setQuestion({ ...question, mainWork: [""], isMainWorkCustom: true });
   };
 
   return (
@@ -999,15 +1131,13 @@ function AssignmentAiPage({
               )}
             </div>
           ) : (
-            <select
-              value={question.industry}
-              onChange={(event) => selectIndustry(event.target.value)}
+            <SingleSelectDropdown
               disabled={isReadOnlyMode}
-            >
-              {industryOptions.map((industry) => (
-                <option key={industry}>{industry}</option>
-              ))}
-            </select>
+              label="업종"
+              onChange={selectIndustry}
+              options={industryOptions}
+              value={question.industry}
+            />
           )}
         </label>
         <label>
@@ -1018,26 +1148,25 @@ function AssignmentAiPage({
                 aria-label="채용직무 직접입력"
                 autoFocus
                 placeholder="채용직무를 입력하세요"
-                value={question.jobRole}
-                onChange={(event) => setQuestion({ ...question, jobRole: event.target.value })}
+                value={question.jobRole[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, jobRole: [event.target.value] })}
                 disabled={isReadOnlyMode}
               />
               {!isReadOnlyMode && (
-                <button className="wd-sai-inline-reset" type="button" onClick={() => selectJobRole(visibleJobRoleOptions[0])}>
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, jobRole: [visibleJobRoleOptions[0]], isJobRoleCustom: false })}>
                   목록
                 </button>
               )}
             </div>
           ) : (
-            <select
-              value={question.jobRole}
-              onChange={(event) => selectJobRole(event.target.value)}
+            <MultiSelectDropdown
               disabled={isReadOnlyMode}
-            >
-              {visibleJobRoleOptions.map((jobRole) => (
-                <option key={jobRole}>{jobRole}</option>
-              ))}
-            </select>
+              label="채용직무"
+              onCustom={useCustomJobRole}
+              onToggle={toggleJobRole}
+              options={currentPreset.jobRoles}
+              selectedValues={question.jobRole}
+            />
           )}
         </label>
         <label>
@@ -1048,26 +1177,25 @@ function AssignmentAiPage({
                 aria-label="필수 업무 스킬 직접입력"
                 autoFocus
                 placeholder="필수 업무 스킬을 입력하세요"
-                value={question.requiredSkills}
-                onChange={(event) => setQuestion({ ...question, requiredSkills: event.target.value })}
+                value={question.requiredSkills[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, requiredSkills: [event.target.value] })}
                 disabled={isReadOnlyMode}
               />
               {!isReadOnlyMode && (
-                <button className="wd-sai-inline-reset" type="button" onClick={() => selectRequiredSkills(requiredSkillOptions[0])}>
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, requiredSkills: [requiredSkillOptions[0]], isRequiredSkillsCustom: false })}>
                   목록
                 </button>
               )}
             </div>
           ) : (
-            <select
-              value={question.requiredSkills}
-              onChange={(event) => selectRequiredSkills(event.target.value)}
+            <MultiSelectDropdown
               disabled={isReadOnlyMode}
-            >
-              {requiredSkillOptions.map((requiredSkills) => (
-                <option key={requiredSkills}>{requiredSkills}</option>
-              ))}
-            </select>
+              label="필수 업무 스킬"
+              onCustom={useCustomRequiredSkills}
+              onToggle={toggleRequiredSkill}
+              options={currentPreset.requiredSkills}
+              selectedValues={question.requiredSkills}
+            />
           )}
         </label>
         <label>
@@ -1078,26 +1206,25 @@ function AssignmentAiPage({
                 aria-label="주력 상품 및 서비스 직접입력"
                 autoFocus
                 placeholder="주력 상품 및 서비스를 입력하세요"
-                value={question.productService}
-                onChange={(event) => setQuestion({ ...question, productService: event.target.value })}
+                value={question.productService[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, productService: [event.target.value] })}
                 disabled={isReadOnlyMode}
               />
               {!isReadOnlyMode && (
-                <button className="wd-sai-inline-reset" type="button" onClick={() => selectProductService(productServiceOptions[0])}>
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, productService: [productServiceOptions[0]], isProductServiceCustom: false })}>
                   목록
                 </button>
               )}
             </div>
           ) : (
-            <select
-              value={question.productService}
-              onChange={(event) => selectProductService(event.target.value)}
+            <MultiSelectDropdown
               disabled={isReadOnlyMode}
-            >
-              {productServiceOptions.map((productService) => (
-                <option key={productService}>{productService}</option>
-              ))}
-            </select>
+              label="주력 상품 및 서비스"
+              onCustom={useCustomProductService}
+              onToggle={toggleProductService}
+              options={currentPreset.productServices}
+              selectedValues={question.productService}
+            />
           )}
         </label>
         <label>
@@ -1108,26 +1235,25 @@ function AssignmentAiPage({
                 aria-label="입사 후 주요 업무 직접입력"
                 autoFocus
                 placeholder="입사 후 주요 업무를 입력하세요"
-                value={question.mainWork}
-                onChange={(event) => setQuestion({ ...question, mainWork: event.target.value })}
+                value={question.mainWork[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, mainWork: [event.target.value] })}
                 disabled={isReadOnlyMode}
               />
               {!isReadOnlyMode && (
-                <button className="wd-sai-inline-reset" type="button" onClick={() => selectMainWork(mainWorkOptions[0])}>
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, mainWork: [mainWorkOptions[0]], isMainWorkCustom: false })}>
                   목록
                 </button>
               )}
             </div>
           ) : (
-            <select
-              value={question.mainWork}
-              onChange={(event) => selectMainWork(event.target.value)}
+            <MultiSelectDropdown
               disabled={isReadOnlyMode}
-            >
-              {mainWorkOptions.map((mainWork) => (
-                <option key={mainWork}>{mainWork}</option>
-              ))}
-            </select>
+              label="입사 후 주요 업무"
+              onCustom={useCustomMainWork}
+              onToggle={toggleMainWork}
+              options={currentPreset.mainWorks}
+              selectedValues={question.mainWork}
+            />
           )}
         </label>
         <label>
