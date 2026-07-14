@@ -236,26 +236,78 @@ function createGeneratedAssignment(
 }
 
 const initialAssignmentTabKey = "wd:assignment-initial-tab";
+const assignmentTabHistoryKey = "wdAssignmentTab";
+
+function createAssignmentTabHistoryState(tab: AssignmentTab) {
+  const currentState = window.history.state;
+  return {
+    ...(typeof currentState === "object" && currentState !== null ? currentState : {}),
+    [assignmentTabHistoryKey]: tab
+  };
+}
+
+function getAssignmentTabFromLocation(): AssignmentTab {
+  return new URLSearchParams(window.location.search).get("tab") === "ai" ? "ai" : "manage";
+}
 
 function getInitialAssignmentTab(): AssignmentTab {
-  const queryTab = new URLSearchParams(window.location.search).get("tab");
   const storedTab = window.sessionStorage.getItem(initialAssignmentTabKey);
 
-  return queryTab === "ai" || storedTab === "ai" ? "ai" : "manage";
+  return getAssignmentTabFromLocation() === "ai" || storedTab === "ai" ? "ai" : "manage";
 }
 
 export function AssignmentPage() {
   const [activeTab, setActiveTab] = useState<AssignmentTab>(getInitialAssignmentTab);
 
   useEffect(() => {
+    const storedTab = window.sessionStorage.getItem(initialAssignmentTabKey);
     window.sessionStorage.removeItem(initialAssignmentTabKey);
+
+    const startsOnAi = storedTab === "ai" || getAssignmentTabFromLocation() === "ai";
+    if (startsOnAi && window.history.state?.[assignmentTabHistoryKey] !== "ai") {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.delete("tab");
+      window.history.replaceState(
+        createAssignmentTabHistoryState("manage"),
+        "",
+        `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
+      );
+      currentUrl.searchParams.set("tab", "ai");
+      window.history.pushState(
+        createAssignmentTabHistoryState("ai"),
+        "",
+        `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
+      );
+    }
+
+    const syncActiveTab = () => setActiveTab(getAssignmentTabFromLocation());
+    window.addEventListener("popstate", syncActiveTab);
+
+    return () => window.removeEventListener("popstate", syncActiveTab);
   }, []);
+
+  const changeTab = (nextTab: AssignmentTab) => {
+    if (nextTab !== activeTab) {
+      const nextUrl = new URL(window.location.href);
+      if (nextTab === "ai") {
+        nextUrl.searchParams.set("tab", "ai");
+      } else {
+        nextUrl.searchParams.delete("tab");
+      }
+      window.history.pushState(
+        createAssignmentTabHistoryState(nextTab),
+        "",
+        `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`
+      );
+    }
+    setActiveTab(nextTab);
+  };
 
   return (
     <div className="wd-sai-company-page">
       <CompanyHeaderNav activePath="/company/assignments" />
       <PageContainer>
-        <AssignmentWorkspacePage activeTab={activeTab} onChangeTab={setActiveTab} />
+        <AssignmentWorkspacePage activeTab={activeTab} onChangeTab={changeTab} />
       </PageContainer>
     </div>
   );
