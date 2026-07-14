@@ -57,7 +57,7 @@ export function MainHomePage() {
           <div className="wd-hero__main">
             <div className="wd-hero__copy">
               <div>
-                <p className="wd-hero-kicker">실력은 full time, 근무는 part time!</p>
+                <p className="wd-hero-kicker">실력은 Full time, 근무는 Part time!</p>
                 <h1 className="wd-title" id="main-title">
                   <span className="wd-title__line">
                     국내 최초 <span className="wd-title__highlight">유연근무</span>
