@@ -22,6 +22,7 @@
 
 20건 모두 `draft`, `assignmentIds = []`, `hasAssignment = false`, `reusePermission = pending`으로 정리했습니다.
 공개 화면용 `jobPostingsMock` 6건은 기존 상태로 유지해 권한 확인 전 외부 공고가 서비스에 노출되지 않도록 분리했습니다.
+근무·고용·경력 수준 값은 `docs/data.md`의 공통 개발 값으로 정규화하고, 원문 경력 범위는 `experienceMin/Max`에 보존했습니다.
 
 ## 원격 브랜치 Wanted 공고 검토
 
