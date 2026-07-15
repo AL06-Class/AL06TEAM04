@@ -10,7 +10,7 @@ export type ExternalJobSource = {
   verificationStatus: "verified_active" | "secondary_only";
   conditionVerification: "primary" | "secondary" | "unverified";
   conditionEvidence: string[];
-  reusePermission?: "pending" | "confirmed" | "not_required";
+  reusePermission: "pending" | "confirmed" | "not_required";
   reviewNotes?: string[];
 };
 

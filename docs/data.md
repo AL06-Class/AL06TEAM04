@@ -471,7 +471,7 @@ externalSource: {
   verificationStatus: "verified_active" | "secondary_only",
   conditionVerification: "primary" | "secondary" | "unverified",
   conditionEvidence: string[],
-  reusePermission?: "pending" | "confirmed" | "not_required",
+  reusePermission: "pending" | "confirmed" | "not_required",
   reviewNotes?: string[]
 }
 ```
@@ -486,6 +486,7 @@ externalSource: {
 - 원문에서도 유연근무 조건을 확인하지 못하면 conditionVerification = unverified로 저장하고 게시 대상에서 제외합니다.
 - 외부 공고의 재게시·재가공 권한 확인이 필요하면 reusePermission = pending으로 저장하고, 확인 전에는 Firebase 업로드 및 posted 전환을 하지 않습니다.
 - 외부 공고를 posted로 전환하기 전 마감 여부와 재게시 가능 범위를 다시 확인합니다.
+- TypeScript 검토 데이터의 checkedAt ISO 문자열은 Firebase 업로드 경계에서 Timestamp로 변환합니다.
 ```
 
 과제 없는 공고:
@@ -1772,3 +1773,4 @@ unmatchedConditions
 
 - 2026-07-14: 외부 공고 수집 출처, 원문 확인 상태, 유연근무 조건 근거를 저장하는 `externalSource` 기준 추가
 - 2026-07-15: Wanted 출처, 유연근무 미확인 상태, 외부 공고 재사용 권한 검토 기준 추가
+- 2026-07-15: Firebase 검토 데이터의 공개 mock 분리, 공통 값 정규화, Timestamp 변환 기준 추가
