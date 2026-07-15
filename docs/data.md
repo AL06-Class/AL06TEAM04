@@ -456,6 +456,37 @@ jobPostings/{jobPostingId}
 | `updatedAt` | timestamp | 필수 | 수정일 |
 | `postedAt` | timestamp 또는 null | 선택 | 게시일 |
 | `closedAt` | timestamp 또는 null | 선택 | 마감일 |
+| `externalSource` | map 또는 null | 선택 | 외부 공고 수집 출처와 검증 정보 |
+
+외부 공고 출처 구조:
+
+```js
+externalSource: {
+  provider: "Yugacrew" | "Work24" | "Wanted",
+  companyName: string,
+  listingUrl: string,
+  applyUrl: string,
+  publishedDate: string,
+  checkedAt: timestamp,
+  verificationStatus: "verified_active" | "secondary_only",
+  conditionVerification: "primary" | "secondary" | "unverified",
+  conditionEvidence: string[],
+  reusePermission?: "pending" | "confirmed" | "not_required",
+  reviewNotes?: string[]
+}
+```
+
+외부 공고 저장 기준:
+
+```text
+- 외부에서 수집한 공고는 원더독스 검수 전까지 status = draft로 저장합니다.
+- 원문 지원 페이지가 열리고 모집 상태를 확인한 경우 verificationStatus = verified_active를 사용합니다.
+- 2차 출처에서만 공고 내용을 확인한 경우 verificationStatus = secondary_only를 사용합니다.
+- 유연근무 조건이 기업 원문에 있으면 conditionVerification = primary, 중개 사이트 태그에만 있으면 secondary를 사용합니다.
+- 원문에서도 유연근무 조건을 확인하지 못하면 conditionVerification = unverified로 저장하고 게시 대상에서 제외합니다.
+- 외부 공고의 재게시·재가공 권한 확인이 필요하면 reusePermission = pending으로 저장하고, 확인 전에는 Firebase 업로드 및 posted 전환을 하지 않습니다.
+- 외부 공고를 posted로 전환하기 전 마감 여부와 재게시 가능 범위를 다시 확인합니다.
+```
 
 과제 없는 공고:
 
@@ -1733,4 +1764,11 @@ unmatchedConditions
 - DB 연결 기준: 화면 컴포넌트와 데이터 접근 코드를 분리하고 Firebase 연결 코드는 한 곳에서 관리합니다.
 - 공통 이름 사전 기준: 새 컬렉션, 필드, 상태값, 역할 값은 구현 전에 이 문서에 먼저 추가합니다.
 - MVP 이름 기준: 현재 프로젝트 기준인 recruiter, candidate, interviewer, jobPostings, candidateProfiles, applications, posted, available, linked를 사용합니다.
+- 외부 공고 기준: 출처와 검증 근거를 externalSource에 보관하고 검수 전에는 draft 상태로 유지합니다.
+- 외부 공고 게시 기준: 유연근무 조건이 unverified이거나 재사용 권한이 pending이면 Firebase 업로드 및 posted 전환 대상에서 제외합니다.
 ```
+
+## 28-20. 변경 이력
+
+- 2026-07-14: 외부 공고 수집 출처, 원문 확인 상태, 유연근무 조건 근거를 저장하는 `externalSource` 기준 추가
+- 2026-07-15: Wanted 출처, 유연근무 미확인 상태, 외부 공고 재사용 권한 검토 기준 추가
