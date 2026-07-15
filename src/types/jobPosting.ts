@@ -1,5 +1,19 @@
 export type JobPostingStatus = "posted" | "draft" | "closed";
 
+export type ExternalJobSource = {
+  provider: "Yugacrew" | "Work24" | "Wanted";
+  companyName: string;
+  listingUrl: string;
+  applyUrl: string;
+  publishedDate: string;
+  checkedAt: string;
+  verificationStatus: "verified_active" | "secondary_only";
+  conditionVerification: "primary" | "secondary" | "unverified";
+  conditionEvidence: string[];
+  reusePermission: "pending" | "confirmed" | "not_required";
+  reviewNotes?: string[];
+};
+
 export type JobPosting = {
   jobPostingId: string;
   companyId: string;
@@ -37,4 +51,5 @@ export type JobPosting = {
   closedAt: string | null;
   isRecommended?: boolean;
   applicantCount?: number;
+  externalSource?: ExternalJobSource;
 };
