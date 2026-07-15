@@ -2,7 +2,10 @@ export type JobPostingStatus = "posted" | "draft" | "closed";
 
 export type JobPosting = {
   jobPostingId: string;
+  wantedJobId?: number;
+  wantedSourceUrl?: string;
   companyId: string;
+  companyName?: string;
   recruiterId: string;
   title: string;
   industry: string;
@@ -22,12 +25,21 @@ export type JobPosting = {
   address: string;
   roadAddress: string;
   jibunAddress: string;
+  sourceWantedAddress?: string;
   location: {
     lat: number;
     lng: number;
   } | null;
   primaryStationName: string;
+  stationWalkMinutes?: number;
+  workTimeText?: string;
+  applicationPeriod?: string;
   mainResponsibilities: string;
+  requirements?: string[];
+  preferences?: string[];
+  hiringProcess?: string[];
+  assignmentTitle?: string;
+  assignmentSummary?: string;
   assignmentIds: string[];
   hasAssignment: boolean;
   status: JobPostingStatus;

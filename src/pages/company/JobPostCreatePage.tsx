@@ -1,6 +1,8 @@
-﻿import { useMemo, useState, type ReactNode } from "react";
+﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { CompanyHeaderNav } from "../../components/company/CompanyHeaderNav";
+import { assignmentDbMock, assignmentDbOptions } from "../../mocks/assignmentDb";
+import { getFirestoreCollection, saveFirestoreDocument } from "../../services/firebaseRest";
 
 type CreateStep = "company" | "flexible-work" | "work-detail" | "assignment";
 type AssignmentStatus = "available" | "linked" | "draft";
@@ -20,6 +22,11 @@ type Assignment = {
   estimatedHours: string;
   summary: string;
   evaluationItems: string[];
+  requiredSkills?: string;
+  mainProducts?: string;
+  mainTasks?: string;
+  submitCondition?: string;
+  evaluationCriteria?: string;
 };
 
 type JobDraft = {
@@ -79,10 +86,10 @@ const stepMeta: Array<{ id: CreateStep; title: string; description: string }> = 
   { id: "assignment", title: "과제 연결", description: "기존 과제 검색 또는 새 과제 생성" }
 ];
 
-const occupationOptions = ["UI/UX 디자인", "프로덕트 디자인", "웹디자인", "프론트엔드 개발", "서비스 운영", "직접입력"];
-const businessFieldOptions = ["IT 서비스", "플랫폼", "이커머스", "라이프스타일", "교육"];
-const jobTitleOptions = ["UI/UX 디자이너", "프로덕트 디자이너", "UX 리서처", "UI 디자이너", "CX 매니저", "프론트엔드 개발자"];
-const seniorityOptions = ["주니어(1~3년차)", "주니어(3~5년차)", "미드 레벨(5~10년차)", "시니어(10~15년차)", "경력 무관"];
+const occupationOptions = [...assignmentDbOptions.occupations, "직접입력"];
+const businessFieldOptions = [...assignmentDbOptions.businessFields];
+const jobTitleOptions = [...assignmentDbOptions.occupations];
+const seniorityOptions = [...assignmentDbOptions.seniority];
 const experienceMinOptions = Array.from({ length: 20 }, (_, index) => `${index + 1}년 이상`);
 const experienceMaxOptions = Array.from({ length: 20 }, (_, index) => `${index + 1}년 이하`);
 const educationOptions = ["학력무관", "고졸 이상", "초대졸 이상", "대졸 이상", "석사 이상"];
@@ -302,12 +309,122 @@ function getApplicationPeriodText(draft: JobDraft) {
   return [draft.applicationDeadlineType, range, draft.applicationDuration].filter(Boolean).join(" · ");
 }
 
+function getStringField(data: Record<string, unknown>, keys: string[], fallback = "") {
+  for (const key of keys) {
+    const value = data[key];
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  return fallback;
+}
+
+function getNumberField(data: Record<string, unknown>, keys: string[], fallback = 0) {
+  for (const key of keys) {
+    const value = data[key];
+    if (typeof value === "number") return value;
+    if (typeof value === "string" && value.trim() && !Number.isNaN(Number(value))) return Number(value);
+  }
+  return fallback;
+}
+
+function getStringArrayField(data: Record<string, unknown>, keys: string[], fallback: string[] = []) {
+  for (const key of keys) {
+    const value = data[key];
+    if (Array.isArray(value)) return value.map((item) => String(item)).filter(Boolean);
+    if (typeof value === "string" && value.trim()) return value.split(",").map((item) => item.trim()).filter(Boolean);
+  }
+  return fallback;
+}
+
+function mapFirestoreAssignment(data: Record<string, unknown>, id: string): Assignment {
+  const title = getStringField(data, ["title", "assignmentTitle", "과제명"], "제목 없는 과제");
+  const evaluationCriteria = getStringField(data, ["evaluationCriteria", "evaluation", "평가 기준"]);
+
+  return {
+    assignmentId: getStringField(data, ["assignmentId", "id", "과제 ID"], id),
+    owner: getStringField(data, ["owner"], "public") === "mine" ? "mine" : "public",
+    companyName: getStringField(data, ["companyName", "company", "source"], "과제 DB"),
+    status: (["available", "linked", "draft"].includes(getStringField(data, ["status"]))
+      ? getStringField(data, ["status"])
+      : "available") as AssignmentStatus,
+    occupation: getStringField(data, ["occupation", "jobTitle", "채용직무"]),
+    businessField: getStringField(data, ["businessField", "industry", "업종"]),
+    seniority: getStringField(data, ["seniority", "difficulty", "난이도"], "중"),
+    title,
+    adoptionCount: getNumberField(data, ["adoptionCount", "난이도별 순번"], 0),
+    estimatedHours: getStringField(data, ["estimatedHours"], "3~4시간"),
+    summary: getStringField(data, ["summary", "goal", "assignmentGoal", "과제 목표"], title),
+    evaluationItems: getStringArrayField(data, ["evaluationItems"], evaluationCriteria ? evaluationCriteria.split(",") : []),
+    requiredSkills: getStringField(data, ["requiredSkills", "필수 업무 스킬"]),
+    mainProducts: getStringField(data, ["mainProducts", "주력 상품 및 서비스"]),
+    mainTasks: getStringField(data, ["mainTasks", "입사 후 주요 업무"]),
+    submitCondition: getStringField(data, ["submitCondition", "제출 조건"]),
+    evaluationCriteria
+  };
+}
+
+function createJobPostingDocumentId() {
+  return `job-posting-${Date.now()}`;
+}
+
+function buildJobPostingPayload(draft: JobDraft, assignment: Assignment | null, jobPostingId: string) {
+  const resolvedJobTitle = getResolvedValue(draft.jobTitle, draft.customJobTitle);
+  const now = new Date().toISOString();
+  const requiredSkills = splitList(draft.requiredSkillsText);
+
+  return {
+    jobPostingId,
+    companyId: "company_wonderdogs",
+    companyName: draft.companyName,
+    recruiterId: "recruiter_wonderdogs",
+    title: draft.title || resolvedJobTitle || "새 공고",
+    industry: draft.businessField,
+    jobCategory: resolvedJobTitle,
+    jobTitle: resolvedJobTitle,
+    employmentType: draft.employmentType,
+    experienceLevel: getExperienceRange(draft.experienceMin, draft.experienceMax, draft.isExperienceIrrelevant),
+    experienceMin: draft.experienceMin ? Number(draft.experienceMin.replace(/\D/g, "")) : null,
+    experienceMax: draft.experienceMax ? Number(draft.experienceMax.replace(/\D/g, "")) : null,
+    requiredSkills,
+    workType: draft.workType,
+    flexibleWorkTypes: draft.flexibleWorkTypes,
+    workDays: draft.workDays,
+    salaryType: draft.salaryText === "연봉 입력" ? "annual" : "text",
+    salaryText: getSalaryText(draft.salaryText, draft.salaryAmount),
+    locationType: draft.workType === "100% 원격근무" ? "remote" : "office",
+    address: draft.address,
+    roadAddress: draft.address,
+    jibunAddress: "",
+    location: null,
+    primaryStationName: "",
+    workTimeText: [draft.dailyWorkHours, draft.workStartTime && draft.workEndTime ? `${draft.workStartTime} - ${draft.workEndTime}` : ""]
+      .filter(Boolean)
+      .join(" · "),
+    applicationPeriod: getApplicationPeriodText(draft),
+    mainResponsibilities: draft.mainTasks,
+    requirements: requiredSkills,
+    preferences: draft.preferredQualifications.split("\n").map((item) => item.trim()).filter(Boolean),
+    hiringProcess: draft.hiringProcess.filter(Boolean),
+    assignmentIds: assignment ? [assignment.assignmentId] : [],
+    hasAssignment: Boolean(assignment),
+    assignmentTitle: assignment?.title,
+    assignmentSummary: assignment?.summary,
+    status: "posted",
+    createdAt: now,
+    updatedAt: now,
+    postedAt: now,
+    closedAt: null,
+    applicantCount: 0
+  };
+}
+
 export function JobPostCreatePage() {
   const [step, setStep] = useState<CreateStep>(getInitialStep);
   const [isFullPreviewOpen, setIsFullPreviewOpen] = useState(false);
   const [jobDraft, setJobDraft] = useState<JobDraft>(initialJobDraft);
+  const [assignments, setAssignments] = useState<Assignment[]>(assignmentDbMock);
   const [assignmentChoice, setAssignmentChoice] = useState<AssignmentChoice>("new");
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState(assignmentPool[0].assignmentId);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState(assignmentDbMock[0]?.assignmentId ?? "");
+  const [saveMessage, setSaveMessage] = useState("");
   const [filters, setFilters] = useState<AssignmentFilters>({
     occupation: "",
     businessField: "",
@@ -318,8 +435,27 @@ export function JobPostCreatePage() {
   const resolvedOccupation = getResolvedValue(jobDraft.occupation, jobDraft.customOccupation);
   const resolvedJobTitle = getResolvedValue(jobDraft.jobTitle, jobDraft.customJobTitle);
 
+  useEffect(() => {
+    let isActive = true;
+
+    getFirestoreCollection("assignments", mapFirestoreAssignment)
+      .then((firebaseAssignments) => {
+        if (!isActive || firebaseAssignments.length === 0) return;
+        setAssignments(firebaseAssignments);
+        setSelectedAssignmentId((current) => current || firebaseAssignments[0].assignmentId);
+      })
+      .catch(() => {
+        if (!isActive) return;
+        setAssignments(assignmentDbMock);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   const filteredAssignments = useMemo(() => {
-    return assignmentPool
+    return assignments
       .filter((assignment) => {
         const keyword = filters.keyword.trim();
         return (
@@ -332,14 +468,14 @@ export function JobPostCreatePage() {
       .sort((a, b) => {
         if (a.owner !== b.owner) return a.owner === "mine" ? -1 : 1;
         return b.adoptionCount - a.adoptionCount;
-      });
-  }, [filters]);
+      })
+      .slice(0, 5);
+  }, [assignments, filters]);
 
   const selectedAssignment =
     assignmentChoice === "existing"
-      ? assignmentPool.find((assignment) => assignment.assignmentId === selectedAssignmentId) ?? null
+      ? assignments.find((assignment) => assignment.assignmentId === selectedAssignmentId) ?? null
       : null;
-  const completePath = "/company/job-posts/job-posting-2026-07-001/complete";
 
   const updateJobDraft = <K extends keyof JobDraft>(field: K, value: JobDraft[K]) => {
     setJobDraft((current) => {
@@ -350,6 +486,7 @@ export function JobPostCreatePage() {
           field === "dailyWorkHours" ? String(value) : current.dailyWorkHours
         );
       }
+      if (field === "jobTitle") setFilters((currentFilters) => ({ ...currentFilters, occupation: String(value) }));
       if (field === "occupation") setFilters((currentFilters) => ({ ...currentFilters, occupation: String(value) }));
       if (field === "businessField") setFilters((currentFilters) => ({ ...currentFilters, businessField: String(value) }));
       if (field === "seniority") setFilters((currentFilters) => ({ ...currentFilters, seniority: String(value) }));
@@ -367,8 +504,19 @@ export function JobPostCreatePage() {
     goToStep(stepMeta[nextIndex].id);
   };
 
-  const completeRegistration = () => {
-    window.history.pushState(null, "", completePath);
+  const completeRegistration = async () => {
+    const jobPostingId = createJobPostingDocumentId();
+    const payload = buildJobPostingPayload(jobDraft, selectedAssignment, jobPostingId);
+
+    try {
+      await saveFirestoreDocument("jobPostings", jobPostingId, payload);
+      setSaveMessage("공고 DB에 저장됐습니다.");
+    } catch {
+      window.localStorage.setItem(`wd:jobPostingDraft:${jobPostingId}`, JSON.stringify(payload));
+      setSaveMessage("Firebase 저장을 확인하지 못해 브라우저에 임시 저장했습니다.");
+    }
+
+    window.history.pushState(null, "", `/company/job-posts/${jobPostingId}/complete`);
     window.dispatchEvent(new Event("wd:navigate"));
   };
 
@@ -423,6 +571,7 @@ export function JobPostCreatePage() {
             canMoveNext={currentStepIndex(step) < stepMeta.length - 1}
             canMovePrevious={currentStepIndex(step) > 0}
             hasAssignment={Boolean(selectedAssignment)}
+            saveMessage={saveMessage}
             onComplete={completeRegistration}
             onFullPreview={() => setIsFullPreviewOpen(true)}
             onMoveNext={() => moveStep(1)}
@@ -576,6 +725,7 @@ function WorkDetailStep({ draft, onChange }: { draft: JobDraft; onChange: JobDra
       <div className="wd-form-grid">
         <TextField label="공고 제목" placeholder="예: UI/UX 디자이너" value={draft.title} onChange={(value) => onChange("title", value)} />
         <SelectField label="직무" value={draft.jobTitle} options={jobTitleOptions} onChange={(value) => onChange("jobTitle", value)} />
+        <SelectField label="업종" value={draft.businessField} options={businessFieldOptions} onChange={(value) => onChange("businessField", value)} />
 
         <div className="wd-field wd-field--wide">
           <span>경력</span>
@@ -749,19 +899,19 @@ function ExistingAssignmentSearch({
       <div className="wd-filter-row">
         <SelectField label="직무" value={filters.occupation} options={["", ...occupationOptions.filter((item) => item !== "직접입력")]} onChange={(value) => onFilterChange("occupation", value)} />
         <SelectField label="사업군" value={filters.businessField} options={["", ...businessFieldOptions]} onChange={(value) => onFilterChange("businessField", value)} />
-        <SelectField label="숙련도(연차)" value={filters.seniority} options={["", ...seniorityOptions]} onChange={(value) => onFilterChange("seniority", value)} />
+        <SelectField label="난이도" value={filters.seniority} options={["", ...seniorityOptions]} onChange={(value) => onFilterChange("seniority", value)} />
       </div>
       <div className="wd-assignment-table-card">
         <div className="wd-assignment-table-head">
-          <strong>{filteredAssignments.length} 문제</strong>
-          <span>내 과제 우선 · 최신순</span>
+          <strong>{filteredAssignments.length}개 표시</strong>
+          <span>필터 기준 최대 5개 · Firestore 우선</span>
         </div>
         <div className="wd-assignment-table" role="table" aria-label="기존 과제 목록">
           <div className="wd-assignment-table__row wd-assignment-table__row--head" role="row">
             <span>출처</span>
             <span>직무</span>
             <span>사업군</span>
-            <span>숙련도(연차)</span>
+            <span>난이도</span>
             <span>제목</span>
             <span>채택</span>
             <span>시간</span>
@@ -900,6 +1050,7 @@ function FooterActions({
   canMoveNext,
   canMovePrevious,
   hasAssignment,
+  saveMessage,
   onComplete,
   onFullPreview,
   onMoveNext,
@@ -908,6 +1059,7 @@ function FooterActions({
   canMoveNext: boolean;
   canMovePrevious: boolean;
   hasAssignment: boolean;
+  saveMessage: string;
   onComplete: () => void;
   onFullPreview: () => void;
   onMoveNext: () => void;
@@ -925,6 +1077,7 @@ function FooterActions({
         )}
       </div>
       {hasAssignment ? <p className="wd-caption">선택한 기존 과제가 공고와 함께 연결됩니다.</p> : null}
+      {saveMessage ? <p className="wd-caption">{saveMessage}</p> : null}
     </div>
   );
 }

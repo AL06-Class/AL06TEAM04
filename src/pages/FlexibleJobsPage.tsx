@@ -216,10 +216,15 @@ export function FlexibleJobsPage() {
             <div className="wd-flex-map wd-ui-card">
               <span className="wd-flex-map__tag">지도 기준 반경 2km</span>
               <img src={flexibleJobsMapMockup} alt="강남, 논현, 신사역 지도 미리보기" />
-              <span className="wd-flex-map__marker wd-flex-map__marker--one">1</span>
-              <span className="wd-flex-map__marker wd-flex-map__marker--two">2</span>
-              <span className="wd-flex-map__marker wd-flex-map__marker--three">3</span>
-              <span className="wd-flex-map__marker wd-flex-map__marker--four">4</span>
+              {filteredCompanies.map((company) => (
+                <span
+                  className="wd-flex-map__marker"
+                  key={company.jobPostingId}
+                  style={{ top: company.mapPosition.top, left: company.mapPosition.left }}
+                >
+                  {company.rank}
+                </span>
+              ))}
               <span className="wd-flex-map__my-location" aria-hidden="true">
                 <span />
               </span>
@@ -237,7 +242,7 @@ export function FlexibleJobsPage() {
 
             <div className="wd-flex-list">
               <div className="wd-flex-list__header">
-                <h2>추천 기업 12개</h2>
+                <h2>추천 기업 {filteredCompanies.length}개</h2>
 
                 <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
                   <option value="match">매칭도순</option>
@@ -335,7 +340,7 @@ export function FlexibleJobsPage() {
                       <span className="wd-flex-company__assignment">{company.assignment}</span>
                       <span className="wd-flex-company__time">{company.estimatedTime}</span>
                       <div className="wd-flex-company__actions">
-                        <Button href="/job-posts/job-posting-2026-07-001" size="small" variant="secondary">
+                        <Button href={`/job-posts/${company.jobPostingId}`} size="small" variant="secondary">
                           공고 보기
                         </Button>
                         <Button href="/login" size="small">

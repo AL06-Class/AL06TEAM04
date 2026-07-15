@@ -2310,6 +2310,7 @@ a {
   font-weight: 800;
   box-shadow: 0 10px 20px rgba(91, 45, 248, 0.24);
   border: 3px solid #ffffff;
+  transform: translate(-50%, -50%);
 }
 
 .wd-flex-map__marker--one {
