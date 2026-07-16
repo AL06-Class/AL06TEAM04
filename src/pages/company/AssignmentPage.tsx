@@ -3,6 +3,7 @@ import { PageContainer } from "../../components/common/PageContainer";
 import { CompanyHeaderNav } from "../../components/company/CompanyHeaderNav";
 import { directInputOption, getJobRolesByIndustry, industryOptions as baseIndustryOptions } from "../../constants/jobOptions";
 import { assignmentDbMock, assignmentDbOptions, type AssignmentDbItem } from "../../mocks/assignmentDb";
+import { fetchAssignments } from "../../services/assignmentRepository";
 
 type Page = "main" | "assignments";
 type AssignmentTab = "ai" | "manage";
@@ -118,17 +119,17 @@ function includesQuery(source: string, query: string) {
   return source.toLowerCase().includes(query.trim().toLowerCase());
 }
 
-function getMatchingDbItems(question: CustomQuestion, offset = 0, limit = 10) {
-  const exactMatches = assignmentDbMock.filter(
+function getMatchingDbItems(assignmentDbItems: AssignmentDbItem[], question: CustomQuestion, offset = 0, limit = 10) {
+  const exactMatches = assignmentDbItems.filter(
     (item) => item.businessField === question.industry && item.occupation === question.jobRole
   );
-  const jobMatches = assignmentDbMock.filter((item) => item.occupation === question.jobRole);
-  const industryMatches = assignmentDbMock.filter((item) => item.businessField === question.industry);
-  const textMatches = assignmentDbMock.filter((item) => {
+  const jobMatches = assignmentDbItems.filter((item) => item.occupation === question.jobRole);
+  const industryMatches = assignmentDbItems.filter((item) => item.businessField === question.industry);
+  const textMatches = assignmentDbItems.filter((item) => {
     const query = [question.industry, question.jobRole].filter(Boolean).join(" ");
     return query ? includesQuery([item.businessField, item.occupation, item.title].join(" "), query) : false;
   });
-  const ordered = [...exactMatches, ...jobMatches, ...industryMatches, ...textMatches, ...assignmentDbMock];
+  const ordered = [...exactMatches, ...jobMatches, ...industryMatches, ...textMatches, ...assignmentDbItems];
   const uniqueItems = ordered.filter(
     (item, index, items) => items.findIndex((candidate) => candidate.assignmentId === item.assignmentId) === index
   );
@@ -150,8 +151,14 @@ function mapDbItemToGeneratedAssignment(item: AssignmentDbItem, index: number, i
   };
 }
 
-function createGeneratedAssignmentsFromDb(question: CustomQuestion, offset = 0, limit = 10, isAdditional = false) {
-  return getMatchingDbItems(question, offset, limit).map((item, index) =>
+function createGeneratedAssignmentsFromDb(
+  assignmentDbItems: AssignmentDbItem[],
+  question: CustomQuestion,
+  offset = 0,
+  limit = 10,
+  isAdditional = false
+) {
+  return getMatchingDbItems(assignmentDbItems, question, offset, limit).map((item, index) =>
     mapDbItemToGeneratedAssignment(item, offset + index, isAdditional)
   );
 }
@@ -198,10 +205,14 @@ function getPaginationItems(currentPage: number, pageCount: number) {
   }, []);
 }
 
-function findDbItemByAssignment(assignment: Assignment, linkedAssignment: LinkedAssignment) {
+function findDbItemByAssignment(
+  assignmentDbItems: AssignmentDbItem[],
+  assignment: Assignment,
+  linkedAssignment: LinkedAssignment
+) {
   return (
-    assignmentDbMock.find((item) => item.assignmentId === assignment.id) ??
-    assignmentDbMock.find((item) => item.title === linkedAssignment.title)
+    assignmentDbItems.find((item) => item.assignmentId === assignment.id) ??
+    assignmentDbItems.find((item) => item.title === linkedAssignment.title)
   );
 }
 
@@ -290,6 +301,20 @@ function AssignmentWorkspacePage({
   onChangeTab: (tab: AssignmentTab) => void;
 }) {
   const [focusedAssignment, setFocusedAssignment] = useState<Assignment | null>(null);
+  const [assignmentDbItems, setAssignmentDbItems] = useState<AssignmentDbItem[]>(assignmentDbMock);
+
+  useEffect(() => {
+    let isActive = true;
+
+    fetchAssignments().then((items) => {
+      if (!isActive) return;
+      setAssignmentDbItems(items);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const openLinkedAssignments = (assignment: Assignment) => {
     setFocusedAssignment(assignment);
@@ -306,6 +331,7 @@ function AssignmentWorkspacePage({
       {activeTab === "ai" ? (
         <AssignmentAiPage
           activeTab={activeTab}
+          assignmentDbItems={assignmentDbItems}
           focusedAssignment={focusedAssignment}
           onChangeTab={onChangeTab}
           onMoveAi={openNewAssignment}
@@ -313,6 +339,7 @@ function AssignmentWorkspacePage({
       ) : (
         <AssignmentManagePage
           activeTab={activeTab}
+          assignmentDbItems={assignmentDbItems}
           onChangeTab={onChangeTab}
           onMoveAi={openNewAssignment}
           onOpenLinkedAssignments={openLinkedAssignments}
@@ -353,11 +380,13 @@ function AssignmentPageTabs({
 
 function AssignmentManagePage({
   activeTab,
+  assignmentDbItems,
   onChangeTab,
   onMoveAi,
   onOpenLinkedAssignments
 }: {
   activeTab: AssignmentTab;
+  assignmentDbItems: AssignmentDbItem[];
   onChangeTab: (tab: AssignmentTab) => void;
   onMoveAi: () => void;
   onOpenLinkedAssignments: (assignment: Assignment) => void;
@@ -369,6 +398,10 @@ function AssignmentManagePage({
   const [searchQuery, setSearchQuery] = useState("");
   const [notice, setNotice] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setManagedAssignments(assignmentDbItems.map(mapDbItemToManagedAssignment));
+  }, [assignmentDbItems]);
 
   const filteredAssignments = useMemo(() => {
     const statusFiltered =
@@ -698,11 +731,13 @@ function AssignmentCard({
 
 function AssignmentAiPage({
   activeTab,
+  assignmentDbItems,
   focusedAssignment,
   onChangeTab,
   onMoveAi
 }: {
   activeTab: AssignmentTab;
+  assignmentDbItems: AssignmentDbItem[];
   focusedAssignment: Assignment | null;
   onChangeTab: (tab: AssignmentTab) => void;
   onMoveAi: () => void;
@@ -732,7 +767,7 @@ function AssignmentAiPage({
 
     setShowDraftOnly(false);
     const focusedDbItem = focusedAssignment.linkedAssignments[0]
-      ? findDbItemByAssignment(focusedAssignment, focusedAssignment.linkedAssignments[0])
+      ? findDbItemByAssignment(assignmentDbItems, focusedAssignment, focusedAssignment.linkedAssignments[0])
       : undefined;
     setQuestion((current) => ({
       ...current,
@@ -744,7 +779,7 @@ function AssignmentAiPage({
     }));
     setGeneratedAssignments(
       focusedAssignment.linkedAssignments.map((linkedAssignment, index) => {
-        const dbItem = findDbItemByAssignment(focusedAssignment, linkedAssignment);
+        const dbItem = findDbItemByAssignment(assignmentDbItems, focusedAssignment, linkedAssignment);
         const assignment = dbItem
           ? mapDbItemToGeneratedAssignment(dbItem, index)
           : {
@@ -764,7 +799,7 @@ function AssignmentAiPage({
         };
       })
     );
-  }, [focusedAssignment]);
+  }, [assignmentDbItems, focusedAssignment]);
 
   const selectedCount = generatedAssignments.filter((item) => item.selected).length;
   const generatedDifficultyCounts = useMemo(
@@ -782,13 +817,13 @@ function AssignmentAiPage({
     : generatedAssignments;
   const matchingQuestionDbItems = useMemo(() => {
     if (!question.industry || !question.jobRole) return [];
-    const exactMatches = assignmentDbMock.filter(
+    const exactMatches = assignmentDbItems.filter(
       (item) => item.businessField === question.industry && item.occupation === question.jobRole
     );
     if (exactMatches.length > 0) return exactMatches;
-    const fallbackMatches = getMatchingDbItems(question, 0, 20);
-    return fallbackMatches.length > 0 ? fallbackMatches : assignmentDbMock.slice(0, 20);
-  }, [question.industry, question.jobRole]);
+    const fallbackMatches = getMatchingDbItems(assignmentDbItems, question, 0, 20);
+    return fallbackMatches.length > 0 ? fallbackMatches : assignmentDbItems.slice(0, 20);
+  }, [assignmentDbItems, question.industry, question.jobRole]);
   const requiredSkillOptions = useMemo(
     () => getUniqueQuestionOptions(matchingQuestionDbItems.map((item) => item.requiredSkills)),
     [matchingQuestionDbItems]
@@ -816,12 +851,12 @@ function AssignmentAiPage({
       if (canAppendAssignments) {
         setGeneratedAssignments((items) => [
           ...items,
-          ...createGeneratedAssignmentsFromDb(question, items.length, 5, true)
+          ...createGeneratedAssignmentsFromDb(assignmentDbItems, question, items.length, 5, true)
         ]);
         setIsGenerating(false);
         return;
       }
-      setGeneratedAssignments(createGeneratedAssignmentsFromDb(question, nextSeed * 10));
+      setGeneratedAssignments(createGeneratedAssignmentsFromDb(assignmentDbItems, question, nextSeed * 10));
       setIsGenerating(false);
     }, 900);
   };

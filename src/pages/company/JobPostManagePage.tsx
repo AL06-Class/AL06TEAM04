@@ -7,6 +7,7 @@ import { JobPostManageFilter } from "../../components/job-post/JobPostManageFilt
 import { JobPostStatusTabs } from "../../components/job-post/JobPostStatusTabs";
 import { JobPostTable } from "../../components/job-post/JobPostTable";
 import { getCompanyJobPostings } from "../../mocks/jobPostings";
+import { fetchCompanyJobPostings } from "../../services/jobPostingRepository";
 
 const pageSize = 5;
 
@@ -21,7 +22,20 @@ export function JobPostManagePage() {
   const [keyword, setKeyword] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const companyJobPostings = useMemo(() => getCompanyJobPostings(), []);
+  const [companyJobPostings, setCompanyJobPostings] = useState(getCompanyJobPostings);
+
+  useEffect(() => {
+    let isActive = true;
+
+    fetchCompanyJobPostings().then((items) => {
+      if (!isActive) return;
+      setCompanyJobPostings(items);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const counts = useMemo(
     () => ({

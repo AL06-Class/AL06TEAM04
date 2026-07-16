@@ -1,15 +1,31 @@
+import { useEffect, useState } from "react";
 import gangnamMapMockup from "../assets/map-mockup-gangnam.png";
 import { CompanyHeaderNav } from "../components/company/CompanyHeaderNav";
 import { Button } from "../components/common/Button";
 import { PageContainer } from "../components/common/PageContainer";
 import { getPublicJobPostings } from "../mocks/jobPostings";
+import { fetchPublicJobPostings } from "../services/jobPostingRepository";
 
 type JobPostDetailPageProps = {
   jobPostingId: string;
 };
 
 export function JobPostDetailPage({ jobPostingId }: JobPostDetailPageProps) {
-  const jobPostings = getPublicJobPostings();
+  const [jobPostings, setJobPostings] = useState(getPublicJobPostings);
+
+  useEffect(() => {
+    let isActive = true;
+
+    fetchPublicJobPostings().then((items) => {
+      if (!isActive) return;
+      setJobPostings(items);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   const jobPosting = jobPostings.find((item) => item.jobPostingId === jobPostingId) ?? jobPostings[0];
   const title = jobPosting.title;
   const companyName = jobPosting.companyName ?? jobPosting.companyId;

@@ -1,16 +1,32 @@
+import { useEffect, useState } from "react";
 import { CompanyHeaderNav } from "../../components/company/CompanyHeaderNav";
 import { Button } from "../../components/common/Button";
 import { PageContainer } from "../../components/common/PageContainer";
 import { JobPostCompleteSummaryCard } from "../../components/job-post/JobPostCompleteSummaryCard";
 import { companyMock } from "../../mocks/company";
 import { getCompanyJobPostings } from "../../mocks/jobPostings";
+import { fetchCompanyJobPostings } from "../../services/jobPostingRepository";
 
 type JobPostCompletePageProps = {
   jobPostingId: string;
 };
 
 export function JobPostCompletePage({ jobPostingId }: JobPostCompletePageProps) {
-  const jobPostings = getCompanyJobPostings();
+  const [jobPostings, setJobPostings] = useState(getCompanyJobPostings);
+
+  useEffect(() => {
+    let isActive = true;
+
+    fetchCompanyJobPostings().then((items) => {
+      if (!isActive) return;
+      setJobPostings(items);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   const jobPosting = jobPostings.find((item) => item.jobPostingId === jobPostingId) ?? jobPostings[0];
 
   return (

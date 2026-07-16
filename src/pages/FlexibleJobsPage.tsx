@@ -7,6 +7,7 @@ import { PublicHeaderNav } from "../components/common/PublicHeaderNav";
 import { flexibleWorkTypeOptions, weekdayOptions } from "../constants/jobOptions";
 import { buildFlexibleJobCompanies } from "../mocks/flexibleJobs";
 import { getPublicJobPostings } from "../mocks/jobPostings";
+import { fetchPublicJobPostings } from "../services/jobPostingRepository";
 
 type LocationMode = "current" | "subway" | "address";
 type SortMode = "match" | "distance";
@@ -38,8 +39,22 @@ export function FlexibleJobsPage() {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount);
   const [savedCompanyIds, setSavedCompanyIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [publicJobPostings, setPublicJobPostings] = useState(getPublicJobPostings);
 
-  const flexibleJobCompanies = useMemo(() => buildFlexibleJobCompanies(getPublicJobPostings()), []);
+  useEffect(() => {
+    let isActive = true;
+
+    fetchPublicJobPostings().then((items) => {
+      if (!isActive) return;
+      setPublicJobPostings(items);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const flexibleJobCompanies = useMemo(() => buildFlexibleJobCompanies(publicJobPostings), [publicJobPostings]);
 
   const dropdownOptions = useMemo(
     () => ({
