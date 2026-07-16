@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { PageContainer } from "../../components/common/PageContainer";
 import { CompanyHeaderNav } from "../../components/company/CompanyHeaderNav";
+import { directInputOption, getJobRolesByIndustry, industryOptions as baseIndustryOptions } from "../../constants/jobOptions";
+import { assignmentDbMock, assignmentDbOptions, type AssignmentDbItem } from "../../mocks/assignmentDb";
 
 type Page = "main" | "assignments";
 type AssignmentTab = "ai" | "manage";
@@ -30,15 +32,12 @@ type Assignment = {
 
 type CustomQuestion = {
   industry: string;
-  jobRole: string[];
+  jobRole: string;
   isIndustryCustom: boolean;
   isJobRoleCustom: boolean;
-  isRequiredSkillsCustom: boolean;
-  isProductServiceCustom: boolean;
-  isMainWorkCustom: boolean;
-  requiredSkills: string[];
-  productService: string[];
-  mainWork: string[];
+  requiredSkills: string;
+  productService: string;
+  mainWork: string;
   additionalRequest: string;
 };
 
@@ -54,88 +53,32 @@ type GeneratedAssignment = {
   isAdditional?: boolean;
 };
 
-const directInputOption = "직접입력";
+const assignmentPageSize = 10;
 
-const assignments: Assignment[] = [
-  {
-    id: "assignment-ai",
-    status: "available",
-    createdAt: "2024.05.20",
-    title: "AI 엔지니어 채용 공고",
-    jobTitle: "AI 엔지니어",
-    experienceLevel: "경력 3~5년",
-    linkedAssignments: [
-      { title: "AI 솔루션 API 연동 과제", difficulty: "상" },
-      { title: "모델 응답 품질 개선안 작성 과제", difficulty: "중" }
-    ],
-    applicantsPending: 4
-  },
-  {
-    id: "assignment-data",
-    status: "linked",
-    createdAt: "2024.05.18",
-    title: "데이터 분석가 채용 공고",
-    jobTitle: "데이터 분석가",
-    experienceLevel: "경력 3~5년",
-    linkedJobTitle: "데이터 분석가 채용",
-    postingPeriod: "2024.05.18 ~ 2024.06.17",
-    linkedAssignments: [
-      { title: "BI 대시보드 지표 분석 과제", difficulty: "상" },
-      { title: "이상 거래 모니터링 리포트 작성 과제", difficulty: "상" }
-    ],
-    applicantsPending: 7
-  },
-  {
-    id: "assignment-crm",
-    status: "draft",
-    createdAt: "2024.05.17",
-    savedAt: "2024.05.17",
-    title: "CRM 마케터 채용 공고",
-    jobTitle: "CRM 마케터",
-    experienceLevel: "경력 1~3년",
-    linkedAssignments: [{ title: "고객 세그먼트별 CRM 캠페인 기획 과제", difficulty: "하" }],
-    applicantsPending: 0
-  },
-  {
-    id: "assignment-cx",
-    status: "available",
-    createdAt: "2024.05.15",
-    title: "CX 매니저 채용 공고",
-    jobTitle: "CX 매니저",
-    experienceLevel: "경력 3~5년",
-    linkedAssignments: [
-      { title: "VOC 기반 개선안 도출 과제", difficulty: "중" },
-      { title: "상담 품질 관리 체크리스트 작성 과제", difficulty: "중" }
-    ],
-    applicantsPending: 3
-  },
-  {
-    id: "assignment-frontend",
-    status: "linked",
-    createdAt: "2024.05.12",
-    title: "프론트엔드 개발자 채용 공고",
-    jobTitle: "프론트엔드 개발자",
-    experienceLevel: "경력 5년 이상",
-    linkedJobTitle: "프론트엔드 개발자 채용",
-    postingPeriod: "2024.05.12 ~ 2024.06.11",
-    linkedAssignments: [
-      { title: "웹 서비스 신규 기능 화면 구현 과제", difficulty: "상" },
-      { title: "관리자 페이지 컴포넌트 개선 과제", difficulty: "중" }
-    ],
-    applicantsPending: 5
-  },
-  {
-    id: "assignment-hrbp",
-    status: "draft",
-    createdAt: "2024.05.10",
-    savedAt: "2024.05.10",
-    title: "HRBP 채용 공고",
-    jobTitle: "HRBP",
-    experienceLevel: "신입~3년",
-    linkedAssignments: [{ title: "조직 이슈 진단 및 HR 운영 개선 과제", difficulty: "하" }],
-    applicantsPending: 0
-  }
-];
+function toDifficulty(value: string): Difficulty {
+  return value === "상" || value === "중" || value === "하" ? value : "중";
+}
+
+function formatAssignmentDate(index: number) {
+  const day = 16 - (index % 14);
+  return `2026.07.${String(day).padStart(2, "0")}`;
+}
+
+function mapDbItemToManagedAssignment(item: AssignmentDbItem, index: number): Assignment {
+  return {
+    id: item.assignmentId,
+    status: item.status,
+    createdAt: formatAssignmentDate(index),
+    savedAt: item.status === "draft" ? formatAssignmentDate(index) : undefined,
+    title: item.title,
+    jobTitle: item.occupation,
+    experienceLevel: `난이도 ${item.seniority}`,
+    linkedAssignments: [{ title: item.title, difficulty: toDifficulty(item.seniority) }],
+    applicantsPending: item.status === "linked" ? Math.max(1, item.adoptionCount) : 0
+  };
+}
+
+const assignments: Assignment[] = assignmentDbMock.map(mapDbItemToManagedAssignment);
 
 const statusLabels: Record<AssignmentStatus, string> = {
   available: "공고연결 대기",
@@ -155,168 +98,111 @@ const getAssignmentDateValue = (assignment: Assignment) =>
 const getAssignmentDifficultyScore = (assignment: Assignment) =>
   assignment.linkedAssignments.reduce((score, item) => score + difficultyScores[item.difficulty], 0);
 
+const industryOptions: string[] = [...baseIndustryOptions, directInputOption];
+const allJobRoleOptions: string[] = [...assignmentDbOptions.occupations, directInputOption];
+
+const initialDbItem = assignmentDbMock[0];
+
 const initialQuestion: CustomQuestion = {
-  industry: "IT/소프트웨어",
-  jobRole: ["프론트엔드 개발자"],
+  industry: "",
+  jobRole: "",
   isIndustryCustom: false,
   isJobRoleCustom: false,
-  isRequiredSkillsCustom: false,
-  isProductServiceCustom: false,
-  isMainWorkCustom: false,
-  requiredSkills: ["React"],
-  productService: ["웹 서비스"],
-  mainWork: ["신규 기능 개발"],
-  additionalRequest: "실제 업무 상황처럼 문제 정의와 개선안을 함께 볼 수 있게 구성"
+  requiredSkills: "",
+  productService: "",
+  mainWork: "",
+  additionalRequest: ""
 };
 
-const industryOptions = [
-  "IT/소프트웨어",
-  "콘텐츠/미디어",
-  "이커머스/유통",
-  "교육",
-  "금융/핀테크",
-  "헬스케어",
-  "제조",
-  "마케팅/광고",
-  "고객서비스",
-  "인사/채용",
-  directInputOption
-];
+function includesQuery(source: string, query: string) {
+  return source.toLowerCase().includes(query.trim().toLowerCase());
+}
 
-type IndustryPreset = {
-  jobRoles: string[];
-  requiredSkills: string[];
-  productServices: string[];
-  mainWorks: string[];
-};
+function getMatchingDbItems(question: CustomQuestion, offset = 0, limit = 10) {
+  const exactMatches = assignmentDbMock.filter(
+    (item) => item.businessField === question.industry && item.occupation === question.jobRole
+  );
+  const jobMatches = assignmentDbMock.filter((item) => item.occupation === question.jobRole);
+  const industryMatches = assignmentDbMock.filter((item) => item.businessField === question.industry);
+  const textMatches = assignmentDbMock.filter((item) => {
+    const query = [question.industry, question.jobRole].filter(Boolean).join(" ");
+    return query ? includesQuery([item.businessField, item.occupation, item.title].join(" "), query) : false;
+  });
+  const ordered = [...exactMatches, ...jobMatches, ...industryMatches, ...textMatches, ...assignmentDbMock];
+  const uniqueItems = ordered.filter(
+    (item, index, items) => items.findIndex((candidate) => candidate.assignmentId === item.assignmentId) === index
+  );
 
-const industryPresets: Record<string, IndustryPreset> = {
-  "IT/소프트웨어": {
-    jobRoles: ["프론트엔드 개발자", "백엔드 개발자", "풀스택 개발자", "모바일 앱 개발자", "AI 엔지니어", "DevOps 엔지니어", "QA 엔지니어", "AI 서비스 기획자"],
-    requiredSkills: ["React", "TypeScript", "Git", "GitHub", "Node.js", "SQL", "NoSQL", "REST API", "GraphQL", "Python", "AI 모델 이해", "API 연동", "CI/CD", "Docker", "클라우드 배포", "테스트 케이스 작성", "QA"],
-    productServices: ["웹 서비스", "SaaS 플랫폼", "관리자 시스템", "Open API", "AI 솔루션"],
-    mainWorks: ["신규 기능 개발", "기존 기능 개선", "API 개발 및 연동", "배포 및 모니터링", "서비스 성능 개선"]
-  },
-  "콘텐츠/미디어": {
-    jobRoles: ["콘텐츠 디자이너", "콘텐츠 기획자", "영상 편집자", "브랜드 디자이너", "SNS 운영 매니저"],
-    requiredSkills: ["콘텐츠 기획", "Figma", "Photoshop", "Illustrator", "영상 편집", "카피라이팅", "브랜드 이해", "채널 운영", "Notion", "Slack"],
-    productServices: ["SNS 콘텐츠", "영상 콘텐츠", "브랜드 콘텐츠", "뉴스레터", "콘텐츠 플랫폼"],
-    mainWorks: ["콘텐츠 기획 및 제작", "캠페인 소재 제작", "브랜드 디자인 시안 제작", "SNS 채널 운영", "업로드 일정 관리"]
-  },
-  "이커머스/유통": {
-    jobRoles: ["MD", "서비스 운영 매니저", "CRM 마케터", "퍼포먼스 마케터", "데이터 분석가"],
-    requiredSkills: ["상품 관리", "Excel", "고객 응대", "GA4", "Meta Ads", "Google Ads", "CRM", "Braze", "Amplitude", "SQL", "Looker Studio"],
-    productServices: ["온라인 쇼핑몰", "커머스 플랫폼", "배송 서비스", "정산 시스템", "CRM 캠페인"],
-    mainWorks: ["상품 등록 및 관리", "주문/배송 이슈 대응", "판매 데이터 분석", "프로모션 운영", "고객 세그먼트 관리"]
-  },
-  교육: {
-    jobRoles: ["교육 콘텐츠 기획자", "서비스 운영 매니저", "UI/UX 디자이너", "교육 운영 매니저", "L&D 담당자"],
-    requiredSkills: ["교육 기획", "문서 작성", "커뮤니케이션", "콘텐츠 제작", "학습자 분석", "Figma", "UX 리서치", "Notion"],
-    productServices: ["온라인 강의", "학습 플랫폼", "교육 자료", "수강 관리 서비스"],
-    mainWorks: ["커리큘럼 기획 및 제작", "강의 자료 제작", "수강생 문의 대응", "학습 콘텐츠 개선", "교육 운영 지표 분석"]
-  },
-  "금융/핀테크": {
-    jobRoles: ["데이터 분석가", "데이터 엔지니어", "백엔드 개발자", "정보보안 담당자", "AML 담당자", "서비스 기획자"],
-    requiredSkills: ["SQL", "Python", "데이터 분석", "Tableau", "Power BI", "Looker Studio", "REST API", "보안 이해", "DB 설계", "금융 정책 이해", "리스크 관리"],
-    productServices: ["금융 앱", "결제 서비스", "송금 서비스", "BI 대시보드", "데이터 분석 플랫폼"],
-    mainWorks: ["사용자 데이터 분석", "금융 서비스 정책 정리", "결제 API 개선", "리스크 이슈 대응", "이상 거래 모니터링"]
-  },
-  헬스케어: {
-    jobRoles: ["UI/UX 디자이너", "의료 콘텐츠 기획자", "의료 데이터 분석가", "의료기기 PM", "서비스 운영 매니저"],
-    requiredSkills: ["Figma", "UI 설계", "UX 리서치", "의료 콘텐츠 기획", "개인정보 이해", "SQL", "Python", "리포트 작성", "규제 이해", "일정 관리"],
-    productServices: ["헬스케어 앱", "비대면 상담 플랫폼", "예약 관리 시스템", "건강관리 서비스", "의료기기 서비스"],
-    mainWorks: ["화면 설계 및 사용성 개선", "의료 콘텐츠 기획 및 제작", "예약 관리", "사용자 문의 대응", "운영 지표 분석"]
-  },
-  제조: {
-    jobRoles: ["생산관리", "품질관리(QA/QC)", "구매관리", "SCM 담당자", "데이터 분석가"],
-    requiredSkills: ["생산 일정 관리", "Excel", "재고 관리", "품질 이슈 분석", "리포트 작성", "SCM", "구매 프로세스", "협력사 커뮤니케이션"],
-    productServices: ["제조 제품", "생산 라인", "부품 관리", "품질 관리 시스템", "공급망 관리 시스템"],
-    mainWorks: ["생산 일정 관리", "재고 현황 확인", "품질 이슈 대응", "구매 일정 조율", "운영 프로세스 개선"]
-  },
-  "마케팅/광고": {
-    jobRoles: ["퍼포먼스 마케터", "CRM 마케터", "브랜드 마케터", "콘텐츠 기획자", "데이터 분석가"],
-    requiredSkills: ["GA4", "Meta Ads", "Google Ads", "CRM", "Braze", "Amplitude", "콘텐츠 기획", "카피라이팅", "Looker Studio", "리포트 작성"],
-    productServices: ["광고 캠페인", "랜딩페이지", "브랜드 캠페인", "SNS 콘텐츠", "CRM 캠페인"],
-    mainWorks: ["광고 집행 및 성과 분석", "캠페인 기획 및 운영", "리포트 작성", "개선안 도출 및 적용", "고객 세그먼트 관리"]
-  },
-  고객서비스: {
-    jobRoles: ["고객 상담 매니저", "CX 매니저", "VOC 분석가", "QA 담당자", "서비스 운영 매니저"],
-    requiredSkills: ["고객 응대", "이슈 분류", "커뮤니케이션", "VOC 분석", "Excel", "리포트 작성", "CS 품질 관리", "QA 체크리스트"],
-    productServices: ["고객지원 서비스", "상담 시스템", "FAQ/도움말", "운영 대시보드", "비대면 상담 플랫폼"],
-    mainWorks: ["고객 문의 대응", "이슈 유형 분류", "FAQ 개선", "VOC 기반 개선안 도출", "상담 품질 관리"]
-  },
-  "인사/채용": {
-    jobRoles: ["채용 담당자", "HRBP", "조직문화 담당자", "교육(L&D) 담당자", "채용 마케터"],
-    requiredSkills: ["채용 운영", "커뮤니케이션", "문서 작성", "지원자 관리", "일정 조율", "Excel", "채용 브랜딩", "콘텐츠 기획", "Notion", "Slack", "면접 운영"],
-    productServices: ["채용 플랫폼", "지원자 관리 서비스", "채용 공고", "면접 일정 관리", "채용 브랜딩 콘텐츠"],
-    mainWorks: ["채용 공고 작성", "지원자 일정 조율", "지원자 문의 대응", "채용 운영 프로세스 개선", "조직문화 프로그램 운영"]
-  }
-};
+  return uniqueItems.slice(offset, offset + limit);
+}
 
-const getPreset = (industry: string) => industryPresets[industry] ?? industryPresets["콘텐츠/미디어"];
-
-const allJobRoleOptions = Array.from(new Set(Object.values(industryPresets).flatMap((preset) => preset.jobRoles)));
-
-const getPresetByJobRole = (jobRole: string) =>
-  Object.values(industryPresets).find((preset) => preset.jobRoles.includes(jobRole)) ?? getPreset("IT/소프트웨어");
-
-const getDefaultQuestionFieldsByJobRole = (jobRole: string) => {
-  const preset = getPresetByJobRole(jobRole);
-
+function mapDbItemToGeneratedAssignment(item: AssignmentDbItem, index: number, isAdditional = false): GeneratedAssignment {
   return {
-    requiredSkills: [preset.requiredSkills[0] ?? ""],
-    productService: [preset.productServices[0] ?? ""],
-    mainWork: [preset.mainWorks[0] ?? ""]
-  };
-};
-
-const withDirectInput = (options: string[]) => [...options, directInputOption];
-
-const formatQuestionList = (items: string[]) => items.filter(Boolean).join(", ");
-
-const assignmentThemes = [
-  "핵심 사용자 문제 정의",
-  "서비스 화면 개선안 작성",
-  "업무 프로세스 체크리스트 설계",
-  "성과 리포트 구조 제안",
-  "고객 피드백 분류 기준 정리",
-  "신규 기능 운영 시나리오 작성",
-  "상품 소개 문구 개선",
-  "협업 요청서 작성",
-  "리스크 대응안 정리",
-  "우선순위 판단 기준 설계"
-];
-
-const difficultyPlan: Difficulty[] = ["상", "상", "상", "상", "중", "중", "중", "하", "하", "하"];
-const additionalDifficultyPlan: Difficulty[] = ["상", "상", "중", "중", "하"];
-
-function createGeneratedAssignment(
-  index: number,
-  seed: number,
-  question: CustomQuestion,
-  difficultyOverride?: Difficulty,
-  isAdditional = false
-): GeneratedAssignment {
-  const difficulty = difficultyOverride ?? difficultyPlan[index % difficultyPlan.length];
-  const theme = assignmentThemes[(index + seed) % assignmentThemes.length];
-  const jobRoleText = formatQuestionList(question.jobRole);
-
-  return {
-    id: `generated-${seed}-${index}`,
-    title: `${jobRoleText} ${theme}`,
-    difficulty,
-    goal: `${question.industry} 분야의 ${formatQuestionList(question.productService)} 업무 맥락에서 ${jobRoleText}의 실무 판단력을 확인합니다.`,
-    requirements: `${formatQuestionList(question.mainWork)} 상황을 기준으로 문제 정의, 실행안, 필요한 ${formatQuestionList(question.requiredSkills)}, 예상 결과를 정리합니다. ${question.additionalRequest}`,
-    evaluation:
-      difficulty === "상"
-        ? "전략적 사고 35%, 실행 구체성 30%, 협업 관점 20%, 완성도 15%"
-        : difficulty === "중"
-          ? "문제 이해도 30%, 실행 가능성 30%, 업무 스킬 활용 25%, 전달력 15%"
-          : "기본 이해도 35%, 필수 항목 충족 30%, 명확성 20%, 성실도 15%",
+    id: item.assignmentId,
+    title: item.title,
+    difficulty: toDifficulty(item.seniority),
+    goal: item.summary,
+    requirements: item.submitCondition,
+    evaluation: item.evaluationCriteria,
     status: "generated",
     selected: false,
     isAdditional
   };
+}
+
+function createGeneratedAssignmentsFromDb(question: CustomQuestion, offset = 0, limit = 10, isAdditional = false) {
+  return getMatchingDbItems(question, offset, limit).map((item, index) =>
+    mapDbItemToGeneratedAssignment(item, offset + index, isAdditional)
+  );
+}
+
+function getUniqueQuestionOptions(values: string[]) {
+  return Array.from(
+    new Set(
+      values
+        .flatMap((value) => value.split(/[,，\n]/))
+        .map((value) => value.trim())
+        .filter(Boolean)
+    )
+  );
+}
+
+function getPaginationItems(currentPage: number, pageCount: number) {
+  if (pageCount <= 7) {
+    return Array.from({ length: pageCount }, (_, index) => index + 1);
+  }
+
+  const pages = new Set([1, pageCount, currentPage - 1, currentPage, currentPage + 1]);
+  if (currentPage <= 3) {
+    pages.add(2);
+    pages.add(3);
+    pages.add(4);
+  }
+  if (currentPage >= pageCount - 2) {
+    pages.add(pageCount - 3);
+    pages.add(pageCount - 2);
+    pages.add(pageCount - 1);
+  }
+
+  const sortedPages = Array.from(pages)
+    .filter((page) => page >= 1 && page <= pageCount)
+    .sort((first, second) => first - second);
+
+  return sortedPages.reduce<(number | "ellipsis")[]>((items, page, index) => {
+    const previousPage = sortedPages[index - 1];
+    if (previousPage && page - previousPage > 1) {
+      items.push("ellipsis");
+    }
+    items.push(page);
+    return items;
+  }, []);
+}
+
+function findDbItemByAssignment(assignment: Assignment, linkedAssignment: LinkedAssignment) {
+  return (
+    assignmentDbMock.find((item) => item.assignmentId === assignment.id) ??
+    assignmentDbMock.find((item) => item.title === linkedAssignment.title)
+  );
 }
 
 const initialAssignmentTabKey = "wd:assignment-initial-tab";
@@ -482,6 +368,7 @@ function AssignmentManagePage({
   const [sortOrder, setSortOrder] = useState<AssignmentSort>("latest");
   const [searchQuery, setSearchQuery] = useState("");
   const [notice, setNotice] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredAssignments = useMemo(() => {
     const statusFiltered =
@@ -521,6 +408,23 @@ function AssignmentManagePage({
     }),
     [managedAssignments]
   );
+  const pageCount = Math.max(1, Math.ceil(filteredAssignments.length / assignmentPageSize));
+  const safeCurrentPage = Math.min(currentPage, pageCount);
+  const pageStartIndex = (safeCurrentPage - 1) * assignmentPageSize;
+  const paginatedAssignments = filteredAssignments.slice(pageStartIndex, pageStartIndex + assignmentPageSize);
+  const pageRangeStart = filteredAssignments.length === 0 ? 0 : pageStartIndex + 1;
+  const pageRangeEnd = Math.min(pageStartIndex + paginatedAssignments.length, filteredAssignments.length);
+  const paginationItems = getPaginationItems(safeCurrentPage, pageCount);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeStatus, searchQuery, sortOrder]);
+
+  useEffect(() => {
+    if (currentPage > pageCount) {
+      setCurrentPage(pageCount);
+    }
+  }, [currentPage, pageCount]);
 
   const toggleSelected = (id: string) => {
     setSelectedIds((ids) => (ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id]));
@@ -551,6 +455,11 @@ function AssignmentManagePage({
 
   return (
     <div className={selectedIds.length > 0 ? "wd-sai-manage-content wd-sai-manage-content--selection" : "wd-sai-manage-content"}>
+      <section className="wd-sai-manage-head">
+        <button className="wd-button wd-button--primary wd-sai-new-task-button" type="button" onClick={onMoveAi}>
+          신규 과제 등록
+        </button>
+      </section>
       <AssignmentPageTabs activeTab={activeTab} onChangeTab={onChangeTab} onMoveAi={onMoveAi} />
 
       <section
@@ -583,8 +492,8 @@ function AssignmentManagePage({
           <label className="wd-sai-search">
             <span>과제 검색</span>
             <input
-              aria-label="공고명 또는 채용직무 검색"
-              placeholder="공고명 또는 채용직무 검색"
+              aria-label="공고명 또는 직무 검색"
+              placeholder="공고명 또는 직무 검색"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
             />
@@ -597,7 +506,7 @@ function AssignmentManagePage({
           >
             <option value="latest">최신 등록순</option>
             <option value="oldest">오래된 등록순</option>
-            <option value="jobTitle">채용직무순</option>
+            <option value="jobTitle">직무순</option>
             <option value="difficultyHigh">난이도 높은순</option>
             <option value="difficultyLow">난이도 낮은순</option>
           </select>
@@ -620,7 +529,7 @@ function AssignmentManagePage({
         {notice && <div className="wd-sai-toast" role="status">{notice}</div>}
 
         <div className="wd-sai-task-grid" aria-label="과제 목록">
-          {filteredAssignments.map((assignment) => (
+          {paginatedAssignments.map((assignment) => (
             <AssignmentCard
               assignment={assignment}
               isSelected={selectedIds.includes(assignment.id)}
@@ -632,6 +541,40 @@ function AssignmentManagePage({
             />
           ))}
         </div>
+        <nav className="wd-sai-pagination" aria-label="과제 목록 페이지">
+          <p>
+            전체 {filteredAssignments.length}개 중 {pageRangeStart}-{pageRangeEnd}개 표시
+          </p>
+          <div>
+            <button type="button" disabled={safeCurrentPage === 1} onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}>
+              이전
+            </button>
+            {paginationItems.map((page, index) =>
+              page === "ellipsis" ? (
+                <span className="wd-sai-pagination__ellipsis" key={`ellipsis-${index}`} aria-hidden="true">
+                  ...
+                </span>
+              ) : (
+                <button
+                  className={safeCurrentPage === page ? "is-active" : ""}
+                  key={page}
+                  type="button"
+                  aria-current={safeCurrentPage === page ? "page" : undefined}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              )
+            )}
+            <button
+              type="button"
+              disabled={safeCurrentPage === pageCount}
+              onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
+            >
+              다음
+            </button>
+          </div>
+        </nav>
       </section>
 
     </div>
@@ -693,7 +636,7 @@ function AssignmentCard({
           </>
         )}
         <div>
-          <dt>채용직무</dt>
+          <dt>직무</dt>
           <dd>{assignment.jobTitle}</dd>
         </div>
         {isDraft && (
@@ -753,155 +696,6 @@ function AssignmentCard({
   );
 }
 
-function MultiSelectDropdown({
-  disabled,
-  label,
-  onAddCustom,
-  onToggle,
-  options,
-  selectedValues
-}: {
-  disabled: boolean;
-  label: string;
-  onAddCustom: (value: string) => void;
-  onToggle: (value: string) => void;
-  options: string[];
-  selectedValues: string[];
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [customValue, setCustomValue] = useState("");
-  const selectedCount = selectedValues.filter(Boolean).length;
-  const summary = selectedCount === 0 ? "선택하세요" : selectedCount === 1 ? selectedValues[0] : `${selectedCount}개 선택됨`;
-  const customOptions = selectedValues.filter((value) => value && !options.includes(value));
-  const addCustomValue = () => {
-    const nextValue = customValue.trim();
-    if (!nextValue) {
-      return;
-    }
-    onAddCustom(nextValue);
-    setCustomValue("");
-  };
-
-  return (
-    <div className="wd-sai-multiselect" onBlur={(event) => {
-      if (!event.currentTarget.contains(event.relatedTarget)) {
-        setIsOpen(false);
-      }
-    }}>
-      <button
-        aria-expanded={isOpen}
-        className="wd-sai-multiselect__button"
-        disabled={disabled}
-        onClick={() => setIsOpen((value) => !value)}
-        type="button"
-      >
-        <span>{summary}</span>
-        <strong>▾</strong>
-      </button>
-      {isOpen && (
-        <div className="wd-sai-multiselect__menu" role="group" aria-label={label}>
-          {options.map((option) => (
-            <label className="wd-sai-check-row" key={option}>
-              <input
-                checked={selectedValues.includes(option)}
-                disabled={disabled}
-                onChange={() => onToggle(option)}
-                type="checkbox"
-              />
-              {option}
-            </label>
-          ))}
-          {customOptions.map((option) => (
-            <label className="wd-sai-check-row" key={option}>
-              <input
-                checked
-                disabled={disabled}
-                onChange={() => onToggle(option)}
-                type="checkbox"
-              />
-              {option}
-            </label>
-          ))}
-          {!disabled && (
-            <div className="wd-sai-multiselect__custom-row">
-              <input
-                aria-label={`${label} 직접입력`}
-                onChange={(event) => setCustomValue(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    addCustomValue();
-                  }
-                }}
-                placeholder="직접 입력"
-                value={customValue}
-              />
-              <button className="wd-sai-multiselect__custom" type="button" onClick={addCustomValue}>
-                추가
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SingleSelectDropdown({
-  disabled,
-  label,
-  onChange,
-  options,
-  value
-}: {
-  disabled: boolean;
-  label: string;
-  onChange: (value: string) => void;
-  options: string[];
-  value: string;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="wd-sai-multiselect" onBlur={(event) => {
-      if (!event.currentTarget.contains(event.relatedTarget)) {
-        setIsOpen(false);
-      }
-    }}>
-      <button
-        aria-expanded={isOpen}
-        className="wd-sai-multiselect__button"
-        disabled={disabled}
-        onClick={() => setIsOpen((current) => !current)}
-        type="button"
-      >
-        <span>{value || "선택하세요"}</span>
-        <strong>▾</strong>
-      </button>
-      {isOpen && (
-        <div className="wd-sai-multiselect__menu" role="listbox" aria-label={label}>
-          {options.map((option) => (
-            <button
-              aria-selected={value === option}
-              className={value === option ? "wd-sai-select-option is-selected" : "wd-sai-select-option"}
-              key={option}
-              onClick={() => {
-                onChange(option);
-                setIsOpen(false);
-              }}
-              role="option"
-              type="button"
-            >
-              <span>{option}</span>
-              {value === option && <strong>✓</strong>}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function AssignmentAiPage({
   activeTab,
   focusedAssignment,
@@ -916,9 +710,8 @@ function AssignmentAiPage({
   const [question, setQuestion] = useState<CustomQuestion>(initialQuestion);
   const [seed, setSeed] = useState(0);
   const [showDraftOnly, setShowDraftOnly] = useState(false);
-  const [generatedAssignments, setGeneratedAssignments] = useState<GeneratedAssignment[]>(() =>
-    Array.from({ length: 10 }, (_, index) => createGeneratedAssignment(index, 0, initialQuestion))
-  );
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedAssignments, setGeneratedAssignments] = useState<GeneratedAssignment[]>([]);
   const isDraftEditing = focusedAssignment?.status === "draft";
   const isWaitingEditing = focusedAssignment?.status === "available";
   const canAppendAssignments = isDraftEditing || isWaitingEditing;
@@ -926,37 +719,50 @@ function AssignmentAiPage({
   const formTitle = isReadOnlyMode ? "과제 기본 정보" : "과제 AI 생성 맞춤 질문";
   const formGuide = isReadOnlyMode
     ? "공고에 연결된 과제의 기본 정보를 확인할 수 있습니다."
-    : "맞춤 질문에 답하면 AI가 채용직무에 맞는 과제를 생성합니다.";
+    : "맞춤 질문에 답하면 실제 과제 DB에서 직무에 맞는 과제를 불러옵니다.";
   useEffect(() => {
     if (!focusedAssignment) {
       setShowDraftOnly(false);
       setSeed(0);
       setQuestion(initialQuestion);
-      setGeneratedAssignments(Array.from({ length: 10 }, (_, index) => createGeneratedAssignment(index, 0, initialQuestion)));
+      setGeneratedAssignments([]);
+      setIsGenerating(false);
       return;
     }
 
     setShowDraftOnly(false);
+    const focusedDbItem = focusedAssignment.linkedAssignments[0]
+      ? findDbItemByAssignment(focusedAssignment, focusedAssignment.linkedAssignments[0])
+      : undefined;
     setQuestion((current) => ({
       ...current,
-      jobRole: [focusedAssignment.jobTitle],
+      industry: focusedDbItem?.businessField ?? current.industry,
+      jobRole: focusedAssignment.jobTitle,
+      isIndustryCustom: focusedDbItem ? !industryOptions.includes(focusedDbItem.businessField) : current.isIndustryCustom,
       isJobRoleCustom: !allJobRoleOptions.includes(focusedAssignment.jobTitle),
-      isRequiredSkillsCustom: false,
-      isProductServiceCustom: false,
-      isMainWorkCustom: false,
-      mainWork: [`${focusedAssignment.title}에 연결된 과제를 검토하고 수정합니다.`]
+      mainWork: `${focusedAssignment.title}에 연결된 과제를 검토하고 수정합니다.`
     }));
     setGeneratedAssignments(
-      focusedAssignment.linkedAssignments.map((linkedAssignment, index) => ({
-        id: `${focusedAssignment.id}-linked-${index}`,
-        title: linkedAssignment.title,
-        difficulty: linkedAssignment.difficulty,
-        goal: `${focusedAssignment.title} 지원자의 ${focusedAssignment.jobTitle} 실무 역량을 확인합니다.`,
-        requirements: `${linkedAssignment.title} 수행 결과를 정리하고 판단 근거를 함께 제출합니다.`,
-        evaluation: "문제 이해도 30%, 실행 가능성 30%, 직무 적합성 25%, 전달력 15%",
-        status: focusedAssignment.status === "draft" ? "draft" : "generated",
-        selected: false
-      }))
+      focusedAssignment.linkedAssignments.map((linkedAssignment, index) => {
+        const dbItem = findDbItemByAssignment(focusedAssignment, linkedAssignment);
+        const assignment = dbItem
+          ? mapDbItemToGeneratedAssignment(dbItem, index)
+          : {
+              id: `${focusedAssignment.id}-linked-${index}`,
+              title: linkedAssignment.title,
+              difficulty: linkedAssignment.difficulty,
+              goal: "",
+              requirements: "",
+              evaluation: "",
+              status: "generated" as const,
+              selected: false
+            };
+
+        return {
+          ...assignment,
+          status: focusedAssignment.status === "draft" ? "draft" : assignment.status
+        };
+      })
     );
   }, [focusedAssignment]);
 
@@ -974,24 +780,50 @@ function AssignmentAiPage({
   const visibleGeneratedAssignments = showDraftOnly
     ? generatedAssignments.filter((item) => item.status === "draft")
     : generatedAssignments;
-  const selectedJobRole = question.jobRole[0] ?? "";
-  const currentPreset = getPresetByJobRole(selectedJobRole);
-  const visibleJobRoleOptions = withDirectInput(allJobRoleOptions);
+  const matchingQuestionDbItems = useMemo(() => {
+    if (!question.industry || !question.jobRole) return [];
+    const exactMatches = assignmentDbMock.filter(
+      (item) => item.businessField === question.industry && item.occupation === question.jobRole
+    );
+    if (exactMatches.length > 0) return exactMatches;
+    const fallbackMatches = getMatchingDbItems(question, 0, 20);
+    return fallbackMatches.length > 0 ? fallbackMatches : assignmentDbMock.slice(0, 20);
+  }, [question.industry, question.jobRole]);
+  const requiredSkillOptions = useMemo(
+    () => getUniqueQuestionOptions(matchingQuestionDbItems.map((item) => item.requiredSkills)),
+    [matchingQuestionDbItems]
+  );
+  const productServiceOptions = useMemo(
+    () => getUniqueQuestionOptions(matchingQuestionDbItems.map((item) => item.mainProducts)),
+    [matchingQuestionDbItems]
+  );
+  const mainWorkOptions = useMemo(
+    () => getUniqueQuestionOptions(matchingQuestionDbItems.map((item) => item.mainTasks)),
+    [matchingQuestionDbItems]
+  );
+  const isQuestionReady = Boolean(
+    question.industry && question.jobRole && question.requiredSkills && question.productService && question.mainWork
+  );
 
   const generateAll = () => {
+    if (!isQuestionReady || isGenerating) return;
     const nextSeed = seed + 1;
     setSeed(nextSeed);
     setShowDraftOnly(false);
-    if (canAppendAssignments) {
-      setGeneratedAssignments((items) => [
-        ...items,
-        ...additionalDifficultyPlan.map((difficulty, index) =>
-          createGeneratedAssignment(items.length + index, nextSeed, question, difficulty, true)
-        )
-      ]);
-      return;
-    }
-    setGeneratedAssignments(Array.from({ length: 10 }, (_, index) => createGeneratedAssignment(index, nextSeed, question)));
+    setIsGenerating(true);
+    setGeneratedAssignments(canAppendAssignments ? generatedAssignments : []);
+    window.setTimeout(() => {
+      if (canAppendAssignments) {
+        setGeneratedAssignments((items) => [
+          ...items,
+          ...createGeneratedAssignmentsFromDb(question, items.length, 5, true)
+        ]);
+        setIsGenerating(false);
+        return;
+      }
+      setGeneratedAssignments(createGeneratedAssignmentsFromDb(question, nextSeed * 10));
+      setIsGenerating(false);
+    }, 900);
   };
 
   const toggleSelected = (targetId: string) => {
@@ -1025,90 +857,34 @@ function AssignmentAiPage({
   };
 
   const selectIndustry = (value: string) => {
-    if (value === directInputOption) {
-      setQuestion({
-        ...question,
-        industry: "",
-        isIndustryCustom: true
-      });
-      return;
-    }
-
-    const preset = getPreset(value);
-    const nextJobRole = preset.jobRoles[0] ?? allJobRoleOptions[0] ?? "";
+    const isCustomIndustry = value === directInputOption;
     setQuestion({
       ...question,
-      industry: value,
-      isIndustryCustom: false,
-      isJobRoleCustom: false,
-      isRequiredSkillsCustom: false,
-      isProductServiceCustom: false,
-      isMainWorkCustom: false,
-      jobRole: [nextJobRole],
-      ...getDefaultQuestionFieldsByJobRole(nextJobRole)
+      industry: isCustomIndustry ? "" : value,
+      jobRole: "",
+      requiredSkills: "",
+      productService: "",
+      mainWork: "",
+      isIndustryCustom: isCustomIndustry,
+      isJobRoleCustom: isCustomIndustry
     });
   };
 
   const selectJobRole = (value: string) => {
-    if (value === directInputOption) {
-      setQuestion({ ...question, jobRole: [""], isJobRoleCustom: true });
-      return;
-    }
     setQuestion({
       ...question,
-      jobRole: [value],
-      isJobRoleCustom: false,
-      ...getDefaultQuestionFieldsByJobRole(value)
+      jobRole: value === directInputOption ? "" : value,
+      requiredSkills: "",
+      productService: "",
+      mainWork: "",
+      isJobRoleCustom: value === directInputOption
     });
   };
 
-  const toggleRequiredSkill = (value: string) => {
-    setQuestion({
-      ...question,
-      requiredSkills: question.requiredSkills.includes(value)
-        ? question.requiredSkills.filter((item) => item !== value)
-        : [...question.requiredSkills, value]
-    });
-  };
-
-  const toggleProductService = (value: string) => {
-    setQuestion({
-      ...question,
-      productService: question.productService.includes(value)
-        ? question.productService.filter((item) => item !== value)
-        : [...question.productService, value]
-    });
-  };
-
-  const toggleMainWork = (value: string) => {
-    setQuestion({
-      ...question,
-      mainWork: question.mainWork.includes(value)
-        ? question.mainWork.filter((item) => item !== value)
-        : [...question.mainWork, value]
-    });
-  };
-
-  const addCustomRequiredSkill = (value: string) => {
-    setQuestion({
-      ...question,
-      requiredSkills: question.requiredSkills.includes(value) ? question.requiredSkills : [...question.requiredSkills, value]
-    });
-  };
-
-  const addCustomProductService = (value: string) => {
-    setQuestion({
-      ...question,
-      productService: question.productService.includes(value) ? question.productService : [...question.productService, value]
-    });
-  };
-
-  const addCustomMainWork = (value: string) => {
-    setQuestion({
-      ...question,
-      mainWork: question.mainWork.includes(value) ? question.mainWork : [...question.mainWork, value]
-    });
-  };
+  const jobRoleOptionsForIndustry = question.isIndustryCustom
+    ? [directInputOption]
+    : [...getJobRolesByIndustry(question.industry), directInputOption];
+  const isJobRoleDisabled = !question.industry && !question.isIndustryCustom;
 
   return (
     <>
@@ -1140,75 +916,97 @@ function AssignmentAiPage({
               )}
             </div>
           ) : (
-            <SingleSelectDropdown
-              disabled={isReadOnlyMode}
-              label="업종"
-              onChange={selectIndustry}
-              options={industryOptions}
+            <select
               value={question.industry}
-            />
+              onChange={(event) => selectIndustry(event.target.value)}
+              disabled={isReadOnlyMode}
+            >
+              <option value="">업종 선택</option>
+              {industryOptions.map((industry) => (
+                <option key={industry} value={industry}>{industry}</option>
+              ))}
+            </select>
           )}
         </label>
         <label>
-          채용직무
+          직무
           {question.isJobRoleCustom ? (
             <div className="wd-sai-direct-input-row">
               <input
-                aria-label="채용직무 직접입력"
+                aria-label="직무 직접입력"
                 autoFocus
-                placeholder="채용직무를 입력하세요"
-                value={question.jobRole[0] ?? ""}
-                onChange={(event) => setQuestion({ ...question, jobRole: [event.target.value] })}
+                placeholder="직무를 입력하세요"
+                value={question.jobRole}
+                onChange={(event) => setQuestion({ ...question, jobRole: event.target.value })}
                 disabled={isReadOnlyMode}
               />
               {!isReadOnlyMode && (
-                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, jobRole: [visibleJobRoleOptions[0]], isJobRoleCustom: false })}>
+                <button
+                  className="wd-sai-inline-reset"
+                  type="button"
+                  onClick={() => selectJobRole(jobRoleOptionsForIndustry[0] ?? directInputOption)}
+                >
                   목록
                 </button>
               )}
             </div>
           ) : (
-            <SingleSelectDropdown
-              disabled={isReadOnlyMode}
-              label="채용직무"
-              onChange={selectJobRole}
-              options={visibleJobRoleOptions}
-              value={question.jobRole[0] ?? ""}
-            />
+            <select
+              value={question.jobRole}
+              onChange={(event) => selectJobRole(event.target.value)}
+              disabled={isReadOnlyMode || isJobRoleDisabled}
+            >
+              <option value="">{isJobRoleDisabled ? "업종을 먼저 선택하세요" : "직무 선택"}</option>
+              {jobRoleOptionsForIndustry.map((jobRole) => (
+                <option key={jobRole} value={jobRole}>{jobRole}</option>
+              ))}
+            </select>
           )}
         </label>
         <label>
           필수 업무 스킬
-          <MultiSelectDropdown
-            disabled={isReadOnlyMode}
-            label="필수 업무 스킬"
-            onAddCustom={addCustomRequiredSkill}
-            onToggle={toggleRequiredSkill}
-            options={currentPreset.requiredSkills}
-            selectedValues={question.requiredSkills}
-          />
+          <select
+            value={question.requiredSkills}
+            onChange={(event) => setQuestion({ ...question, requiredSkills: event.target.value })}
+            disabled={isReadOnlyMode || requiredSkillOptions.length === 0}
+          >
+            <option value="">{requiredSkillOptions.length === 0 ? "업종과 직무를 먼저 선택하세요" : "필수 업무 스킬 선택"}</option>
+            {requiredSkillOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           주력 상품 및 서비스
-          <MultiSelectDropdown
-            disabled={isReadOnlyMode}
-            label="주력 상품 및 서비스"
-            onAddCustom={addCustomProductService}
-            onToggle={toggleProductService}
-            options={currentPreset.productServices}
-            selectedValues={question.productService}
-          />
+          <select
+            value={question.productService}
+            onChange={(event) => setQuestion({ ...question, productService: event.target.value })}
+            disabled={isReadOnlyMode || productServiceOptions.length === 0}
+          >
+            <option value="">{productServiceOptions.length === 0 ? "업종과 직무를 먼저 선택하세요" : "주력 상품 및 서비스 선택"}</option>
+            {productServiceOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           입사 후 주요 업무
-          <MultiSelectDropdown
-            disabled={isReadOnlyMode}
-            label="입사 후 주요 업무"
-            onAddCustom={addCustomMainWork}
-            onToggle={toggleMainWork}
-            options={currentPreset.mainWorks}
-            selectedValues={question.mainWork}
-          />
+          <select
+            value={question.mainWork}
+            onChange={(event) => setQuestion({ ...question, mainWork: event.target.value })}
+            disabled={isReadOnlyMode || mainWorkOptions.length === 0}
+          >
+            <option value="">{mainWorkOptions.length === 0 ? "업종과 직무를 먼저 선택하세요" : "입사 후 주요 업무 선택"}</option>
+            {mainWorkOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           추가 요청사항
@@ -1219,8 +1017,13 @@ function AssignmentAiPage({
           />
         </label>
         {!isReadOnlyMode && (
-          <button className="wd-button wd-button--primary wd-sai-full-button" type="button" onClick={generateAll}>
-            {canAppendAssignments ? "과제 추가 생성" : "과제 AI 생성"}
+          <button
+            className="wd-button wd-button--primary wd-sai-full-button"
+            type="button"
+            disabled={!isQuestionReady || isGenerating}
+            onClick={generateAll}
+          >
+            {isGenerating ? "과제 AI 생성중입니다" : canAppendAssignments ? "과제 추가 생성" : "과제 AI 생성"}
           </button>
         )}
       </aside>
@@ -1239,6 +1042,20 @@ function AssignmentAiPage({
             </div>
           </div>
 
+          {isGenerating ? (
+            <div className="wd-sai-loading-state" role="status">
+              <span className="wd-sai-loading-spinner" aria-hidden="true" />
+              <strong>과제 AI 생성중입니다</strong>
+              <p>선택한 조건과 실제 과제 DB를 비교해 가장 가까운 과제를 불러오고 있어요.</p>
+            </div>
+          ) : visibleGeneratedAssignments.length === 0 ? (
+            <div className="wd-sai-empty-state">
+              <strong>아직 생성된 과제가 없습니다.</strong>
+              <p>업종, 직무, 필수 업무 스킬, 주력 상품 및 서비스, 입사 후 주요 업무를 선택한 뒤 과제 AI 생성을 눌러주세요.</p>
+            </div>
+          ) : null}
+
+          {!isGenerating && visibleGeneratedAssignments.length > 0 ? (
           <div className="wd-sai-assignment-list">
             {visibleGeneratedAssignments.map((assignment, index) => (
               <article className="wd-sai-assignment-card" key={assignment.id}>
@@ -1312,6 +1129,7 @@ function AssignmentAiPage({
               </article>
             ))}
           </div>
+          ) : null}
         </section>
 
         {!isReadOnlyMode && selectedCount > 0 && (

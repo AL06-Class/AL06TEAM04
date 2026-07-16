@@ -5,22 +5,46 @@ import type { JobPosting } from "../../types/jobPosting";
 type JobPostTableProps = {
   jobPostings: JobPosting[];
   totalCount: number;
+  currentPage?: number;
+  pageCount?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
 };
 
 function getStatusBadge(status: JobPosting["status"]) {
   if (status === "posted") {
-    return <Badge tone="success" withDot>게시중</Badge>;
+    return (
+      <Badge tone="success" withDot>
+        게시중
+      </Badge>
+    );
   }
 
   if (status === "draft") {
-    return <Badge tone="info" withDot>임시저장</Badge>;
+    return (
+      <Badge tone="info" withDot>
+        임시저장
+      </Badge>
+    );
   }
 
-  return <Badge tone="neutral" withDot>마감</Badge>;
+  return (
+    <Badge tone="neutral" withDot>
+      마감
+    </Badge>
+  );
 }
 
-export function JobPostTable({ jobPostings, totalCount }: JobPostTableProps) {
+export function JobPostTable({
+  jobPostings,
+  totalCount,
+  currentPage = 1,
+  pageCount = 1,
+  pageSize = 5,
+  onPageChange
+}: JobPostTableProps) {
   const [openedMenuId, setOpenedMenuId] = useState<string | null>(null);
+  const pages = Array.from({ length: pageCount }, (_, index) => index + 1);
 
   return (
     <div className="wd-job-table">
@@ -68,51 +92,71 @@ export function JobPostTable({ jobPostings, totalCount }: JobPostTableProps) {
               지원현황
             </a>
             <div className="wd-job-table__menu">
-            <button
-              aria-label="더보기"
-              className="wd-job-table__more"
-              type="button"
-              onClick={() =>
-                setOpenedMenuId((current) =>
-                  current === jobPosting.jobPostingId ? null : jobPosting.jobPostingId
-                )
-              }
-            >
-              <span />
-              <span />
-              <span />
-            </button>
-            {openedMenuId === jobPosting.jobPostingId ? (
-              <div className="wd-job-table__menu-popover">
-                <button className="wd-job-table__menu-item wd-job-table__menu-item--danger" type="button">
-                  삭제
-                </button>
-              </div>
-            ) : null}
+              <button
+                aria-label="더보기"
+                className="wd-job-table__more"
+                type="button"
+                onClick={() =>
+                  setOpenedMenuId((current) => (current === jobPosting.jobPostingId ? null : jobPosting.jobPostingId))
+                }
+              >
+                <span />
+                <span />
+                <span />
+              </button>
+              {openedMenuId === jobPosting.jobPostingId ? (
+                <div className="wd-job-table__menu-popover">
+                  <button className="wd-job-table__menu-item wd-job-table__menu-item--danger" type="button">
+                    삭제
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
       ))}
 
+      {jobPostings.length === 0 ? <div className="wd-empty-inline">조건에 맞는 공고가 없습니다.</div> : null}
+
       <div className="wd-job-table__footer">
         <div className="wd-job-table__total">
           <span>전체 {totalCount}개</span>
           <button className="wd-job-filter__control wd-job-filter__control--small" type="button">
-            10개씩 보기
+            {pageSize}개씩 보기
             <span className="wd-inline-icon wd-inline-icon--chevron-down" aria-hidden="true" />
           </button>
         </div>
 
-        <div className="wd-job-table__pagination" aria-label="페이지 이동">
-          <button type="button">≪</button>
-          <button type="button">‹</button>
-          <button className="is-active" type="button">
-            1
-          </button>
-          <button type="button">2</button>
-          <button type="button">›</button>
-          <button type="button">≫</button>
-        </div>
+        {pageCount > 1 ? (
+          <div className="wd-job-table__pagination" aria-label="페이지 이동">
+            <button type="button" disabled={currentPage === 1} onClick={() => onPageChange?.(1)}>
+              처음
+            </button>
+            <button type="button" disabled={currentPage === 1} onClick={() => onPageChange?.(currentPage - 1)}>
+              이전
+            </button>
+            {pages.map((page) => (
+              <button
+                className={page === currentPage ? "is-active" : ""}
+                key={page}
+                type="button"
+                onClick={() => onPageChange?.(page)}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              type="button"
+              disabled={currentPage === pageCount}
+              onClick={() => onPageChange?.(currentPage + 1)}
+            >
+              다음
+            </button>
+            <button type="button" disabled={currentPage === pageCount} onClick={() => onPageChange?.(pageCount)}>
+              마지막
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );
