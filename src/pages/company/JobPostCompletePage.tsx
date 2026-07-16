@@ -3,15 +3,15 @@ import { Button } from "../../components/common/Button";
 import { PageContainer } from "../../components/common/PageContainer";
 import { JobPostCompleteSummaryCard } from "../../components/job-post/JobPostCompleteSummaryCard";
 import { companyMock } from "../../mocks/company";
-import { jobPostingsMock } from "../../mocks/jobPostings";
+import { getCompanyJobPostings } from "../../mocks/jobPostings";
 
 type JobPostCompletePageProps = {
   jobPostingId: string;
 };
 
 export function JobPostCompletePage({ jobPostingId }: JobPostCompletePageProps) {
-  const jobPosting =
-    jobPostingsMock.find((item) => item.jobPostingId === jobPostingId) ?? jobPostingsMock[0];
+  const jobPostings = getCompanyJobPostings();
+  const jobPosting = jobPostings.find((item) => item.jobPostingId === jobPostingId) ?? jobPostings[0];
 
   return (
     <div className="wd-company-page">

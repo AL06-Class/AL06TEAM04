@@ -2,18 +2,19 @@ import gangnamMapMockup from "../assets/map-mockup-gangnam.png";
 import { CompanyHeaderNav } from "../components/company/CompanyHeaderNav";
 import { Button } from "../components/common/Button";
 import { PageContainer } from "../components/common/PageContainer";
-import { jobPostingsMock } from "../mocks/jobPostings";
+import { getPublicJobPostings } from "../mocks/jobPostings";
 
 type JobPostDetailPageProps = {
   jobPostingId: string;
 };
 
 export function JobPostDetailPage({ jobPostingId }: JobPostDetailPageProps) {
-  const jobPosting = jobPostingsMock.find((item) => item.jobPostingId === jobPostingId) ?? jobPostingsMock[0];
+  const jobPostings = getPublicJobPostings();
+  const jobPosting = jobPostings.find((item) => item.jobPostingId === jobPostingId) ?? jobPostings[0];
   const title = jobPosting.title;
   const companyName = jobPosting.companyName ?? jobPosting.companyId;
   const address = jobPosting.roadAddress || jobPosting.address;
-  const workModes = [jobPosting.workType, ...jobPosting.flexibleWorkTypes, ...jobPosting.workDays].filter(Boolean);
+  const workModes = Array.from(new Set([jobPosting.workType, ...jobPosting.flexibleWorkTypes, ...jobPosting.workDays].filter(Boolean)));
   const requirements = jobPosting.requirements ?? jobPosting.requiredSkills;
   const preferences = jobPosting.preferences ?? [];
   const hiringProcess = jobPosting.hiringProcess ?? ["서류 검토", "실무 인터뷰", "최종 인터뷰"];

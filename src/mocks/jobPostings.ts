@@ -1,6 +1,7 @@
 import type { JobPosting } from "../types/jobPosting";
+import { normalizeFlexibleWorkType } from "../constants/jobOptions";
 
-export const jobPostingsMock: JobPosting[] = [
+const externalJobPostingsMock: JobPosting[] = [
   {
     jobPostingId: "job-posting-wanted-375119",
     wantedJobId: 375119,
@@ -17,8 +18,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 5,
     experienceMax: 11,
     requiredSkills: ["Kotlin", "Java", "Spring Boot", "MySQL", "Redis"],
-    workType: "하이브리드",
-    flexibleWorkTypes: ["주 3일 출근", "시차 출퇴근", "코어타임 운영"],
+    workType: "단축 근무(일 7시간 이하)",
+    flexibleWorkTypes: ["단축 근무(일 7시간 이하)"],
     workDays: ["월", "수", "금"],
     salaryType: "annual",
     salaryText: "경력에 따라 협의",
@@ -68,8 +69,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 1,
     experienceMax: 10,
     requiredSkills: ["Premiere Pro", "After Effects", "콘텐츠 기획", "SNS 콘텐츠"],
-    workType: "부분 재택",
-    flexibleWorkTypes: ["주 4일 근무", "오후 집중근무", "촬영일 탄력 운영"],
+    workType: "100% 원격근무",
+    flexibleWorkTypes: ["100% 원격근무"],
     workDays: ["월", "화", "목", "금"],
     salaryType: "annual",
     salaryText: "회사 내규에 따름",
@@ -114,8 +115,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 1,
     experienceMax: 3,
     requiredSkills: ["Figma", "UI Design", "UX 설계", "GUI Design"],
-    workType: "하이브리드",
-    flexibleWorkTypes: ["주 3일 근무", "오전 선택근무", "원격 협업"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
     workDays: ["화", "수", "목"],
     salaryType: "annual",
     salaryText: "면접 후 협의",
@@ -161,8 +162,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 0,
     experienceMax: 4,
     requiredSkills: ["시장조사", "크리에이터 소싱", "콘텐츠 기획", "프로젝트 운영"],
-    workType: "부분 재택",
-    flexibleWorkTypes: ["주 4일 근무", "요일 선택", "집중근무제"],
+    workType: "유연 출퇴근(일 8시간)",
+    flexibleWorkTypes: ["유연 출퇴근(일 8시간)"],
     workDays: ["월", "화", "수", "목"],
     salaryType: "annual",
     salaryText: "회사 내규에 따름",
@@ -207,8 +208,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 1,
     experienceMax: 5,
     requiredSkills: ["Python", "Shell", "Django", "Flask", "보안 진단"],
-    workType: "하이브리드",
-    flexibleWorkTypes: ["주 3일 근무", "선택 출근", "보안 점검일 탄력근무"],
+    workType: "단축 근무(일 7시간 이하)",
+    flexibleWorkTypes: ["단축 근무(일 7시간 이하)"],
     workDays: ["월", "수", "목"],
     salaryType: "annual",
     salaryText: "면접 후 협의",
@@ -254,8 +255,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 3,
     experienceMax: null,
     requiredSkills: ["MD", "상품 소싱", "손익 관리", "파트너 협상"],
-    workType: "부분 재택",
-    flexibleWorkTypes: ["주 4일 근무", "오전 원격", "미팅일 선택 출근"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
     workDays: ["월", "화", "목", "금"],
     salaryType: "annual",
     salaryText: "경력에 따라 협의",
@@ -300,8 +301,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 5,
     experienceMax: null,
     requiredSkills: ["B2B 세일즈", "제안서 작성", "계약 협상", "CRM"],
-    workType: "출근 근무",
-    flexibleWorkTypes: ["주 3일 근무", "외근일 탄력 운영", "금요일 단축근무"],
+    workType: "단축 근무(일 7시간 이하)",
+    flexibleWorkTypes: ["단축 근무(일 7시간 이하)"],
     workDays: ["화", "수", "목"],
     salaryType: "annual",
     salaryText: "성과급 별도 협의",
@@ -346,8 +347,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 3,
     experienceMax: null,
     requiredSkills: ["Microsoft 365", "네트워크 운영", "IT 자산 관리", "Vendor Management"],
-    workType: "하이브리드",
-    flexibleWorkTypes: ["주 4일 근무", "원격 지원일 운영", "시차 출퇴근"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
     workDays: ["월", "화", "수", "금"],
     salaryType: "annual",
     salaryText: "면접 후 협의",
@@ -392,8 +393,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 3,
     experienceMax: 7,
     requiredSkills: ["사업개발", "교육 운영", "데이터 분석", "이해관계자 커뮤니케이션"],
-    workType: "하이브리드",
-    flexibleWorkTypes: ["주 3일 근무", "오전 재택", "오후 협업근무"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
     workDays: ["월", "수", "금"],
     salaryType: "annual",
     salaryText: "회사 내규에 따름",
@@ -438,8 +439,8 @@ export const jobPostingsMock: JobPosting[] = [
     experienceMin: 3,
     experienceMax: 8,
     requiredSkills: ["Growth Marketing", "GA4", "SQL", "퍼널 분석"],
-    workType: "부분 재택",
-    flexibleWorkTypes: ["주 4일 근무", "캠페인일 선택 출근", "금요일 단축근무"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
     workDays: ["월", "화", "목", "금"],
     salaryType: "annual",
     salaryText: "경력에 따라 협의",
@@ -470,8 +471,393 @@ export const jobPostingsMock: JobPosting[] = [
   }
 ];
 
+type WonderdogsPostingSeed = {
+  jobPostingId: string;
+  title: string;
+  jobCategory: string;
+  jobTitle: string;
+  industry: string;
+  experienceLevel: string;
+  experienceMin: number | null;
+  experienceMax: number | null;
+  requiredSkills: string[];
+  workType: string;
+  flexibleWorkTypes: string[];
+  workDays: string[];
+  workTimeText: string;
+  address: string;
+  roadAddress: string;
+  stationWalkMinutes: number;
+  mainResponsibilities: string;
+  assignmentTitle?: string;
+  assignmentSummary?: string;
+  status: JobPosting["status"];
+  createdAt: string;
+  updatedAt: string;
+  postedAt: string | null;
+  closedAt: string | null;
+  applicantCount: number;
+};
+
+function createWonderdogsPosting(seed: WonderdogsPostingSeed): JobPosting {
+  return {
+    ...seed,
+    companyId: "company_wonderdogs",
+    companyName: "원더독스",
+    recruiterId: "recruiter_wonderdogs",
+    employmentType: "정규직",
+    salaryType: "annual",
+    salaryText: "면접 후 결정",
+    locationType: seed.workType === "100% 원격근무" ? "remote" : "office",
+    jibunAddress: "서울 강남구 삼성동",
+    location: { lat: 37.5086, lng: 127.0632 },
+    primaryStationName: "삼성역",
+    applicationPeriod: seed.status === "closed" ? "2026.06.01 - 2026.06.30" : "2026.07.15 - 채용 시 마감",
+    requirements: seed.requiredSkills,
+    preferences: ["반려동물 서비스에 관심이 있는 분", "작은 팀에서 빠르게 실험한 경험", "비동기 협업 문서화 경험"],
+    hiringProcess: ["서류 검토", "실무 인터뷰", "과제 리뷰", "최종 인터뷰"],
+    assignmentIds: seed.assignmentTitle ? [`assignment-${seed.jobPostingId}`] : [],
+    hasAssignment: Boolean(seed.assignmentTitle),
+    isRecommended: seed.status === "posted"
+  };
+}
+
+export const wonderdogsJobPostingsMock: JobPosting[] = [
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-ux-designer",
+    title: "펫 케어 서비스 UI/UX 디자이너",
+    industry: "IT 서비스",
+    jobCategory: "디자인",
+    jobTitle: "UI/UX 디자이너",
+    experienceLevel: "1년 이상",
+    experienceMin: 1,
+    experienceMax: 5,
+    requiredSkills: ["Figma", "UX 리서치", "프로토타이핑"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
+    workDays: ["월", "수", "금"],
+    workTimeText: "주 3일 · 10:00 - 16:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 4,
+    mainResponsibilities: "반려동물 보호자 앱의 예약, 상담, 결제 흐름을 설계하고 핵심 화면을 개선합니다.",
+    assignmentTitle: "예약 전환율 개선 과제",
+    assignmentSummary: "보호자가 병원 예약을 완료하기까지의 흐름을 분석하고 개선안을 제안합니다.",
+    status: "posted",
+    createdAt: "2026-07-10T09:00:00+09:00",
+    updatedAt: "2026-07-15T09:00:00+09:00",
+    postedAt: "2026-07-15T09:00:00+09:00",
+    closedAt: null,
+    applicantCount: 12
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-frontend",
+    title: "보호자 웹 프론트엔드 개발자",
+    industry: "IT 서비스",
+    jobCategory: "개발",
+    jobTitle: "프론트엔드 개발자",
+    experienceLevel: "3년 이상",
+    experienceMin: 3,
+    experienceMax: 8,
+    requiredSkills: ["React", "TypeScript", "Vite"],
+    workType: "100% 원격근무",
+    flexibleWorkTypes: ["100% 원격근무"],
+    workDays: ["화", "목"],
+    workTimeText: "주 2일 · 13:00 - 18:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 5,
+    mainResponsibilities: "보호자용 웹 화면의 성능과 접근성을 개선하고 공통 컴포넌트를 관리합니다.",
+    assignmentTitle: "느린 콘텐츠 목록 성능 개선",
+    assignmentSummary: "콘텐츠 목록 렌더링 병목을 찾고 프론트엔드 개선 전략을 제안합니다.",
+    status: "posted",
+    createdAt: "2026-07-10T09:10:00+09:00",
+    updatedAt: "2026-07-15T09:10:00+09:00",
+    postedAt: "2026-07-15T09:10:00+09:00",
+    closedAt: null,
+    applicantCount: 16
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-product-manager",
+    title: "펫 헬스케어 프로덕트 매니저",
+    industry: "플랫폼",
+    jobCategory: "기획",
+    jobTitle: "프로덕트 매니저",
+    experienceLevel: "5년 이상",
+    experienceMin: 5,
+    experienceMax: 10,
+    requiredSkills: ["서비스 기획", "데이터 분석", "로드맵 설계"],
+    workType: "단축 근무(일 7시간 이하)",
+    flexibleWorkTypes: ["단축 근무(일 7시간 이하)"],
+    workDays: ["월", "화", "목", "금"],
+    workTimeText: "주 4일 · 09:30 - 16:30",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 6,
+    mainResponsibilities: "펫 헬스케어 서비스의 문제 정의, 지표 설계, 기능 우선순위 결정을 담당합니다.",
+    assignmentTitle: "보호자 재방문율 개선 전략",
+    assignmentSummary: "재방문을 높이기 위한 핵심 가설과 실험 로드맵을 제안합니다.",
+    status: "posted",
+    createdAt: "2026-07-10T09:20:00+09:00",
+    updatedAt: "2026-07-15T09:20:00+09:00",
+    postedAt: "2026-07-15T09:20:00+09:00",
+    closedAt: null,
+    applicantCount: 9
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-growth-marketer",
+    title: "그로스 마케터",
+    industry: "IT 서비스",
+    jobCategory: "마케팅",
+    jobTitle: "그로스 마케터",
+    experienceLevel: "2년 이상",
+    experienceMin: 2,
+    experienceMax: 7,
+    requiredSkills: ["GA4", "퍼포먼스 마케팅", "SQL"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
+    workDays: ["월", "수", "금"],
+    workTimeText: "주 3일 · 14:00 - 18:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 4,
+    mainResponsibilities: "보호자 획득 채널을 운영하고 실험 기반으로 전환율을 개선합니다.",
+    assignmentTitle: "신규 보호자 유입 캠페인 설계",
+    assignmentSummary: "2주 단위 캠페인 목표, 채널, 성과 지표를 설계합니다.",
+    status: "posted",
+    createdAt: "2026-07-10T09:30:00+09:00",
+    updatedAt: "2026-07-15T09:30:00+09:00",
+    postedAt: "2026-07-15T09:30:00+09:00",
+    closedAt: null,
+    applicantCount: 7
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-cx-operator",
+    title: "보호자 CX 운영 매니저",
+    industry: "고객 경험",
+    jobCategory: "운영",
+    jobTitle: "CX 운영 매니저",
+    experienceLevel: "경력 무관",
+    experienceMin: null,
+    experienceMax: null,
+    requiredSkills: ["고객 응대", "VOC 분석", "운영 정책"],
+    workType: "유연 출퇴근(일 8시간)",
+    flexibleWorkTypes: ["유연 출퇴근(일 8시간)"],
+    workDays: ["월", "화", "수", "목", "금"],
+    workTimeText: "주 5일 · 09:00 - 17:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 3,
+    mainResponsibilities: "보호자 문의와 병원 커뮤니케이션 품질을 관리하고 운영 정책을 개선합니다.",
+    assignmentTitle: "VOC 기반 운영 개선안",
+    assignmentSummary: "반복 문의 유형을 분류하고 운영 프로세스 개선안을 제안합니다.",
+    status: "posted",
+    createdAt: "2026-07-10T09:40:00+09:00",
+    updatedAt: "2026-07-15T09:40:00+09:00",
+    postedAt: "2026-07-15T09:40:00+09:00",
+    closedAt: null,
+    applicantCount: 11
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-data-analyst-draft",
+    title: "서비스 데이터 분석가",
+    industry: "데이터",
+    jobCategory: "데이터",
+    jobTitle: "데이터 분석가",
+    experienceLevel: "3년 이상",
+    experienceMin: 3,
+    experienceMax: 8,
+    requiredSkills: ["SQL", "Amplitude", "대시보드 설계"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
+    workDays: ["화", "수", "목"],
+    workTimeText: "주 3일 · 10:00 - 16:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 6,
+    mainResponsibilities: "제품 지표를 정의하고 실험 결과를 분석합니다.",
+    status: "draft",
+    createdAt: "2026-07-11T09:00:00+09:00",
+    updatedAt: "2026-07-14T11:00:00+09:00",
+    postedAt: null,
+    closedAt: null,
+    applicantCount: 0
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-brand-designer-draft",
+    title: "브랜드 콘텐츠 디자이너",
+    industry: "브랜드",
+    jobCategory: "디자인",
+    jobTitle: "브랜드 디자이너",
+    experienceLevel: "2년 이상",
+    experienceMin: 2,
+    experienceMax: 6,
+    requiredSkills: ["Figma", "콘텐츠 디자인", "브랜딩"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
+    workDays: ["월", "목"],
+    workTimeText: "주 2일 · 13:00 - 18:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 5,
+    mainResponsibilities: "원더독스 브랜드 콘텐츠와 캠페인 비주얼을 제작합니다.",
+    status: "draft",
+    createdAt: "2026-07-11T09:10:00+09:00",
+    updatedAt: "2026-07-14T11:10:00+09:00",
+    postedAt: null,
+    closedAt: null,
+    applicantCount: 0
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-sales-draft",
+    title: "동물병원 제휴 세일즈",
+    industry: "세일즈",
+    jobCategory: "영업",
+    jobTitle: "제휴 세일즈",
+    experienceLevel: "1년 이상",
+    experienceMin: 1,
+    experienceMax: 5,
+    requiredSkills: ["B2B 세일즈", "파트너 관리", "제안서 작성"],
+    workType: "유연 출퇴근(일 8시간)",
+    flexibleWorkTypes: ["유연 출퇴근(일 8시간)"],
+    workDays: ["월", "화", "수", "목", "금"],
+    workTimeText: "주 5일 · 10:00 - 18:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 3,
+    mainResponsibilities: "동물병원 파트너를 발굴하고 제휴 제안을 관리합니다.",
+    status: "draft",
+    createdAt: "2026-07-11T09:20:00+09:00",
+    updatedAt: "2026-07-14T11:20:00+09:00",
+    postedAt: null,
+    closedAt: null,
+    applicantCount: 0
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-backend-closed",
+    title: "예약 플랫폼 백엔드 개발자",
+    industry: "IT 서비스",
+    jobCategory: "개발",
+    jobTitle: "백엔드 개발자",
+    experienceLevel: "5년 이상",
+    experienceMin: 5,
+    experienceMax: 10,
+    requiredSkills: ["Node.js", "PostgreSQL", "API 설계"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
+    workDays: ["월", "수", "금"],
+    workTimeText: "주 3일 · 10:00 - 17:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 4,
+    mainResponsibilities: "예약/결제 API와 운영 백오피스 서버를 개선합니다.",
+    status: "closed",
+    createdAt: "2026-06-01T09:00:00+09:00",
+    updatedAt: "2026-06-30T18:00:00+09:00",
+    postedAt: "2026-06-01T09:00:00+09:00",
+    closedAt: "2026-06-30T18:00:00+09:00",
+    applicantCount: 24
+  }),
+  createWonderdogsPosting({
+    jobPostingId: "job-posting-wonderdogs-contents-closed",
+    title: "펫 콘텐츠 에디터",
+    industry: "콘텐츠",
+    jobCategory: "마케팅",
+    jobTitle: "콘텐츠 에디터",
+    experienceLevel: "경력 무관",
+    experienceMin: null,
+    experienceMax: null,
+    requiredSkills: ["콘텐츠 기획", "카피라이팅", "SNS 운영"],
+    workType: "부분 원격근무",
+    flexibleWorkTypes: ["부분 원격근무"],
+    workDays: ["월", "화", "목", "금"],
+    workTimeText: "주 4일 · 13:00 - 18:00",
+    address: "서울 강남구 삼성역",
+    roadAddress: "서울 강남구 테헤란로 507 원더독스",
+    stationWalkMinutes: 5,
+    mainResponsibilities: "보호자를 위한 건강 콘텐츠와 SNS 캠페인을 기획합니다.",
+    status: "closed",
+    createdAt: "2026-06-03T09:00:00+09:00",
+    updatedAt: "2026-06-28T18:00:00+09:00",
+    postedAt: "2026-06-03T09:00:00+09:00",
+    closedAt: "2026-06-28T18:00:00+09:00",
+    applicantCount: 18
+  })
+];
+
+const localJobPostingsStorageKey = "wd:jobPostings";
+
+function canUseLocalStorage() {
+  return typeof window !== "undefined" && Boolean(window.localStorage);
+}
+
+function normalizeJobPosting(jobPosting: JobPosting): JobPosting {
+  const normalizedFlexibleWorkType = normalizeFlexibleWorkType(
+    jobPosting.workType,
+    jobPosting.flexibleWorkTypes,
+    jobPosting.workTimeText
+  );
+
+  return {
+    ...jobPosting,
+    workType: normalizedFlexibleWorkType,
+    flexibleWorkTypes: [normalizedFlexibleWorkType],
+    locationType: normalizedFlexibleWorkType === "100% 원격근무" ? "remote" : jobPosting.locationType
+  };
+}
+
+function normalizeStoredJobPosting(jobPosting: JobPosting): JobPosting {
+  return normalizeJobPosting({
+    ...jobPosting,
+    companyId: "company_wonderdogs",
+    companyName: jobPosting.companyName || "원더독스",
+    recruiterId: jobPosting.recruiterId || "recruiter_wonderdogs",
+    status: jobPosting.status || "posted",
+    applicantCount: jobPosting.applicantCount ?? 0
+  });
+}
+
+export function getStoredJobPostings(): JobPosting[] {
+  if (!canUseLocalStorage()) return [];
+
+  try {
+    const rawValue = window.localStorage.getItem(localJobPostingsStorageKey);
+    if (!rawValue) return [];
+    const parsed = JSON.parse(rawValue);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is JobPosting => Boolean(item?.jobPostingId)).map(normalizeStoredJobPosting);
+  } catch {
+    return [];
+  }
+}
+
+export function saveStoredJobPosting(jobPosting: JobPosting) {
+  if (!canUseLocalStorage()) return;
+
+  const normalized = normalizeStoredJobPosting(jobPosting);
+  const nextJobPostings = [
+    normalized,
+    ...getStoredJobPostings().filter((item) => item.jobPostingId !== normalized.jobPostingId)
+  ];
+  window.localStorage.setItem(localJobPostingsStorageKey, JSON.stringify(nextJobPostings));
+}
+
+export function getCompanyJobPostings() {
+  return [...getStoredJobPostings(), ...wonderdogsJobPostingsMock.map(normalizeJobPosting)];
+}
+
+export function getPublicJobPostings() {
+  const postedWonderdogsJobPostings = wonderdogsJobPostingsMock.filter((jobPosting) => jobPosting.status === "posted");
+  const postedStoredJobPostings = getStoredJobPostings().filter((jobPosting) => jobPosting.status === "posted");
+  return [...externalJobPostingsMock, ...postedWonderdogsJobPostings, ...postedStoredJobPostings].map(normalizeJobPosting);
+}
+
+export const jobPostingsMock = getPublicJobPostings();
+
+const companyJobPostingsMock = getCompanyJobPostings();
+
 export const dashboardStatusMock = {
-  posted: jobPostingsMock.filter((jobPosting) => jobPosting.status === "posted").length,
-  draft: jobPostingsMock.filter((jobPosting) => jobPosting.status === "draft").length,
-  assignments: jobPostingsMock.filter((jobPosting) => jobPosting.hasAssignment).length
+  posted: companyJobPostingsMock.filter((jobPosting) => jobPosting.status === "posted").length,
+  draft: companyJobPostingsMock.filter((jobPosting) => jobPosting.status === "draft").length,
+  assignments: companyJobPostingsMock.filter((jobPosting) => jobPosting.hasAssignment).length
 };
