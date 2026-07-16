@@ -30,12 +30,15 @@ type Assignment = {
 
 type CustomQuestion = {
   industry: string;
-  jobRole: string;
+  jobRole: string[];
   isIndustryCustom: boolean;
   isJobRoleCustom: boolean;
-  requiredSkills: string;
-  productService: string;
-  mainWork: string;
+  isRequiredSkillsCustom: boolean;
+  isProductServiceCustom: boolean;
+  isMainWorkCustom: boolean;
+  requiredSkills: string[];
+  productService: string[];
+  mainWork: string[];
   additionalRequest: string;
 };
 
@@ -55,15 +58,15 @@ const directInputOption = "직접입력";
 
 const assignments: Assignment[] = [
   {
-    id: "assignment-ux",
+    id: "assignment-ai",
     status: "available",
     createdAt: "2024.05.20",
-    title: "UX 리서처 채용 공고",
-    jobTitle: "UX 리서처",
-    experienceLevel: "신입~3년",
+    title: "AI 엔지니어 채용 공고",
+    jobTitle: "AI 엔지니어",
+    experienceLevel: "경력 3~5년",
     linkedAssignments: [
-      { title: "UX 리서치 인터뷰 분석 과제", difficulty: "상" },
-      { title: "사용자 여정 개선안 작성", difficulty: "중" }
+      { title: "AI 솔루션 API 연동 과제", difficulty: "상" },
+      { title: "모델 응답 품질 개선안 작성 과제", difficulty: "중" }
     ],
     applicantsPending: 4
   },
@@ -77,32 +80,32 @@ const assignments: Assignment[] = [
     linkedJobTitle: "데이터 분석가 채용",
     postingPeriod: "2024.05.18 ~ 2024.06.17",
     linkedAssignments: [
-      { title: "데이터 분석 리포트 작성 과제", difficulty: "상" },
-      { title: "지표 이상 원인 분석", difficulty: "상" }
+      { title: "BI 대시보드 지표 분석 과제", difficulty: "상" },
+      { title: "이상 거래 모니터링 리포트 작성 과제", difficulty: "상" }
     ],
     applicantsPending: 7
   },
   {
-    id: "assignment-marketing",
+    id: "assignment-crm",
     status: "draft",
     createdAt: "2024.05.17",
     savedAt: "2024.05.17",
-    title: "마케팅 매니저 채용 공고",
-    jobTitle: "마케팅 매니저",
+    title: "CRM 마케터 채용 공고",
+    jobTitle: "CRM 마케터",
     experienceLevel: "경력 1~3년",
-    linkedAssignments: [{ title: "마케팅 전략 제안 과제", difficulty: "하" }],
+    linkedAssignments: [{ title: "고객 세그먼트별 CRM 캠페인 기획 과제", difficulty: "하" }],
     applicantsPending: 0
   },
   {
-    id: "assignment-service",
+    id: "assignment-cx",
     status: "available",
     createdAt: "2024.05.15",
-    title: "서비스 기획자 채용 공고",
-    jobTitle: "서비스 기획자",
+    title: "CX 매니저 채용 공고",
+    jobTitle: "CX 매니저",
     experienceLevel: "경력 3~5년",
     linkedAssignments: [
-      { title: "서비스 개선안 작성 과제", difficulty: "중" },
-      { title: "기능 우선순위 판단 과제", difficulty: "중" }
+      { title: "VOC 기반 개선안 도출 과제", difficulty: "중" },
+      { title: "상담 품질 관리 체크리스트 작성 과제", difficulty: "중" }
     ],
     applicantsPending: 3
   },
@@ -116,20 +119,20 @@ const assignments: Assignment[] = [
     linkedJobTitle: "프론트엔드 개발자 채용",
     postingPeriod: "2024.05.12 ~ 2024.06.11",
     linkedAssignments: [
-      { title: "프론트엔드 화면 구현 과제", difficulty: "상" },
-      { title: "컴포넌트 상태 처리 과제", difficulty: "중" }
+      { title: "웹 서비스 신규 기능 화면 구현 과제", difficulty: "상" },
+      { title: "관리자 페이지 컴포넌트 개선 과제", difficulty: "중" }
     ],
     applicantsPending: 5
   },
   {
-    id: "assignment-brand",
+    id: "assignment-hrbp",
     status: "draft",
     createdAt: "2024.05.10",
     savedAt: "2024.05.10",
-    title: "브랜드 디자이너 채용 공고",
-    jobTitle: "브랜드 디자이너",
+    title: "HRBP 채용 공고",
+    jobTitle: "HRBP",
     experienceLevel: "신입~3년",
-    linkedAssignments: [{ title: "브랜드 디자인 제안 과제", difficulty: "하" }],
+    linkedAssignments: [{ title: "조직 이슈 진단 및 HR 운영 개선 과제", difficulty: "하" }],
     applicantsPending: 0
   }
 ];
@@ -154,12 +157,15 @@ const getAssignmentDifficultyScore = (assignment: Assignment) =>
 
 const initialQuestion: CustomQuestion = {
   industry: "콘텐츠/미디어",
-  jobRole: "콘텐츠 디자이너",
+  jobRole: ["콘텐츠 디자이너"],
   isIndustryCustom: false,
   isJobRoleCustom: false,
-  requiredSkills: "콘텐츠 기획, Figma, 협업 커뮤니케이션",
-  productService: "유연근무 채용 플랫폼",
-  mainWork: "채용 공고 상세 화면의 핵심 정보를 더 쉽게 읽히게 개선",
+  isRequiredSkillsCustom: false,
+  isProductServiceCustom: false,
+  isMainWorkCustom: false,
+  requiredSkills: ["콘텐츠 기획, Figma, Photoshop, Illustrator"],
+  productService: ["SNS 콘텐츠"],
+  mainWork: ["콘텐츠 기획 및 제작"],
   additionalRequest: "실제 업무 상황처럼 문제 정의와 개선안을 함께 볼 수 있게 구성"
 };
 
@@ -180,16 +186,126 @@ const industryOptions = [
 const jobRoleOptions = [
   "프론트엔드 개발자",
   "백엔드 개발자",
+  "풀스택 개발자",
+  "모바일 앱 개발자",
+  "AI 엔지니어",
+  "DevOps 엔지니어",
+  "QA 엔지니어",
+  "AI 서비스 기획자",
+  "UX 리서처",
   "UI/UX 디자이너",
   "콘텐츠 디자이너",
-  "마케팅 매니저",
+  "콘텐츠 기획자",
+  "영상 편집자",
+  "브랜드 디자이너",
+  "SNS 운영 매니저",
+  "MD",
+  "CRM 마케터",
+  "퍼포먼스 마케터",
+  "브랜드 마케터",
+  "교육 콘텐츠 기획자",
+  "교육 운영 매니저",
+  "L&D 담당자",
+  "데이터 엔지니어",
+  "정보보안 담당자",
+  "AML 담당자",
+  "서비스 기획자",
+  "의료 콘텐츠 기획자",
+  "의료 데이터 분석가",
+  "의료기기 PM",
+  "생산관리",
+  "품질관리(QA/QC)",
+  "구매관리",
+  "SCM 담당자",
   "서비스 운영 매니저",
-  "프로덕트 매니저",
   "데이터 분석가",
   "고객 상담 매니저",
+  "CX 매니저",
+  "VOC 분석가",
+  "QA 담당자",
   "채용 담당자",
+  "HRBP",
+  "조직문화 담당자",
+  "교육(L&D) 담당자",
+  "채용 마케터",
   directInputOption
 ];
+
+type IndustryPreset = {
+  jobRoles: string[];
+  requiredSkills: string[];
+  productServices: string[];
+  mainWorks: string[];
+};
+
+const industryPresets: Record<string, IndustryPreset> = {
+  "IT/소프트웨어": {
+    jobRoles: ["프론트엔드 개발자", "백엔드 개발자", "풀스택 개발자", "모바일 앱 개발자", "AI 엔지니어", "DevOps 엔지니어", "QA 엔지니어", "AI 서비스 기획자", "UX 리서처"],
+    requiredSkills: ["React, TypeScript, Git, GitHub", "Node.js, SQL, NoSQL, REST API, GraphQL", "Python, AI 모델 이해, API 연동", "CI/CD, Docker, 클라우드 배포", "테스트 케이스 작성, QA", "UX 리서치, 사용자 인터뷰, UT 설계"],
+    productServices: ["웹 서비스", "SaaS 플랫폼", "관리자 시스템", "Open API", "AI 솔루션", "사용자 리서치 리포트"],
+    mainWorks: ["신규 기능 개발", "기존 기능 개선", "API 개발 및 연동", "배포 및 모니터링", "서비스 성능 개선", "사용자 인터뷰 및 사용성 테스트"]
+  },
+  "콘텐츠/미디어": {
+    jobRoles: ["콘텐츠 디자이너", "콘텐츠 기획자", "영상 편집자", "브랜드 디자이너", "SNS 운영 매니저", "UX 리서처"],
+    requiredSkills: ["콘텐츠 기획, Figma, Photoshop, Illustrator", "영상 편집, 카피라이팅, 브랜드 이해", "채널 운영, Notion, Slack", "UX 리서치, 콘텐츠 사용성 테스트, 사용자 인터뷰"],
+    productServices: ["SNS 콘텐츠", "영상 콘텐츠", "브랜드 콘텐츠", "뉴스레터", "콘텐츠 플랫폼", "콘텐츠 사용성 리서치"],
+    mainWorks: ["콘텐츠 기획 및 제작", "캠페인 소재 제작", "브랜드 디자인 시안 제작", "SNS 채널 운영", "업로드 일정 관리", "콘텐츠 이용자 리서치 및 개선안 도출"]
+  },
+  "이커머스/유통": {
+    jobRoles: ["MD", "서비스 운영 매니저", "CRM 마케터", "퍼포먼스 마케터", "데이터 분석가", "UX 리서처"],
+    requiredSkills: ["상품 관리, Excel, 고객 응대", "GA4, Meta Ads, Google Ads", "CRM, Braze, Amplitude", "SQL, Looker Studio", "UX 리서치, 구매 여정 분석, 사용자 인터뷰"],
+    productServices: ["온라인 쇼핑몰", "커머스 플랫폼", "배송 서비스", "정산 시스템", "CRM 캠페인", "구매 여정 리서치"],
+    mainWorks: ["상품 등록 및 관리", "주문/배송 이슈 대응", "판매 데이터 분석", "프로모션 운영", "고객 세그먼트 관리", "구매 전환 흐름 조사 및 개선안 도출"]
+  },
+  교육: {
+    jobRoles: ["교육 콘텐츠 기획자", "서비스 운영 매니저", "UI/UX 디자이너", "교육 운영 매니저", "L&D 담당자"],
+    requiredSkills: ["교육 기획, 문서 작성, 커뮤니케이션", "콘텐츠 제작, 학습자 분석", "Figma, UX 리서치, Notion"],
+    productServices: ["온라인 강의", "학습 플랫폼", "교육 자료", "수강 관리 서비스"],
+    mainWorks: ["커리큘럼 기획 및 제작", "강의 자료 제작", "수강생 문의 대응", "학습 콘텐츠 개선", "교육 운영 지표 분석"]
+  },
+  "금융/핀테크": {
+    jobRoles: ["데이터 분석가", "데이터 엔지니어", "백엔드 개발자", "정보보안 담당자", "AML 담당자", "서비스 기획자"],
+    requiredSkills: ["SQL, Python, 데이터 분석", "Tableau, Power BI, Looker Studio", "REST API, 보안 이해, DB 설계", "금융 정책 이해, 리스크 관리"],
+    productServices: ["금융 앱", "결제 서비스", "송금 서비스", "BI 대시보드", "데이터 분석 플랫폼"],
+    mainWorks: ["사용자 데이터 분석", "금융 서비스 정책 정리", "결제 API 개선", "리스크 이슈 대응", "이상 거래 모니터링"]
+  },
+  헬스케어: {
+    jobRoles: ["UI/UX 디자이너", "의료 콘텐츠 기획자", "의료 데이터 분석가", "의료기기 PM", "서비스 운영 매니저"],
+    requiredSkills: ["Figma, UI 설계, UX 리서치", "의료 콘텐츠 기획, 개인정보 이해", "SQL, Python, 리포트 작성", "규제 이해, 일정 관리"],
+    productServices: ["헬스케어 앱", "비대면 상담 플랫폼", "예약 관리 시스템", "건강관리 서비스", "의료기기 서비스"],
+    mainWorks: ["화면 설계 및 사용성 개선", "의료 콘텐츠 기획 및 제작", "예약 관리", "사용자 문의 대응", "운영 지표 분석"]
+  },
+  제조: {
+    jobRoles: ["생산관리", "품질관리(QA/QC)", "구매관리", "SCM 담당자", "데이터 분석가"],
+    requiredSkills: ["생산 일정 관리, Excel, 재고 관리", "품질 이슈 분석, 리포트 작성", "SCM, 구매 프로세스, 협력사 커뮤니케이션"],
+    productServices: ["제조 제품", "생산 라인", "부품 관리", "품질 관리 시스템", "공급망 관리 시스템"],
+    mainWorks: ["생산 일정 관리", "재고 현황 확인", "품질 이슈 대응", "구매 일정 조율", "운영 프로세스 개선"]
+  },
+  "마케팅/광고": {
+    jobRoles: ["퍼포먼스 마케터", "CRM 마케터", "브랜드 마케터", "콘텐츠 기획자", "데이터 분석가", "UX 리서처"],
+    requiredSkills: ["GA4, Meta Ads, Google Ads", "CRM, Braze, Amplitude", "콘텐츠 기획, 카피라이팅", "Looker Studio, 리포트 작성", "UX 리서치, 랜딩페이지 사용성 테스트, 사용자 인터뷰"],
+    productServices: ["광고 캠페인", "랜딩페이지", "브랜드 캠페인", "SNS 콘텐츠", "CRM 캠페인", "캠페인 사용성 리서치"],
+    mainWorks: ["광고 집행 및 성과 분석", "캠페인 기획 및 운영", "리포트 작성", "개선안 도출 및 적용", "고객 세그먼트 관리", "캠페인 전환 흐름 조사 및 개선안 도출"]
+  },
+  고객서비스: {
+    jobRoles: ["고객 상담 매니저", "CX 매니저", "VOC 분석가", "QA 담당자", "서비스 운영 매니저"],
+    requiredSkills: ["고객 응대, 이슈 분류, 커뮤니케이션", "VOC 분석, Excel, 리포트 작성", "CS 품질 관리, QA 체크리스트"],
+    productServices: ["고객지원 서비스", "상담 시스템", "FAQ/도움말", "운영 대시보드", "비대면 상담 플랫폼"],
+    mainWorks: ["고객 문의 대응", "이슈 유형 분류", "FAQ 개선", "VOC 기반 개선안 도출", "상담 품질 관리"]
+  },
+  "인사/채용": {
+    jobRoles: ["채용 담당자", "HRBP", "조직문화 담당자", "교육(L&D) 담당자", "채용 마케터"],
+    requiredSkills: ["채용 운영, 커뮤니케이션, 문서 작성", "지원자 관리, 일정 조율, Excel", "채용 브랜딩, 콘텐츠 기획", "Notion, Slack, 면접 운영"],
+    productServices: ["채용 플랫폼", "지원자 관리 서비스", "채용 공고", "면접 일정 관리", "채용 브랜딩 콘텐츠"],
+    mainWorks: ["채용 공고 작성", "지원자 일정 조율", "지원자 문의 대응", "채용 운영 프로세스 개선", "조직문화 프로그램 운영"]
+  }
+};
+
+const getPreset = (industry: string) => industryPresets[industry] ?? industryPresets["콘텐츠/미디어"];
+
+const withDirectInput = (options: string[]) => [...options, directInputOption];
+
+const formatQuestionList = (items: string[]) => items.filter(Boolean).join(", ");
 
 const assignmentThemes = [
   "핵심 사용자 문제 정의",
@@ -216,13 +332,14 @@ function createGeneratedAssignment(
 ): GeneratedAssignment {
   const difficulty = difficultyOverride ?? difficultyPlan[index % difficultyPlan.length];
   const theme = assignmentThemes[(index + seed) % assignmentThemes.length];
+  const jobRoleText = formatQuestionList(question.jobRole);
 
   return {
     id: `generated-${seed}-${index}`,
-    title: `${question.jobRole} ${theme}`,
+    title: `${jobRoleText} ${theme}`,
     difficulty,
-    goal: `${question.industry} 분야의 ${question.productService} 업무 맥락에서 ${question.jobRole}의 실무 판단력을 확인합니다.`,
-    requirements: `${question.mainWork} 상황을 기준으로 문제 정의, 실행안, 필요한 ${question.requiredSkills}, 예상 결과를 정리합니다. ${question.additionalRequest}`,
+    goal: `${question.industry} 분야의 ${formatQuestionList(question.productService)} 업무 맥락에서 ${jobRoleText}의 실무 판단력을 확인합니다.`,
+    requirements: `${formatQuestionList(question.mainWork)} 상황을 기준으로 문제 정의, 실행안, 필요한 ${formatQuestionList(question.requiredSkills)}, 예상 결과를 정리합니다. ${question.additionalRequest}`,
     evaluation:
       difficulty === "상"
         ? "전략적 사고 35%, 실행 구체성 30%, 협업 관점 20%, 완성도 15%"
@@ -467,11 +584,6 @@ function AssignmentManagePage({
 
   return (
     <div className={selectedIds.length > 0 ? "wd-sai-manage-content wd-sai-manage-content--selection" : "wd-sai-manage-content"}>
-      <section className="wd-sai-manage-head">
-        <button className="wd-button wd-button--primary wd-sai-new-task-button" type="button" onClick={onMoveAi}>
-          신규 과제 등록
-        </button>
-      </section>
       <AssignmentPageTabs activeTab={activeTab} onChangeTab={onChangeTab} onMoveAi={onMoveAi} />
 
       <section
@@ -674,6 +786,120 @@ function AssignmentCard({
   );
 }
 
+function MultiSelectDropdown({
+  disabled,
+  label,
+  onCustom,
+  onToggle,
+  options,
+  selectedValues
+}: {
+  disabled: boolean;
+  label: string;
+  onCustom: () => void;
+  onToggle: (value: string) => void;
+  options: string[];
+  selectedValues: string[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedCount = selectedValues.filter(Boolean).length;
+  const summary = selectedCount === 0 ? "선택하세요" : selectedCount === 1 ? selectedValues[0] : `${selectedCount}개 선택됨`;
+
+  return (
+    <div className="wd-sai-multiselect" onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        setIsOpen(false);
+      }
+    }}>
+      <button
+        aria-expanded={isOpen}
+        className="wd-sai-multiselect__button"
+        disabled={disabled}
+        onClick={() => setIsOpen((value) => !value)}
+        type="button"
+      >
+        <span>{summary}</span>
+        <strong>▾</strong>
+      </button>
+      {isOpen && (
+        <div className="wd-sai-multiselect__menu" role="group" aria-label={label}>
+          {options.map((option) => (
+            <label className="wd-sai-check-row" key={option}>
+              <input
+                checked={selectedValues.includes(option)}
+                disabled={disabled}
+                onChange={() => onToggle(option)}
+                type="checkbox"
+              />
+              {option}
+            </label>
+          ))}
+          {!disabled && (
+            <button className="wd-sai-multiselect__custom" type="button" onClick={onCustom}>
+              직접입력
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SingleSelectDropdown({
+  disabled,
+  label,
+  onChange,
+  options,
+  value
+}: {
+  disabled: boolean;
+  label: string;
+  onChange: (value: string) => void;
+  options: string[];
+  value: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="wd-sai-multiselect" onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        setIsOpen(false);
+      }
+    }}>
+      <button
+        aria-expanded={isOpen}
+        className="wd-sai-multiselect__button"
+        disabled={disabled}
+        onClick={() => setIsOpen((current) => !current)}
+        type="button"
+      >
+        <span>{value || "선택하세요"}</span>
+        <strong>▾</strong>
+      </button>
+      {isOpen && (
+        <div className="wd-sai-multiselect__menu" role="listbox" aria-label={label}>
+          {options.map((option) => (
+            <button
+              aria-selected={value === option}
+              className={value === option ? "wd-sai-select-option is-selected" : "wd-sai-select-option"}
+              key={option}
+              onClick={() => {
+                onChange(option);
+                setIsOpen(false);
+              }}
+              role="option"
+              type="button"
+            >
+              <span>{option}</span>
+              {value === option && <strong>✓</strong>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AssignmentAiPage({
   activeTab,
   focusedAssignment,
@@ -711,9 +937,12 @@ function AssignmentAiPage({
     setShowDraftOnly(false);
     setQuestion((current) => ({
       ...current,
-      jobRole: focusedAssignment.jobTitle,
-      isJobRoleCustom: !jobRoleOptions.includes(focusedAssignment.jobTitle),
-      mainWork: `${focusedAssignment.title}에 연결된 과제를 검토하고 수정합니다.`
+      jobRole: [focusedAssignment.jobTitle],
+      isJobRoleCustom: !getPreset(current.industry).jobRoles.includes(focusedAssignment.jobTitle),
+      isRequiredSkillsCustom: false,
+      isProductServiceCustom: false,
+      isMainWorkCustom: false,
+      mainWork: [`${focusedAssignment.title}에 연결된 과제를 검토하고 수정합니다.`]
     }));
     setGeneratedAssignments(
       focusedAssignment.linkedAssignments.map((linkedAssignment, index) => ({
@@ -743,6 +972,11 @@ function AssignmentAiPage({
   const visibleGeneratedAssignments = showDraftOnly
     ? generatedAssignments.filter((item) => item.status === "draft")
     : generatedAssignments;
+  const currentPreset = getPreset(question.industry);
+  const visibleJobRoleOptions = withDirectInput(currentPreset.jobRoles);
+  const requiredSkillOptions = withDirectInput(currentPreset.requiredSkills);
+  const productServiceOptions = withDirectInput(currentPreset.productServices);
+  const mainWorkOptions = withDirectInput(currentPreset.mainWorks);
 
   const generateAll = () => {
     const nextSeed = seed + 1;
@@ -791,19 +1025,81 @@ function AssignmentAiPage({
   };
 
   const selectIndustry = (value: string) => {
+    if (value === directInputOption) {
+      setQuestion({
+        ...question,
+        industry: "",
+        isIndustryCustom: true
+      });
+      return;
+    }
+
+    const preset = getPreset(value);
     setQuestion({
       ...question,
-      industry: value === directInputOption ? "" : value,
-      isIndustryCustom: value === directInputOption
+      industry: value,
+      isIndustryCustom: false,
+      isJobRoleCustom: false,
+      isRequiredSkillsCustom: false,
+      isProductServiceCustom: false,
+      isMainWorkCustom: false,
+      jobRole: preset.jobRoles.slice(0, 2),
+      requiredSkills: preset.requiredSkills.slice(0, 2),
+      productService: preset.productServices.slice(0, 2),
+      mainWork: preset.mainWorks.slice(0, 2)
     });
   };
 
-  const selectJobRole = (value: string) => {
+  const toggleJobRole = (value: string) => {
     setQuestion({
       ...question,
-      jobRole: value === directInputOption ? "" : value,
-      isJobRoleCustom: value === directInputOption
+      jobRole: question.jobRole.includes(value)
+        ? question.jobRole.filter((item) => item !== value)
+        : [...question.jobRole, value]
     });
+  };
+
+  const useCustomJobRole = () => {
+    setQuestion({ ...question, jobRole: [""], isJobRoleCustom: true });
+  };
+
+  const toggleRequiredSkill = (value: string) => {
+    setQuestion({
+      ...question,
+      requiredSkills: question.requiredSkills.includes(value)
+        ? question.requiredSkills.filter((item) => item !== value)
+        : [...question.requiredSkills, value]
+    });
+  };
+
+  const toggleProductService = (value: string) => {
+    setQuestion({
+      ...question,
+      productService: question.productService.includes(value)
+        ? question.productService.filter((item) => item !== value)
+        : [...question.productService, value]
+    });
+  };
+
+  const toggleMainWork = (value: string) => {
+    setQuestion({
+      ...question,
+      mainWork: question.mainWork.includes(value)
+        ? question.mainWork.filter((item) => item !== value)
+        : [...question.mainWork, value]
+    });
+  };
+
+  const useCustomRequiredSkills = () => {
+    setQuestion({ ...question, requiredSkills: [""], isRequiredSkillsCustom: true });
+  };
+
+  const useCustomProductService = () => {
+    setQuestion({ ...question, productService: [""], isProductServiceCustom: true });
+  };
+
+  const useCustomMainWork = () => {
+    setQuestion({ ...question, mainWork: [""], isMainWorkCustom: true });
   };
 
   return (
@@ -836,15 +1132,13 @@ function AssignmentAiPage({
               )}
             </div>
           ) : (
-            <select
-              value={question.industry}
-              onChange={(event) => selectIndustry(event.target.value)}
+            <SingleSelectDropdown
               disabled={isReadOnlyMode}
-            >
-              {industryOptions.map((industry) => (
-                <option key={industry}>{industry}</option>
-              ))}
-            </select>
+              label="업종"
+              onChange={selectIndustry}
+              options={industryOptions}
+              value={question.industry}
+            />
           )}
         </label>
         <label>
@@ -855,51 +1149,113 @@ function AssignmentAiPage({
                 aria-label="채용직무 직접입력"
                 autoFocus
                 placeholder="채용직무를 입력하세요"
-                value={question.jobRole}
-                onChange={(event) => setQuestion({ ...question, jobRole: event.target.value })}
+                value={question.jobRole[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, jobRole: [event.target.value] })}
                 disabled={isReadOnlyMode}
               />
               {!isReadOnlyMode && (
-                <button className="wd-sai-inline-reset" type="button" onClick={() => selectJobRole(jobRoleOptions[0])}>
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, jobRole: [visibleJobRoleOptions[0]], isJobRoleCustom: false })}>
                   목록
                 </button>
               )}
             </div>
           ) : (
-            <select
-              value={question.jobRole}
-              onChange={(event) => selectJobRole(event.target.value)}
+            <MultiSelectDropdown
               disabled={isReadOnlyMode}
-            >
-              {jobRoleOptions.map((jobRole) => (
-                <option key={jobRole}>{jobRole}</option>
-              ))}
-            </select>
+              label="채용직무"
+              onCustom={useCustomJobRole}
+              onToggle={toggleJobRole}
+              options={currentPreset.jobRoles}
+              selectedValues={question.jobRole}
+            />
           )}
         </label>
         <label>
           필수 업무 스킬
-          <input
-            value={question.requiredSkills}
-            onChange={(event) => setQuestion({ ...question, requiredSkills: event.target.value })}
-            disabled={isReadOnlyMode}
-          />
+          {question.isRequiredSkillsCustom ? (
+            <div className="wd-sai-direct-input-row">
+              <input
+                aria-label="필수 업무 스킬 직접입력"
+                autoFocus
+                placeholder="필수 업무 스킬을 입력하세요"
+                value={question.requiredSkills[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, requiredSkills: [event.target.value] })}
+                disabled={isReadOnlyMode}
+              />
+              {!isReadOnlyMode && (
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, requiredSkills: [requiredSkillOptions[0]], isRequiredSkillsCustom: false })}>
+                  목록
+                </button>
+              )}
+            </div>
+          ) : (
+            <MultiSelectDropdown
+              disabled={isReadOnlyMode}
+              label="필수 업무 스킬"
+              onCustom={useCustomRequiredSkills}
+              onToggle={toggleRequiredSkill}
+              options={currentPreset.requiredSkills}
+              selectedValues={question.requiredSkills}
+            />
+          )}
         </label>
         <label>
           주력 상품 및 서비스
-          <input
-            value={question.productService}
-            onChange={(event) => setQuestion({ ...question, productService: event.target.value })}
-            disabled={isReadOnlyMode}
-          />
+          {question.isProductServiceCustom ? (
+            <div className="wd-sai-direct-input-row">
+              <input
+                aria-label="주력 상품 및 서비스 직접입력"
+                autoFocus
+                placeholder="주력 상품 및 서비스를 입력하세요"
+                value={question.productService[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, productService: [event.target.value] })}
+                disabled={isReadOnlyMode}
+              />
+              {!isReadOnlyMode && (
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, productService: [productServiceOptions[0]], isProductServiceCustom: false })}>
+                  목록
+                </button>
+              )}
+            </div>
+          ) : (
+            <MultiSelectDropdown
+              disabled={isReadOnlyMode}
+              label="주력 상품 및 서비스"
+              onCustom={useCustomProductService}
+              onToggle={toggleProductService}
+              options={currentPreset.productServices}
+              selectedValues={question.productService}
+            />
+          )}
         </label>
         <label>
           입사 후 주요 업무
-          <textarea
-            value={question.mainWork}
-            onChange={(event) => setQuestion({ ...question, mainWork: event.target.value })}
-            disabled={isReadOnlyMode}
-          />
+          {question.isMainWorkCustom ? (
+            <div className="wd-sai-direct-input-row">
+              <input
+                aria-label="입사 후 주요 업무 직접입력"
+                autoFocus
+                placeholder="입사 후 주요 업무를 입력하세요"
+                value={question.mainWork[0] ?? ""}
+                onChange={(event) => setQuestion({ ...question, mainWork: [event.target.value] })}
+                disabled={isReadOnlyMode}
+              />
+              {!isReadOnlyMode && (
+                <button className="wd-sai-inline-reset" type="button" onClick={() => setQuestion({ ...question, mainWork: [mainWorkOptions[0]], isMainWorkCustom: false })}>
+                  목록
+                </button>
+              )}
+            </div>
+          ) : (
+            <MultiSelectDropdown
+              disabled={isReadOnlyMode}
+              label="입사 후 주요 업무"
+              onCustom={useCustomMainWork}
+              onToggle={toggleMainWork}
+              options={currentPreset.mainWorks}
+              selectedValues={question.mainWork}
+            />
+          )}
         </label>
         <label>
           추가 요청사항

@@ -6828,6 +6828,25 @@ a {
   display: block;
 }
 
+@media (min-width: 1101px) {
+  .wd-sai-form-panel,
+  .wd-sai-generated-panel {
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .wd-sai-generated-shell {
+    max-height: calc(100vh - 48px);
+  }
+
+  .wd-sai-generated-shell .wd-sai-selection-bar {
+    position: sticky;
+    top: 24px;
+  }
+}
+
 .wd-sai-form-panel h2,
 .wd-sai-generated-panel h2 {
   margin: 0;
@@ -6903,6 +6922,114 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 58px;
   gap: 8px;
+}
+
+.wd-sai-multiselect {
+  position: relative;
+  min-width: 0;
+}
+
+.wd-sai-multiselect__button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--wd-sai-border);
+  border-radius: var(--wd-sai-radius-sm);
+  background: var(--wd-sai-white);
+  color: var(--wd-sai-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wd-sai-multiselect__button span {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wd-sai-multiselect__button strong {
+  color: var(--wd-sai-primary);
+  font-size: 12px;
+}
+
+.wd-sai-multiselect__button:disabled {
+  color: var(--wd-sai-text-muted);
+  cursor: not-allowed;
+}
+
+.wd-sai-multiselect__menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  display: grid;
+  max-height: 240px;
+  overflow-y: auto;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--wd-sai-border-active);
+  border-radius: var(--wd-sai-radius-sm);
+  background: var(--wd-sai-white);
+  box-shadow: 0 14px 28px rgba(17, 24, 39, 0.14);
+}
+
+.wd-sai-multiselect__menu .wd-sai-check-row {
+  justify-content: flex-start;
+  color: var(--wd-sai-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.wd-sai-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--wd-sai-radius-sm);
+  background: transparent;
+  color: var(--wd-sai-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wd-sai-select-option:hover,
+.wd-sai-select-option.is-selected {
+  background: #f4efff;
+  color: var(--wd-sai-primary);
+}
+
+.wd-sai-select-option span {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wd-sai-multiselect__custom {
+  width: fit-content;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--wd-sai-border-active);
+  border-radius: var(--wd-sai-radius-sm);
+  background: var(--wd-sai-white);
+  color: var(--wd-sai-primary);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .wd-sai-inline-reset {
@@ -7210,7 +7337,7 @@ a {
 }
 
 .wd-sai-manage-page {
-  padding-top: 34px;
+  padding-top: 12px;
   background: var(--wd-page);
 }
 
@@ -7349,16 +7476,6 @@ a {
   border: 1px solid var(--wd-sai-border);
   border-radius: var(--wd-sai-radius-md);
   background: linear-gradient(135deg, #ffffff, #fbf9ff);
-}
-
-.wd-sai-new-task-button {
-  width: 174px;
-  min-height: 40px;
-  align-self: start;
-  padding: 0 15px;
-  font-size: 14px;
-  font-weight: 800;
-  white-space: nowrap;
 }
 
 .wd-sai-help-icon {
@@ -7853,10 +7970,6 @@ a {
 
   .wd-sai-selection-bar div,
   .wd-sai-clear-filter-selection {
-    width: 100%;
-  }
-
-  .wd-sai-new-task-button {
     width: 100%;
   }
 
