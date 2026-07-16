@@ -7032,6 +7032,20 @@ a {
   cursor: pointer;
 }
 
+.wd-sai-multiselect__custom-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--wd-sai-border);
+}
+
+.wd-sai-multiselect__custom-row input {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 .wd-sai-inline-reset {
   min-height: 44px;
   border: 1px solid var(--wd-sai-border-active);
