@@ -13,6 +13,11 @@ type FirestoreDocument = {
   fields?: Record<string, FirestoreFieldValue>;
 };
 
+type FirestoreCollectionResponse = {
+  documents?: FirestoreDocument[];
+  nextPageToken?: string;
+};
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID
@@ -78,13 +83,27 @@ export async function getFirestoreCollection<T>(
   const baseUrl = getBaseUrl();
   if (!baseUrl) return [];
 
-  const response = await fetch(`${baseUrl}/${collectionName}?key=${firebaseConfig.apiKey}`);
-  if (!response.ok) {
-    throw new Error(`Firestore collection read failed: ${response.status}`);
-  }
+  const documents: FirestoreDocument[] = [];
+  let pageToken = "";
 
-  const payload = (await response.json()) as { documents?: FirestoreDocument[] };
-  return (payload.documents ?? []).map((document) => {
+  do {
+    const searchParams = new URLSearchParams({
+      key: firebaseConfig.apiKey,
+      pageSize: "300"
+    });
+    if (pageToken) searchParams.set("pageToken", pageToken);
+
+    const response = await fetch(`${baseUrl}/${collectionName}?${searchParams.toString()}`);
+    if (!response.ok) {
+      throw new Error(`Firestore collection read failed: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as FirestoreCollectionResponse;
+    documents.push(...(payload.documents ?? []));
+    pageToken = payload.nextPageToken ?? "";
+  } while (pageToken);
+
+  return documents.map((document) => {
     const id = document.name.split("/").pop() ?? "";
     return mapDocument(decodeFirestoreFields(document.fields ?? {}), id);
   });
